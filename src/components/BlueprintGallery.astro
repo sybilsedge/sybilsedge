@@ -1,0 +1,52 @@
+---
+import { Ruler, Hammer, Trees } from 'lucide-react';
+
+const builds = [
+	{
+		icon: Hammer,
+		tag: 'WOODWORK',
+		title: 'Floating Cedar Bench',
+		blurb: 'Cantilever framing with hidden steel bracket channels.',
+		progress: '84%',
+	},
+	{
+		icon: Trees,
+		tag: 'GARDEN',
+		title: 'Rain Capture Trellis',
+		blurb: 'Gravity-fed line linked to herb-wall irrigation modules.',
+		progress: '62%',
+	},
+	{
+		icon: Ruler,
+		tag: 'PROTOTYPE',
+		title: 'Workshop Tool Wall',
+		blurb: 'Grid-indexed hooks and magnetic rail in modular clusters.',
+		progress: '47%',
+	},
+];
+---
+
+<section class="blueprint-border rounded-md bg-black/35 p-4 md:p-5">
+	<header class="mb-4 flex items-center justify-between">
+		<h2 class="font-orbitron text-lg uppercase tracking-[0.16em] text-cyan-100">Blueprint Gallery</h2>
+		<span class="font-tech text-[11px] uppercase tracking-[0.2em] text-cyan-300/70">Column 02</span>
+	</header>
+
+	<div class="space-y-3">
+		{
+			builds.map((build) => (
+				<article class="blueprint-border rounded-md bg-black/40 p-3">
+					<div class="mb-2 flex items-center justify-between">
+						<div class="flex items-center gap-2">
+							<build.icon size={16} className="text-cyan-300" />
+							<p class="font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/80">{build.tag}</p>
+						</div>
+						<p class="font-tech text-xs text-cyan-200">{build.progress}</p>
+					</div>
+					<h3 class="font-orbitron text-sm uppercase tracking-[0.08em] text-cyan-100">{build.title}</h3>
+					<p class="mt-2 text-sm text-slate-300/90">{build.blurb}</p>
+				</article>
+			))
+		}
+	</div>
+</section>
