@@ -11,8 +11,8 @@ export default defineConfig({
   adapter: cloudflare({
     // Use build-time image compilation — avoids requiring Cloudflare Images binding
     imageService: 'compile',
-    // Disable auto-provisioned SESSION KV binding — we have no KV namespace yet
-    experimentalSessions: false,
+    // Use Node.js for prerendering — required for Content Collections (node:fs)
+    prerenderEnvironment: 'node',
   }),
   vite: {
     plugins: [tailwindcss()],
