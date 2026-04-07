@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
-import { Activity, AlertTriangle, CheckCircle2, CircleDashed } from "lucide-react";
+import { AlertTriangle, CheckCircle2, CircleDashed } from "lucide-react";
 
 type ProjectState = "green" | "watch" | "blocked";
 
-const stateMap: Record<ProjectState, { label: string; tone: string; Icon: typeof Activity }> = {
+const stateMap: Record<ProjectState, { label: string; tone: string; Icon: typeof CheckCircle2 }> = {
   green: {
     label: "ON TRACK",
     tone: "text-emerald-300 border-emerald-400/40 bg-emerald-950/30",
