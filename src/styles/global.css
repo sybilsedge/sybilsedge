@@ -1,12 +1,24 @@
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;800&display=swap");
 @import "tailwindcss";
 
 :root {
-  --bg-charcoal: #111315;
-  --bg-charcoal-soft: #171a1d;
+  /* Surfaces */
+  --bg-charcoal: #0a0a0a;
+  --bg-charcoal-soft: #111315;
+
+  /* Primary accent */
   --blueprint-cyan: #00ffff;
   --blueprint-border: rgba(0, 255, 255, 0.35);
   --blueprint-glow: 0 0 24px rgba(0, 255, 255, 0.15);
+
+  /* Secondary accent */
+  --neon-green: #39ff14;
+  --neon-green-glow: 0 0 16px rgba(57, 255, 20, 0.25);
+
+  /* Fonts */
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Orbitron', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 * {
@@ -21,26 +33,67 @@ body {
 }
 
 body {
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-body);
+  color: #e2e8f0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Blueprint grid background */
 .bg-grid {
   background-color: var(--bg-charcoal);
   background-image:
     linear-gradient(#00ffff10 1px, transparent 1px),
     linear-gradient(90deg, #00ffff10 1px, transparent 1px);
-  background-size: 28px 28px;
+  background-size: 40px 40px;
 }
 
+/* Typography utilities */
 .font-orbitron {
-  font-family: "Orbitron", sans-serif;
+  font-family: var(--font-display);
 }
 
 .font-tech {
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
 }
 
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Accent color utilities */
+.text-neon {
+  color: var(--neon-green);
+}
+
+.text-cyan {
+  color: var(--blueprint-cyan);
+}
+
+/* Technical border — used on all cards and sections */
 .blueprint-border {
   border: 1px solid var(--blueprint-border);
   box-shadow: var(--blueprint-glow);
+}
+
+/* Neon green variant for active/highlight states */
+.neon-border {
+  border: 1px solid rgba(57, 255, 20, 0.4);
+  box-shadow: var(--neon-green-glow);
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--blueprint-cyan);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
