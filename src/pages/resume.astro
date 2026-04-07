@@ -1,0 +1,199 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { Cpu, Zap, Award, Briefcase, GraduationCap } from 'lucide-react';
+
+const skills = {
+	Cloud: ['Google Cloud Platform (GCP)', 'Cloudflare', 'AWS (working knowledge)', 'Terraform', 'Kubernetes'],
+	Networking: ['BGP / OSPF / MPLS', 'SD-WAN', 'Zero Trust Architecture', 'Firewall & IDS/IPS'],
+	Security: ['Identity & Access Management', 'SIEM / SOC', 'Threat Modeling', 'NIST / CIS Frameworks'],
+	Observability: ['Prometheus', 'Grafana', 'OpenTelemetry', 'Cloudflare Analytics'],
+	Development: ['TypeScript', 'Python', 'Astro', 'React', 'Node.js', 'SQL'],
+};
+
+const experience = [
+	{
+		title: 'Senior Cloud Architect',
+		org: 'Current Role',
+		period: '2019 — Present',
+		bullets: [
+			'Lead architecture for enterprise cloud migrations to GCP, reducing infrastructure costs by 35%.',
+			'Design zero-trust network segmentation and IAM policies for regulated environments.',
+			'Own observability stack: OpenTelemetry pipelines, Prometheus/Grafana, incident response runbooks.',
+			'Technical lead across cross-functional teams of 20+ engineers and stakeholders.',
+		],
+	},
+	{
+		title: 'Cloud & Network Architect',
+		org: 'Previous Role',
+		period: '2015 — 2019',
+		bullets: [
+			'Architected hybrid cloud solutions bridging on-premises data centres with GCP and AWS.',
+			'Designed and deployed SD-WAN across 40+ global sites, improving reliability and reducing costs.',
+			'Implemented SIEM and log aggregation pipelines for security operations.',
+		],
+	},
+	{
+		title: 'Senior Network Engineer',
+		org: 'Previous Role',
+		period: '2010 — 2015',
+		bullets: [
+			'Managed enterprise BGP/OSPF routing infrastructure across multiple carrier interconnects.',
+			'Led firewall and IDS/IPS deployment programme across the enterprise perimeter.',
+			'Mentored junior engineers and authored internal networking standards documentation.',
+		],
+	},
+	{
+		title: 'Network Engineer',
+		org: 'Previous Role',
+		period: '2008 — 2010',
+		bullets: [
+			'Deployed and maintained LAN/WAN infrastructure across regional offices.',
+			'First-responder for network incidents; reduced MTTR by establishing triage runbooks.',
+		],
+	},
+];
+
+const certs = [
+	{ name: 'Professional Cloud Architect', issuer: 'Google Cloud', year: '2022', highlight: true },
+	{ name: 'Professional Cloud Network Engineer', issuer: 'Google Cloud', year: '2021', highlight: false },
+	{ name: 'Associate Cloud Engineer', issuer: 'Google Cloud', year: '2020', highlight: false },
+];
+---
+
+<Layout
+	title="Resume | Sybilsedge"
+	description="Senior Cloud Architect with 17+ years of experience in cloud, networking, security, and observability. GCP Certified. Master\u2019s in Computer Science."
+>
+	<div class="mx-auto w-full max-w-[1500px] px-4 py-6 md:px-8 md:py-10 print:px-0 print:py-0">
+
+		<!-- Page header -->
+		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-5 md:p-8 print:border-0 print:bg-transparent print:mb-4">
+			<p class="font-tech text-[11px] uppercase tracking-[0.22em] text-cyan-300/75 print:text-gray-500">Curriculum Vitae</p>
+			<h1 class="font-orbitron mt-2 text-2xl uppercase tracking-[0.12em] text-cyan-100 md:text-4xl print:text-black">
+				Resume
+			</h1>
+			<p class="mt-3 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/60 print:text-gray-500">
+				Senior Cloud Architect &nbsp;&bull;&nbsp; 17+ Years Experience &nbsp;&bull;&nbsp; Suffolk, VA
+			</p>
+			<!-- Print button — hidden on print -->
+			<button
+				onclick="window.print()"
+				class="mt-5 flex items-center gap-2 rounded blueprint-border px-4 py-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/80 hover:text-cyan-100 transition-colors print:hidden"
+			>
+				<Zap size={12} className="text-[#39ff14]" client:load />
+				Print / Save PDF
+			</button>
+		</header>
+
+		<div class="grid grid-cols-1 gap-6 lg:grid-cols-[300px_1fr] print:grid-cols-[240px_1fr]">
+
+			<!-- LEFT COLUMN: Skills + Certs + Education -->
+			<aside class="space-y-6">
+
+				<!-- Certifications -->
+				<section aria-labelledby="certs-heading" class="blueprint-border rounded-md bg-black/35 p-5 print:border print:border-gray-300 print:bg-white">
+					<h2 id="certs-heading" class="font-orbitron mb-4 text-xs uppercase tracking-[0.2em] text-cyan-300/70 print:text-gray-700">
+						<Award size={13} className="inline mr-2 text-[#39ff14]" client:load />
+						Certifications
+					</h2>
+					<ul class="space-y-3" role="list">
+						{
+							certs.map(({ name, issuer, year, highlight }) => (
+								<li class={`rounded p-3 ${ highlight ? 'neon-border bg-[#39ff14]/5' : 'blueprint-border bg-black/20 print:border-gray-200' }`}>
+									<p class={`font-tech text-[11px] uppercase tracking-[0.14em] ${ highlight ? 'text-[#39ff14]' : 'text-cyan-300/70 print:text-gray-500' }`}>
+										{issuer} &middot; {year}
+									</p>
+									<p class="mt-1 text-sm text-slate-200/90 print:text-gray-800">{name}</p>
+								</li>
+							))
+						}
+					</ul>
+				</section>
+
+				<!-- Skills -->
+				<section aria-labelledby="skills-heading" class="blueprint-border rounded-md bg-black/35 p-5 print:border print:border-gray-300 print:bg-white">
+					<h2 id="skills-heading" class="font-orbitron mb-4 text-xs uppercase tracking-[0.2em] text-cyan-300/70 print:text-gray-700">
+						<Cpu size={13} className="inline mr-2 text-[#00ffff]" client:load />
+						Skills
+					</h2>
+					<div class="space-y-4">
+						{
+							Object.entries(skills).map(([category, items]) => (
+								<div>
+									<p class="font-tech text-[10px] uppercase tracking-[0.2em] text-[#00ffff]/60 mb-2 print:text-gray-500">{category}</p>
+									<ul class="space-y-1" role="list">
+										{items.map((item) => (
+											<li class="font-tech text-[11px] text-slate-300/80 before:content-['▸_'] before:text-cyan-300/40 print:text-gray-700">{item}</li>
+										))}
+									</ul>
+								</div>
+							))
+						}
+					</div>
+				</section>
+
+				<!-- Education -->
+				<section aria-labelledby="edu-heading" class="blueprint-border rounded-md bg-black/35 p-5 print:border print:border-gray-300 print:bg-white">
+					<h2 id="edu-heading" class="font-orbitron mb-4 text-xs uppercase tracking-[0.2em] text-cyan-300/70 print:text-gray-700">
+						<GraduationCap size={13} className="inline mr-2 text-[#00ffff]" client:load />
+						Education
+					</h2>
+					<div>
+						<p class="font-tech text-[11px] uppercase tracking-[0.14em] text-[#39ff14] print:text-gray-500">2010</p>
+						<p class="mt-1 text-sm text-slate-200/90 print:text-gray-800">Master’s in Computer Science</p>
+					</div>
+				</section>
+
+			</aside>
+
+			<!-- RIGHT COLUMN: Experience -->
+			<section aria-labelledby="exp-heading">
+				<h2 id="exp-heading" class="font-orbitron mb-5 text-xs uppercase tracking-[0.2em] text-cyan-300/70 print:text-gray-700">
+					<Briefcase size={13} className="inline mr-2 text-[#00ffff]" client:load />
+					Experience
+				</h2>
+				<div class="space-y-5">
+					{
+						experience.map(({ title, org, period, bullets }) => (
+							<article class="blueprint-border rounded-md bg-black/35 p-5 print:border print:border-gray-300 print:bg-white print:break-inside-avoid">
+								<div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+									<h3 class="font-orbitron text-sm uppercase tracking-[0.1em] text-cyan-100 print:text-black">{title}</h3>
+									<span class="font-tech text-[11px] uppercase tracking-[0.14em] text-cyan-300/50 print:text-gray-400">{period}</span>
+								</div>
+								<p class="font-tech text-[10px] uppercase tracking-[0.18em] text-[#39ff14]/70 mb-3 print:text-gray-500">{org}</p>
+								<ul class="space-y-2" role="list">
+									{bullets.map((b) => (
+										<li class="flex gap-2 text-sm leading-relaxed text-slate-300/80 print:text-gray-700">
+											<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#00ffff]/40 print:bg-gray-400" aria-hidden="true" />
+											{b}
+										</li>
+									))}
+								</ul>
+							</article>
+						))
+					}
+				</div>
+			</section>
+
+		</div>
+	</div>
+
+	<!-- Print styles -->
+	<style>
+		@media print {
+			body {
+				background: white !important;
+				color: black !important;
+			}
+			.bg-grid {
+				background-image: none !important;
+			}
+			nav {
+				display: none !important;
+			}
+			a[href]::after {
+				content: none !important;
+			}
+		}
+	</style>
+</Layout>
