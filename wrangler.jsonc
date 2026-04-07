@@ -3,9 +3,6 @@
 	"compatibility_flags": ["global_fetch_strictly_public"],
 	"name": "sybilsedge",
 	"pages_build_output_dir": "./dist",
-	"build": {
-		"command": "npm run build"
-	},
 	"observability": {
 		"enabled": true
 	}
