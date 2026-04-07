@@ -1,6 +1,5 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import { passthroughImageService } from 'astro/config';
 
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
@@ -10,18 +9,11 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   output: 'server',
   adapter: cloudflare({
-    platformProxy: {
-      enabled: false,
-    },
+    // Use build-time image compilation — avoids requiring Cloudflare Images binding
+    imageService: 'compile',
+    // Disable auto-provisioned SESSION KV binding — we have no KV namespace yet
+    experimentalSessions: false,
   }),
-  // Use passthrough image service — avoids requiring Cloudflare Images binding
-  image: {
-    service: passthroughImageService(),
-  },
-  build: {
-    // Avoid collision with Cloudflare Pages reserved 'ASSETS' binding
-    assets: '_astro',
-  },
   vite: {
     plugins: [tailwindcss()],
   },
