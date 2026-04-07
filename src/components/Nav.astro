@@ -1,0 +1,100 @@
+---
+import { Cpu, Hammer, Utensils, Zap, PenLine, User, FileText } from 'lucide-react';
+
+const navLinks = [
+	{ href: '/', label: 'Dashboard', icon: Cpu },
+	{ href: '/writing', label: 'Writing', icon: PenLine },
+	{ href: '/projects', label: 'Projects', icon: Hammer },
+	{ href: '/kitchen', label: 'Kitchen', icon: Utensils },
+	{ href: '/about', label: 'About', icon: User },
+	{ href: '/resume', label: 'Resume', icon: FileText },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<nav class="blueprint-border-bottom sticky top-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-sm" aria-label="Main navigation">
+	<div class="mx-auto flex w-full max-w-[1500px] items-center justify-between px-4 py-3 md:px-8">
+		<!-- Wordmark -->
+		<a href="/" class="flex items-center gap-2 no-underline" aria-label="Sybilsedge home">
+			<Zap size={18} className="text-[#39ff14]" client:load />
+			<span class="font-orbitron text-sm font-bold uppercase tracking-[0.2em] text-cyan-100">
+				Sybilsedge
+			</span>
+		</a>
+
+		<!-- Desktop nav links -->
+		<ul class="hidden items-center gap-1 md:flex" role="list">
+			{
+				navLinks.map(({ href, label, icon: Icon }) => {
+					const isActive = href === '/'
+						? currentPath === '/'
+						: currentPath.startsWith(href);
+					return (
+						<li>
+							<a
+								href={href}
+								class={`flex items-center gap-1.5 rounded px-3 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors duration-150 ${
+									isActive
+										? 'text-[#39ff14] neon-border bg-[#39ff14]/5'
+										: 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
+								}`}
+								aria-current={isActive ? 'page' : undefined}
+							>
+								<Icon size={13} client:load />
+								{label}
+							</a>
+						</li>
+					);
+				})
+			}
+		</ul>
+
+		<!-- Mobile hamburger (CSS-only, zero JS) -->
+		<label class="relative cursor-pointer md:hidden" aria-label="Toggle navigation menu">
+			<input type="checkbox" class="peer sr-only" />
+			<!-- Hamburger icon -->
+			<div class="flex h-8 w-8 flex-col items-center justify-center gap-1.5 peer-checked:[&>span:nth-child(1)]:translate-y-2 peer-checked:[&>span:nth-child(1)]:rotate-45 peer-checked:[&>span:nth-child(2)]:opacity-0 peer-checked:[&>span:nth-child(3)]:-translate-y-2.5 peer-checked:[&>span:nth-child(3)]:-rotate-45">
+				<span class="block h-px w-5 bg-cyan-300 transition-all duration-200"></span>
+				<span class="block h-px w-5 bg-cyan-300 transition-all duration-200"></span>
+				<span class="block h-px w-5 bg-cyan-300 transition-all duration-200"></span>
+			</div>
+			<!-- Mobile dropdown -->
+			<ul
+				class="absolute right-0 top-10 hidden w-52 flex-col gap-1 rounded-md bg-[#0a0a0a] p-2 blueprint-border peer-checked:flex"
+				role="list"
+			>
+				{
+					navLinks.map(({ href, label, icon: Icon }) => {
+						const isActive = href === '/'
+							? currentPath === '/'
+							: currentPath.startsWith(href);
+						return (
+							<li>
+								<a
+									href={href}
+									class={`flex items-center gap-2 rounded px-3 py-2 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors ${
+										isActive
+											? 'text-[#39ff14] bg-[#39ff14]/5'
+											: 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
+									}`}
+									aria-current={isActive ? 'page' : undefined}
+								>
+									<Icon size={13} client:load />
+									{label}
+								</a>
+							</li>
+						);
+					})
+				}
+			</ul>
+		</label>
+	</div>
+</nav>
+
+<style>
+	.blueprint-border-bottom {
+		border-bottom: 1px solid rgba(0, 255, 255, 0.25);
+		box-shadow: 0 1px 16px rgba(0, 255, 255, 0.06);
+	}
+</style>
