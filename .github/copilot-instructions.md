@@ -35,6 +35,36 @@ Content schemas are defined with Zod in `src/content.config.ts`. There are four 
 ### Cloudflare Workers constraints
 The SSR adapter targets `webworker` (`vite.ssr.target: 'webworker'`). Flag any code that uses Node-only APIs (`fs`, `path`, `crypto` from Node, `process.env` without a Cloudflare-compatible shim, etc.) — these will break at runtime on the edge.
 
+## Security
+
+### `set:html` scope
+`set:html` is only safe for locally authored, static strings (e.g., the inline SVG icon maps). Never pass user-supplied data, API responses, URL parameters, or any dynamically constructed string to `set:html` — it bypasses Astro's HTML escaping and will create an XSS vector.
+
+### `dangerouslySetInnerHTML` in React
+Never use `dangerouslySetInnerHTML` with content that comes from user input, API responses, or URL/search parameters. If rich HTML output is genuinely needed, sanitize it first with a library like `dompurify` before passing it in.
+
+### Secrets and environment variables
+- **Runtime secrets** (API keys, tokens, credentials) must be stored as Cloudflare secrets/bindings and accessed via `Astro.locals.runtime.env.SECRET_NAME` inside SSR pages and endpoints.
+- **Build-time public values** use `import.meta.env.PUBLIC_*` (these are inlined into the client bundle — never put secrets here).
+- `process.env` is not available in the `webworker` SSR target and must not be used.
+- Never hardcode secrets or tokens in source files.
+
+### Security headers
+Cloudflare Workers serve static headers from `public/_headers`. This file is the correct place to set:
+- `Content-Security-Policy`
+- `X-Frame-Options: DENY`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy`
+
+Do not set these headers in component or page code.
+
+### MDX is code, not content
+All four content collections accept `.mdx` files, which execute JavaScript at build time. Treat new MDX-imported components as code — they require the same review as any `.tsx` file. If user-submitted content is ever supported in the future, it must never be rendered as MDX without a dedicated sanitization step.
+
+### Zod URL fields
+All new URL fields in content schemas must use `z.string().url()` (not bare `z.string()`). This blocks malformed values and `javascript:` URIs. See `githubUrl` in `src/content.config.ts` as the reference pattern.
+
 ## What to skip reviewing
 - `README.md` — this is the unmodified Astro starter template and is not kept up to date
 - `package-lock.json` diffs — no review needed unless a specific dependency concern is raised
