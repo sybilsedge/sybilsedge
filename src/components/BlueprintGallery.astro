@@ -1,56 +1,45 @@
 ---
+import TechCard from './TechCard.astro';
+import SectionHeader from './SectionHeader.astro';
+
 const builds = [
 	{
-		iconType: 'hammer',
+		iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/></svg>`,
 		tag: 'WOODWORK',
 		title: 'Floating Cedar Bench',
-		blurb: 'Cantilever framing with hidden steel bracket channels.',
-		progress: '84%',
+		body: 'Cantilever framing with hidden steel bracket channels.',
+		progress: 84,
+		featured: true,
 	},
 	{
-		iconType: 'trees',
+		iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z"/><path d="M7 16v6"/><path d="M13 19v3"/><path d="M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7L13 3l-1.4 1.5"/></svg>`,
 		tag: 'GARDEN',
 		title: 'Rain Capture Trellis',
-		blurb: 'Gravity-fed line linked to herb-wall irrigation modules.',
-		progress: '62%',
+		body: 'Gravity-fed line linked to herb-wall irrigation modules.',
+		progress: 62,
 	},
 	{
-		iconType: 'ruler',
+		iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg>`,
 		tag: 'PROTOTYPE',
 		title: 'Workshop Tool Wall',
-		blurb: 'Grid-indexed hooks and magnetic rail in modular clusters.',
-		progress: '47%',
+		body: 'Grid-indexed hooks and magnetic rail in modular clusters.',
+		progress: 47,
 	},
 ];
-
-const icons: Record<string, string> = {
-	hammer: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/></svg>`,
-	trees: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z"/><path d="M7 16v6"/><path d="M13 19v3"/><path d="M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7L13 3l-1.4 1.5"/></svg>`,
-	ruler: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg>`,
-};
 ---
 
 <section class="blueprint-border rounded-md bg-black/35 p-4 md:p-5">
-	<header class="mb-4 flex items-center justify-between">
-		<h2 class="font-orbitron text-lg uppercase tracking-[0.16em] text-cyan-100">Blueprint Gallery</h2>
-		<span class="font-tech text-[11px] uppercase tracking-[0.2em] text-cyan-300/70">Column 02</span>
-	</header>
-
+	<SectionHeader title="Blueprint Gallery" label="Column 02" />
 	<div class="space-y-3">
-		{
-			builds.map((build) => (
-				<article class="blueprint-border rounded-md bg-black/40 p-3">
-					<div class="mb-2 flex items-center justify-between">
-						<div class="flex items-center gap-2">
-							<span class="text-cyan-300" set:html={icons[build.iconType]} />
-							<p class="font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/80">{build.tag}</p>
-						</div>
-						<p class="font-tech text-xs text-cyan-200">{build.progress}</p>
-					</div>
-					<h3 class="font-orbitron text-sm uppercase tracking-[0.08em] text-cyan-100">{build.title}</h3>
-					<p class="mt-2 text-sm text-slate-300/90">{build.blurb}</p>
-				</article>
-			))
-		}
+		{builds.map((build) => (
+			<TechCard
+				tag={build.tag}
+				title={build.title}
+				body={build.body}
+				iconSvg={build.iconSvg}
+				progress={build.progress}
+				featured={build.featured}
+			/>
+		))}
 	</div>
 </section>
