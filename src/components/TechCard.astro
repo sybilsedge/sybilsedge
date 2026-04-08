@@ -1,80 +1,86 @@
 ---
 /**
- * TechCard.astro
- * Core card primitive for all content pages (projects, writing, kitchen, posts).
+ * TechCard — core card primitive for all content sections.
  *
  * Props:
- *   title      — primary heading (Orbitron)
- *   subtitle   — secondary line (slate-300, optional)
- *   tag        — category badge label e.g. "TECH" | "BAKING"
- *   tagColor   — "cyan" | "green" | "amber" (defaults to "cyan")
- *   icon       — inline SVG string rendered via set:html (optional)
- *   href       — makes the card a link (optional)
- *   class      — extra Tailwind classes on the root element (optional)
+ *   tag        — uppercase category label (e.g. 'WOODWORK', 'TECH')
+ *   title      — card heading (Orbitron)
+ *   body       — body text (Inter)
+ *   iconSvg?   — inline SVG string for the tag icon (use set:html)
+ *   href?      — makes the card a link; renders an <a> wrapper
+ *   footer?    — optional bottom-right text (e.g. date, progress %)
+ *   featured?  — highlight with neon-border instead of blueprint-border
+ *   progress?  — 0-100 number; renders a cyan progress bar at the bottom
  */
 interface Props {
+	tag: string;
 	title: string;
-	subtitle?: string;
-	tag?: string;
-	tagColor?: 'cyan' | 'green' | 'amber';
-	icon?: string;
+	body: string;
+	iconSvg?: string;
 	href?: string;
-	class?: string;
+	footer?: string;
+	featured?: boolean;
+	progress?: number;
 }
 
 const {
-	title,
-	subtitle,
 	tag,
-	tagColor = 'cyan',
-	icon,
+	title,
+	body,
+	iconSvg,
 	href,
-	class: className = '',
+	footer,
+	featured = false,
+	progress,
 } = Astro.props;
 
-const tagColorMap = {
-	cyan:  'text-cyan-300/80',
-	green: 'text-[#39ff14]/80',
-	amber: 'text-amber-300/80',
-};
-
-const tagClass = tagColorMap[tagColor];
-
+const borderClass = featured ? 'neon-border' : 'blueprint-border';
 const Tag = href ? 'a' : 'article';
 ---
 
 <Tag
-	href={href}
-	class={`group blueprint-border rounded-md bg-black/35 p-4 transition-all duration-200
-		hover:bg-black/50 hover:shadow-[0_0_16px_rgba(0,255,255,0.08)]
-		${href ? 'block no-underline cursor-pointer' : ''}
-		${className}`}
+	{...(href ? { href } : {})}
+	class={`tech-card ${borderClass} rounded-md bg-black/40 p-4 flex flex-col gap-3 ${
+		href ? 'transition-all duration-150 hover:bg-black/60 hover:scale-[1.01] no-underline' : ''
+	}`}
 >
-	<!-- Tag + icon row -->
-	{(tag || icon) && (
-		<div class="mb-3 flex items-center gap-2">
-			{icon && (
-				<span class="text-cyan-300 transition-colors group-hover:text-cyan-100" set:html={icon} />
+	<!-- Tag row -->
+	<div class="flex items-center justify-between">
+		<div class="flex items-center gap-2">
+			{iconSvg && (
+				<span class="text-cyan-300 flex-shrink-0" set:html={iconSvg} />
 			)}
-			{tag && (
-				<p class={`font-tech text-[11px] uppercase tracking-[0.16em] ${tagClass}`}>{tag}</p>
-			)}
+			<p class="font-tech text-[11px] uppercase tracking-[0.18em] text-cyan-300/80">{tag}</p>
 		</div>
-	)}
+		{footer && (
+			<p class="font-tech text-[11px] text-cyan-200/70">{footer}</p>
+		)}
+	</div>
 
 	<!-- Title -->
-	<h3 class="font-orbitron text-sm uppercase tracking-[0.08em] text-cyan-100 transition-colors group-hover:text-white">
+	<h3 class="font-orbitron text-sm font-bold uppercase tracking-[0.08em] text-cyan-100 leading-snug">
 		{title}
 	</h3>
 
-	<!-- Subtitle -->
-	{subtitle && (
-		<p class="mt-2 text-sm leading-relaxed text-slate-300/90">{subtitle}</p>
-	)}
+	<!-- Body -->
+	<p class="font-body text-sm text-slate-300/90 leading-relaxed flex-1">{body}</p>
 
-	<!-- Optional footer slot (status badges, dates, links, progress bars) -->
-	<slot name="footer" />
-
-	<!-- Default slot (arbitrary extra content) -->
+	<!-- Default slot for extra content (e.g. badges, links) -->
 	<slot />
+
+	<!-- Progress bar -->
+	{progress !== undefined && (
+		<div class="mt-1">
+			<div class="flex items-center justify-between mb-1">
+				<span class="font-tech text-[10px] uppercase tracking-[0.14em] text-cyan-300/50">Progress</span>
+				<span class="font-tech text-[10px] text-cyan-300/70">{progress}%</span>
+			</div>
+			<div class="h-px w-full bg-cyan-900/50 rounded-full overflow-hidden">
+				<div
+					class="h-full bg-cyan-400/70 rounded-full transition-all duration-500"
+					style={`width: ${progress}%`}
+				/>
+			</div>
+		</div>
+	)}
 </Tag>
