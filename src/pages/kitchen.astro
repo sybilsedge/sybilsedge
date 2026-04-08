@@ -1,0 +1,140 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const allRecipes = await getCollection('recipes');
+const sorted = allRecipes.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const categories = ['all', 'baking', 'cooking', 'preservation'] as const;
+
+const categoryConfig: Record<string, { label: string; color: string }> = {
+	baking:       { label: 'Baking',       color: 'text-amber-400/80 border-amber-400/30 bg-amber-400/5' },
+	cooking:      { label: 'Cooking',      color: 'text-[#39ff14]/80 border-[#39ff14]/30 bg-[#39ff14]/5' },
+	preservation: { label: 'Preservation', color: 'text-[#00ffff]/80 border-[#00ffff]/30 bg-[#00ffff]/5' },
+};
+
+// Inline SVGs
+const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>`;
+const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
+const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+---
+
+<Layout
+	title="Kitchen | Sybilsedge"
+	description="Recipes — sourdough, slow braises, fermentation, and everything else that comes out of the kitchen."
+>
+	<div class="mx-auto w-full max-w-[1500px] px-4 py-6 md:px-8 md:py-10">
+
+		<!-- Page header -->
+		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-5 md:p-8">
+			<p class="font-tech text-[11px] uppercase tracking-[0.22em] text-cyan-300/75">The Lab</p>
+			<h1 class="font-orbitron mt-2 text-2xl uppercase tracking-[0.12em] text-cyan-100 md:text-4xl">
+				Kitchen
+			</h1>
+			<p class="mt-4 max-w-2xl text-base leading-relaxed text-slate-300/85">
+				Recipes built like systems — precise, iterative, occasionally revised after catastrophic failure. Sourdough, slow braises, fermentation, and whatever else is on the worktop.
+			</p>
+		</header>
+
+		<!-- Filter buttons -->
+		<div class="mb-6 flex flex-wrap gap-2" role="group" aria-label="Filter recipes by category">
+			{categories.map((cat) => (
+				<button
+					class="filter-btn rounded blueprint-border px-4 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/60 hover:text-cyan-100 transition-colors data-[active]:text-cyan-100 data-[active]:border-cyan-300/60 data-[active]:bg-cyan-300/5"
+					data-filter={cat}
+					data-active={cat === 'all' ? 'true' : undefined}
+					aria-pressed={cat === 'all' ? 'true' : 'false'}
+				>
+					{cat === 'all' ? 'All' : categoryConfig[cat].label}
+				</button>
+			))}
+		</div>
+
+		<!-- Recipe cards -->
+		{sorted.length === 0 ? (
+			<div class="blueprint-border rounded-md bg-black/35 p-12 text-center">
+				<div class="mb-4 flex justify-center opacity-30" set:html={utensilsSvg} />
+				<p class="font-orbitron text-sm uppercase tracking-[0.16em] text-cyan-300/50">No recipes yet</p>
+				<p class="mt-2 font-tech text-[11px] text-slate-400/60">Recipes will appear here once added to the collection.</p>
+			</div>
+		) : (
+			<div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3" id="recipes-grid">
+				{sorted.map((entry) => {
+					const cat = categoryConfig[entry.data.category];
+					return (
+						<article
+							class="recipe-card group blueprint-border rounded-md bg-black/35 p-6 flex flex-col gap-3 transition-shadow duration-200 hover:shadow-[0_0_24px_rgba(0,255,255,0.07)]"
+							data-category={entry.data.category}
+						>
+							<!-- Top row: icon + title -->
+							<div class="flex items-start gap-2.5">
+								<span set:html={utensilsSvg} class="shrink-0 opacity-70 mt-0.5" />
+								<h2 class="font-orbitron text-sm uppercase tracking-[0.1em] text-cyan-100 leading-tight">{entry.data.title}</h2>
+							</div>
+
+							<!-- Category badge + meta -->
+							<div class="flex flex-wrap items-center gap-2">
+								<span class={`rounded border font-tech text-[10px] uppercase tracking-[0.14em] px-2 py-0.5 ${cat.color}`}>{cat.label}</span>
+								{entry.data.prepTime && (
+									<span class="flex items-center gap-1 font-tech text-[10px] text-cyan-300/40">
+										<span set:html={clockSvg} />
+										{entry.data.prepTime}
+									</span>
+								)}
+								{entry.data.servings && (
+									<span class="font-tech text-[10px] text-cyan-300/35">Serves {entry.data.servings}</span>
+								)}
+							</div>
+
+							<!-- Description -->
+							<p class="text-sm leading-relaxed text-slate-300/80 flex-1">{entry.data.description}</p>
+
+							<!-- Tags -->
+							{entry.data.tags.length > 0 && (
+								<div class="flex flex-wrap gap-1.5">
+									{entry.data.tags.map((tag: string) => (
+										<span class="rounded font-tech text-[10px] uppercase tracking-[0.1em] px-2 py-0.5 bg-black/40 border border-cyan-300/10 text-cyan-300/45">{tag}</span>
+									))}
+								</div>
+							)}
+
+							<!-- View recipe link -->
+							<div class="mt-auto pt-1">
+								<a
+									href={`/kitchen/${entry.slug}`}
+									class="flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-[#39ff14]/60 hover:text-[#39ff14] transition-colors w-fit"
+								>
+									View Recipe
+									<span set:html={arrowSvg} />
+								</a>
+							</div>
+						</article>
+					);
+				})}
+			</div>
+		)}
+
+	</div>
+
+	<script lang="ts">
+		const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+		const cards = document.querySelectorAll<HTMLElement>('.recipe-card');
+
+		function setFilter(cat: string) {
+			buttons.forEach((btn) => {
+				const isActive = btn.dataset.filter === cat;
+				if (isActive) { btn.setAttribute('data-active', 'true'); }
+				else { btn.removeAttribute('data-active'); }
+				btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+			});
+			cards.forEach((card) => {
+				card.style.display = (cat === 'all' || card.dataset.category === cat) ? '' : 'none';
+			});
+		}
+
+		buttons.forEach((btn) => {
+			btn.addEventListener('click', () => setFilter(btn.dataset.filter ?? 'all'));
+		});
+	</script>
+</Layout>

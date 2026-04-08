@@ -1,0 +1,158 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const allProjects = await getCollection('projects');
+const sorted = allProjects.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const categories = ['all', 'tech', 'home', 'garden'] as const;
+
+const categoryConfig: Record<string, { label: string; color: string }> = {
+	tech:   { label: 'Tech',   color: 'text-[#00ffff]/80 border-[#00ffff]/30 bg-[#00ffff]/5' },
+	home:   { label: 'Home',   color: 'text-[#39ff14]/80 border-[#39ff14]/30 bg-[#39ff14]/5' },
+	garden: { label: 'Garden', color: 'text-amber-400/80 border-amber-400/30 bg-amber-400/5' },
+};
+
+const statusConfig: Record<string, { label: string; classes: string }> = {
+	active:   { label: 'ACTIVE',   classes: 'border-[#39ff14]/40 text-[#39ff14]/80 bg-[#39ff14]/5' },
+	wip:      { label: 'WIP',      classes: 'border-[#00ffff]/40 text-[#00ffff]/80 bg-[#00ffff]/5' },
+	complete: { label: 'COMPLETE', classes: 'border-white/25 text-white/60 bg-white/5' },
+	archived: { label: 'ARCHIVED', classes: 'border-slate-500/30 text-slate-500/60 bg-slate-500/5' },
+};
+
+// Inline SVGs
+const hammerSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/></svg>`;
+const linkSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
+---
+
+<Layout
+	title="Projects | Sybilsedge"
+	description="Tech builds, home improvement projects, and garden experiments."
+>
+	<div class="mx-auto w-full max-w-[1500px] px-4 py-6 md:px-8 md:py-10">
+
+		<!-- Page header -->
+		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-5 md:p-8">
+			<p class="font-tech text-[11px] uppercase tracking-[0.22em] text-cyan-300/75">Gallery</p>
+			<h1 class="font-orbitron mt-2 text-2xl uppercase tracking-[0.12em] text-cyan-100 md:text-4xl">
+				Projects
+			</h1>
+			<p class="mt-4 max-w-2xl text-base leading-relaxed text-slate-300/85">
+				Tech builds, home improvement, and garden experiments. Everything that gets built outside the day job.
+			</p>
+		</header>
+
+		<!-- Filter buttons -->
+		<div class="mb-6 flex flex-wrap gap-2" id="filter-tabs" role="group" aria-label="Filter projects by category">
+			{categories.map((cat) => (
+				<button
+					class="filter-btn rounded blueprint-border px-4 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/60 hover:text-cyan-100 transition-colors data-[active]:text-cyan-100 data-[active]:border-cyan-300/60 data-[active]:bg-cyan-300/5"
+					data-filter={cat}
+					data-active={cat === 'all' ? 'true' : undefined}
+					aria-pressed={cat === 'all' ? 'true' : 'false'}
+				>
+					{cat === 'all' ? 'All' : categoryConfig[cat].label}
+				</button>
+			))}
+		</div>
+
+		<!-- Project cards -->
+		{sorted.length === 0 ? (
+			<div class="blueprint-border rounded-md bg-black/35 p-12 text-center">
+				<div class="mb-4 flex justify-center opacity-30" set:html={hammerSvg} />
+				<p class="font-orbitron text-sm uppercase tracking-[0.16em] text-cyan-300/50">No projects yet</p>
+				<p class="mt-2 font-tech text-[11px] text-slate-400/60">Project entries will appear here once added to the collection.</p>
+			</div>
+		) : (
+			<div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3" id="projects-grid">
+				{sorted.map((entry) => {
+					const { label: statusLabel, classes: statusClasses } = statusConfig[entry.data.status];
+					const cat = categoryConfig[entry.data.category];
+					return (
+						<article
+							class="project-card group blueprint-border rounded-md bg-black/35 p-6 flex flex-col gap-3 transition-shadow duration-200 hover:shadow-[0_0_24px_rgba(0,255,255,0.07)]"
+							data-category={entry.data.category}
+						>
+							<!-- Top row: icon + title + status -->
+							<div class="flex items-start justify-between gap-3">
+								<div class="flex items-center gap-2.5">
+									<span set:html={hammerSvg} class="shrink-0 opacity-70" />
+									<h2 class="font-orbitron text-sm uppercase tracking-[0.1em] text-cyan-100 leading-tight">{entry.data.title}</h2>
+								</div>
+								<span class={`shrink-0 rounded border font-tech text-[10px] uppercase tracking-[0.12em] px-2 py-0.5 ${statusClasses}`}>{statusLabel}</span>
+							</div>
+
+							<!-- Category + year -->
+							<div class="flex items-center gap-3">
+								<span class={`rounded border font-tech text-[10px] uppercase tracking-[0.14em] px-2 py-0.5 ${cat.color}`}>{cat.label}</span>
+								<span class="font-tech text-[11px] text-cyan-300/35">{entry.data.date.getFullYear()}</span>
+							</div>
+
+							<!-- Description -->
+							<p class="text-sm leading-relaxed text-slate-300/80 flex-1">{entry.data.description}</p>
+
+							<!-- Tags -->
+							{entry.data.tags.length > 0 && (
+								<div class="flex flex-wrap gap-1.5">
+									{entry.data.tags.map((tag: string) => (
+										<span class="rounded font-tech text-[10px] uppercase tracking-[0.1em] px-2 py-0.5 bg-black/40 border border-cyan-300/10 text-cyan-300/45">{tag}</span>
+									))}
+								</div>
+							)}
+
+							<!-- Footer: GitHub link + detail link -->
+							<div class="mt-auto flex items-center justify-between pt-1">
+								{entry.data.githubUrl ? (
+									<a
+										href={entry.data.githubUrl}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.14em] text-cyan-300/50 hover:text-cyan-300 transition-colors"
+										aria-label={`View ${entry.data.title} on GitHub`}
+									>
+										<span set:html={linkSvg} />
+										GitHub
+									</a>
+								) : <span />}
+								<a
+									href={`/projects/${entry.slug}`}
+									class="flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.14em] text-[#39ff14]/60 hover:text-[#39ff14] transition-colors"
+								>
+									Details
+									<span set:html={arrowSvg} />
+								</a>
+							</div>
+						</article>
+					);
+				})}
+			</div>
+		)}
+
+	</div>
+
+	<script lang="ts">
+		const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+		const cards = document.querySelectorAll<HTMLElement>('.project-card');
+
+		function setFilter(cat: string) {
+			buttons.forEach((btn) => {
+				const isActive = btn.dataset.filter === cat;
+				btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+				if (isActive) {
+					btn.setAttribute('data-active', 'true');
+				} else {
+					btn.removeAttribute('data-active');
+				}
+			});
+			cards.forEach((card) => {
+				const match = cat === 'all' || card.dataset.category === cat;
+				card.style.display = match ? '' : 'none';
+			});
+		}
+
+		buttons.forEach((btn) => {
+			btn.addEventListener('click', () => setFilter(btn.dataset.filter ?? 'all'));
+		});
+	</script>
+</Layout>

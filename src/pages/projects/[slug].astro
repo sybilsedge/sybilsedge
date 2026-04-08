@@ -1,0 +1,143 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+	const projects = await getCollection('projects');
+	return projects.map((entry) => ({
+		params: { slug: entry.slug },
+		props: { entry },
+	}));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+const statusConfig: Record<string, { label: string; classes: string }> = {
+	active:   { label: 'ACTIVE',   classes: 'border-[#39ff14]/40 text-[#39ff14]/80 bg-[#39ff14]/5' },
+	wip:      { label: 'WIP',      classes: 'border-[#00ffff]/40 text-[#00ffff]/80 bg-[#00ffff]/5' },
+	complete: { label: 'COMPLETE', classes: 'border-white/25 text-white/60 bg-white/5' },
+	archived: { label: 'ARCHIVED', classes: 'border-slate-500/30 text-slate-500/60 bg-slate-500/5' },
+};
+
+const categoryConfig: Record<string, { label: string; color: string }> = {
+	tech:   { label: 'Tech',   color: 'text-[#00ffff]/80 border-[#00ffff]/30 bg-[#00ffff]/5' },
+	home:   { label: 'Home',   color: 'text-[#39ff14]/80 border-[#39ff14]/30 bg-[#39ff14]/5' },
+	garden: { label: 'Garden', color: 'text-amber-400/80 border-amber-400/30 bg-amber-400/5' },
+};
+
+const { label: statusLabel, classes: statusClasses } = statusConfig[entry.data.status];
+const cat = categoryConfig[entry.data.category];
+
+const linkSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`;
+---
+
+<Layout
+	title={`${entry.data.title} | Projects | Sybilsedge`}
+	description={entry.data.description}
+>
+	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
+
+		<!-- Back link -->
+		<a
+			href="/projects"
+			class="mb-6 inline-flex items-center gap-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/50 hover:text-cyan-300 transition-colors"
+		>
+			<span set:html={arrowSvg} />
+			All Projects
+		</a>
+
+		<!-- Page header -->
+		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-6 md:p-8">
+			<div class="mb-3 flex flex-wrap items-center gap-2">
+				<span class={`rounded border font-tech text-[10px] uppercase tracking-[0.14em] px-2 py-0.5 ${cat.color}`}>{cat.label}</span>
+				<span class={`rounded border font-tech text-[10px] uppercase tracking-[0.12em] px-2 py-0.5 ${statusClasses}`}>{statusLabel}</span>
+				<span class="font-tech text-[11px] text-cyan-300/35 ml-auto">{entry.data.date.getFullYear()}</span>
+			</div>
+			<h1 class="font-orbitron text-2xl uppercase tracking-[0.1em] text-cyan-100 md:text-3xl">
+				{entry.data.title}
+			</h1>
+			<p class="mt-4 text-base leading-relaxed text-slate-300/85">{entry.data.description}</p>
+
+			<!-- Tags -->
+			{entry.data.tags.length > 0 && (
+				<div class="mt-4 flex flex-wrap gap-1.5">
+					{entry.data.tags.map((tag: string) => (
+						<span class="rounded font-tech text-[10px] uppercase tracking-[0.1em] px-2 py-0.5 bg-black/40 border border-cyan-300/10 text-cyan-300/45">{tag}</span>
+					))}
+				</div>
+			)}
+
+			<!-- GitHub link -->
+			{entry.data.githubUrl && (
+				<a
+					href={entry.data.githubUrl}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="mt-5 inline-flex items-center gap-2 rounded blueprint-border px-4 py-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/70 hover:text-cyan-100 transition-colors"
+				>
+					<span set:html={linkSvg} />
+					View on GitHub
+				</a>
+			)}
+		</header>
+
+		<!-- Markdown content -->
+		<div class="blueprint-border rounded-md bg-black/35 p-6 md:p-8 prose-project">
+			<Content />
+		</div>
+
+	</div>
+
+	<style>
+		.prose-project :global(h2) {
+			font-family: var(--font-orbitron);
+			font-size: 0.9rem;
+			text-transform: uppercase;
+			letter-spacing: 0.12em;
+			color: rgb(207 250 254 / 0.9);
+			margin-top: 1.75rem;
+			margin-bottom: 0.75rem;
+			padding-bottom: 0.4rem;
+			border-bottom: 1px solid rgb(0 255 255 / 0.1);
+		}
+		.prose-project :global(h3) {
+			font-family: var(--font-orbitron);
+			font-size: 0.8rem;
+			text-transform: uppercase;
+			letter-spacing: 0.1em;
+			color: rgb(0 255 255 / 0.7);
+			margin-top: 1.25rem;
+			margin-bottom: 0.5rem;
+		}
+		.prose-project :global(p) {
+			font-size: 0.925rem;
+			line-height: 1.75;
+			color: rgb(148 163 184 / 0.85);
+			margin-bottom: 1rem;
+		}
+		.prose-project :global(ul), .prose-project :global(ol) {
+			margin: 0.75rem 0 1rem 1.25rem;
+		}
+		.prose-project :global(li) {
+			font-size: 0.925rem;
+			line-height: 1.7;
+			color: rgb(148 163 184 / 0.8);
+			margin-bottom: 0.35rem;
+		}
+		.prose-project :global(strong) {
+			color: rgb(207 250 254 / 0.9);
+			font-weight: 600;
+		}
+		.prose-project :global(code) {
+			font-family: var(--font-tech);
+			font-size: 0.8rem;
+			background: rgb(0 255 255 / 0.06);
+			border: 1px solid rgb(0 255 255 / 0.12);
+			border-radius: 3px;
+			padding: 0.1em 0.4em;
+			color: rgb(0 255 255 / 0.75);
+		}
+	</style>
+</Layout>
