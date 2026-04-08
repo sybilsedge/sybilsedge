@@ -1,0 +1,50 @@
+---
+/**
+ * SectionHeader — consistent page/section heading.
+ *
+ * Props:
+ *   title        — main heading text (Orbitron, cyan-100)
+ *   subtitle     — optional supporting text (Inter, slate-300/70)
+ *   accentLabel  — optional right-aligned label (JetBrains Mono, cyan/50)
+ *                  e.g. 'Column 01', 'v2.4', '12 entries'
+ *   as           — heading level: 'h1' | 'h2' | 'h3'  (default: 'h2')
+ *   accent       — show neon-green underline accent  (default: true)
+ */
+
+interface Props {
+	title: string;
+	subtitle?: string;
+	accentLabel?: string;
+	as?: 'h1' | 'h2' | 'h3';
+	accent?: boolean;
+}
+
+const {
+	title,
+	subtitle,
+	accentLabel,
+	as: Tag = 'h2',
+	accent = true,
+} = Astro.props;
+---
+
+<div class="section-header mb-6 flex flex-col gap-1.5">
+	<div class="flex items-baseline justify-between gap-4">
+		<Tag class="font-orbitron text-xl uppercase tracking-[0.12em] text-cyan-100 leading-tight">
+			{title}
+		</Tag>
+		{accentLabel && (
+			<span class="font-tech text-[11px] uppercase tracking-[0.2em] text-cyan-300/50 flex-shrink-0">
+				{accentLabel}
+			</span>
+		)}
+	</div>
+
+	{accent && (
+		<div class="h-px w-12 bg-[#39ff14]/60" aria-hidden="true" />
+	)}
+
+	{subtitle && (
+		<p class="text-sm text-slate-300/70 leading-relaxed max-w-prose">{subtitle}</p>
+	)}
+</div>

@@ -1,0 +1,84 @@
+---
+/**
+ * TechCard — universal card primitive for all content collections.
+ *
+ * Props:
+ *   title       — card heading (Orbitron)
+ *   meta        — small label above title (JetBrains Mono, cyan/70)
+ *   body        — description text (Inter)
+ *   tag         — optional badge text (top-right corner)
+ *   tagColor    — 'cyan' | 'green' | 'amber'  (default: 'cyan')
+ *   href        — if provided, entire card is a link
+ *   iconSvg     — optional inline SVG string rendered beside meta
+ *   featured    — adds a subtle neon-green left accent line
+ */
+
+interface Props {
+	title: string;
+	meta?: string;
+	body?: string;
+	tag?: string;
+	tagColor?: 'cyan' | 'green' | 'amber';
+	href?: string;
+	iconSvg?: string;
+	featured?: boolean;
+}
+
+const {
+	title,
+	meta,
+	body,
+	tag,
+	tagColor = 'cyan',
+	href,
+	iconSvg,
+	featured = false,
+} = Astro.props;
+
+const tagColors = {
+	cyan:  'text-cyan-300 border-cyan-300/40 bg-cyan-300/5',
+	green: 'text-[#39ff14] border-[#39ff14]/40 bg-[#39ff14]/5',
+	amber: 'text-amber-400 border-amber-400/40 bg-amber-400/5',
+};
+
+const Tag = href ? 'a' : 'article';
+---
+
+<Tag
+	href={href}
+	class={[
+		'tech-card group blueprint-border rounded-md bg-black/35 p-4 flex flex-col gap-3 transition-all duration-200',
+		href ? 'cursor-pointer hover:bg-black/50 hover:shadow-[0_0_16px_rgba(0,255,255,0.08)] focus-visible:outline-2 focus-visible:outline-cyan-400' : '',
+		featured ? 'border-l-2 border-l-[#39ff14]/60' : '',
+	].filter(Boolean).join(' ')}
+>
+	<!-- Top row: meta label + icon + optional tag badge -->
+	<div class="flex items-center justify-between gap-2">
+		<div class="flex items-center gap-2">
+			{iconSvg && (
+				<span class="text-cyan-300 flex-shrink-0" set:html={iconSvg} />
+			)}
+			{meta && (
+				<p class="font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/70">{meta}</p>
+			)}
+		</div>
+		{tag && (
+			<span class={`font-tech text-[10px] uppercase tracking-[0.14em] border rounded px-1.5 py-0.5 flex-shrink-0 ${tagColors[tagColor]}`}>
+				{tag}
+			</span>
+		)}
+	</div>
+
+	<!-- Title -->
+	<h3 class="font-orbitron text-sm uppercase tracking-[0.08em] text-cyan-100 leading-snug group-hover:text-white transition-colors duration-150">
+		{title}
+	</h3>
+
+	<!-- Body -->
+	{body && (
+		<p class="text-sm text-slate-300/80 leading-relaxed">{body}</p>
+	)}
+
+	<!-- Slot for extra content (progress bars, tags list, etc.) -->
+	<slot />
+</Tag>
