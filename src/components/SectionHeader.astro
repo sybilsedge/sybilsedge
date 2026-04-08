@@ -1,50 +1,52 @@
 ---
 /**
- * SectionHeader — consistent page/section heading.
+ * SectionHeader.astro
+ * Standardised heading block for content sections and full pages.
  *
  * Props:
- *   title        — main heading text (Orbitron, cyan-100)
- *   subtitle     — optional supporting text (Inter, slate-300/70)
- *   accentLabel  — optional right-aligned label (JetBrains Mono, cyan/50)
- *                  e.g. 'Column 01', 'v2.4', '12 entries'
- *   as           — heading level: 'h1' | 'h2' | 'h3'  (default: 'h2')
- *   accent       — show neon-green underline accent  (default: true)
+ *   title      — main heading rendered in Orbitron
+ *   subtitle   — supporting description line (optional)
+ *   label      — small annotation e.g. "Column 01" or "Writing / Fiction" (optional)
+ *   accent     — show Neon Green accent rule below the title (default: false)
+ *   align      — "left" | "center" (default: "left")
  */
-
 interface Props {
 	title: string;
 	subtitle?: string;
-	accentLabel?: string;
-	as?: 'h1' | 'h2' | 'h3';
+	label?: string;
 	accent?: boolean;
+	align?: 'left' | 'center';
 }
 
 const {
 	title,
 	subtitle,
-	accentLabel,
-	as: Tag = 'h2',
-	accent = true,
+	label,
+	accent = false,
+	align = 'left',
 } = Astro.props;
+
+const alignClass = align === 'center' ? 'text-center items-center' : 'text-left items-start';
 ---
 
-<div class="section-header mb-6 flex flex-col gap-1.5">
-	<div class="flex items-baseline justify-between gap-4">
-		<Tag class="font-orbitron text-xl uppercase tracking-[0.12em] text-cyan-100 leading-tight">
-			{title}
-		</Tag>
-		{accentLabel && (
-			<span class="font-tech text-[11px] uppercase tracking-[0.2em] text-cyan-300/50 flex-shrink-0">
-				{accentLabel}
-			</span>
-		)}
-	</div>
+<header class={`mb-6 flex flex-col gap-1 ${alignClass}`}>
+	<!-- Label annotation -->
+	{label && (
+		<p class="font-tech text-[11px] uppercase tracking-[0.2em] text-cyan-300/60">{label}</p>
+	)}
 
+	<!-- Main title -->
+	<h2 class="font-orbitron text-xl uppercase tracking-[0.12em] text-cyan-100 md:text-2xl">
+		{title}
+	</h2>
+
+	<!-- Neon Green accent rule -->
 	{accent && (
-		<div class="h-px w-12 bg-[#39ff14]/60" aria-hidden="true" />
+		<div class="mt-1 h-px w-12 bg-[#39ff14] shadow-[0_0_8px_rgba(57,255,20,0.6)]" aria-hidden="true" />
 	)}
 
+	<!-- Subtitle -->
 	{subtitle && (
-		<p class="text-sm text-slate-300/70 leading-relaxed max-w-prose">{subtitle}</p>
+		<p class="mt-1 max-w-prose text-sm leading-relaxed text-slate-300/80">{subtitle}</p>
 	)}
-</div>
+</header>
