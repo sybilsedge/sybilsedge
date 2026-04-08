@@ -85,7 +85,7 @@ const briefcaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height=
 				onclick="window.print()"
 				class="mt-5 flex items-center gap-2 rounded blueprint-border px-4 py-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/80 hover:text-cyan-100 transition-colors print:hidden"
 			>
-				<span set:html={zapSvg} />
+				<span set:html={zapSvg} aria-hidden="true" />
 				Print / Save PDF
 			</button>
 		</header>

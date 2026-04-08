@@ -43,15 +43,14 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 			</p>
 		</header>
 
-		<!-- Filter tabs -->
-		<div class="mb-6 flex flex-wrap gap-2" id="filter-tabs" role="tablist" aria-label="Filter projects by category">
+		<!-- Filter buttons -->
+		<div class="mb-6 flex flex-wrap gap-2" id="filter-tabs" role="group" aria-label="Filter projects by category">
 			{categories.map((cat) => (
 				<button
 					class="filter-btn rounded blueprint-border px-4 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/60 hover:text-cyan-100 transition-colors data-[active]:text-cyan-100 data-[active]:border-cyan-300/60 data-[active]:bg-cyan-300/5"
 					data-filter={cat}
 					data-active={cat === 'all' ? 'true' : undefined}
-					role="tab"
-					aria-selected={cat === 'all' ? 'true' : 'false'}
+					aria-pressed={cat === 'all' ? 'true' : 'false'}
 				>
 					{cat === 'all' ? 'All' : categoryConfig[cat].label}
 				</button>
@@ -132,17 +131,19 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 
 	</div>
 
-	<script>
+	<script lang="ts">
 		const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
 		const cards = document.querySelectorAll<HTMLElement>('.project-card');
 
 		function setFilter(cat: string) {
 			buttons.forEach((btn) => {
 				const isActive = btn.dataset.filter === cat;
-				btn.dataset.active = isActive ? 'true' : '';
-				btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
-				if (isActive) btn.removeAttribute('data-active');
-				if (isActive) btn.setAttribute('data-active', 'true');
+				btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+				if (isActive) {
+					btn.setAttribute('data-active', 'true');
+				} else {
+					btn.removeAttribute('data-active');
+				}
 			});
 			cards.forEach((card) => {
 				const match = cat === 'all' || card.dataset.category === cat;

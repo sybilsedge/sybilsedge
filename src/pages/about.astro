@@ -1,6 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import SectionHeader from '../components/SectionHeader.astro';
 import TechCard from '../components/TechCard.astro';
 
 const pillars = [
@@ -40,7 +39,7 @@ const timeline = [
 ];
 
 const interests = [
-	'Astro 5', 'Cloudflare Workers', 'Spy Fiction', 'Sourdough', 'NFL', 'NHL',
+	'Astro', 'Cloudflare Workers', 'Spy Fiction', 'Sourdough', 'NFL', 'NHL',
 	'Anime', 'Hard Rock', 'Heavy Metal', 'Electronica', 'Home Projects', 'Gardening',
 ];
 
@@ -62,7 +61,7 @@ const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" v
 				About Me
 			</h1>
 			<div class="mt-4 flex items-center gap-2 text-cyan-300/60">
-				<span set:html={pinSvg} />
+				<span set:html={pinSvg} aria-hidden="true" />
 				<span class="font-tech text-[11px] uppercase tracking-[0.16em]">Suffolk, Virginia, US</span>
 			</div>
 			<p class="mt-5 max-w-3xl text-base leading-relaxed text-slate-300/90">
