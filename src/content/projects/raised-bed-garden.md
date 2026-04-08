@@ -3,7 +3,6 @@ title: "Raised Bed Garden"
 category: "garden"
 status: "active"
 description: "Four 4x8 cedar raised beds growing tomatoes, peppers, herbs, and greens. Experimenting with companion planting, drip irrigation, and soil amendment cycles across seasons."
-githubUrl: ""
 image: ""
 date: 2025-04-01
 featured: false

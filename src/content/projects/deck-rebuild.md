@@ -3,7 +3,6 @@ title: "Back Deck Rebuild"
 category: "home"
 status: "wip"
 description: "Full replacement of a 400 sq ft pressure-treated deck. New framing, composite decking, and rebuilt stairs. Planning integrated low-voltage lighting and a pergola extension."
-githubUrl: ""
 image: ""
 date: 2026-03-01
 featured: false
