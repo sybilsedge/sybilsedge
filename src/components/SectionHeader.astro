@@ -1,0 +1,50 @@
+---
+/**
+ * SectionHeader — section/page heading primitive.
+ *
+ * Props:
+ *   title        — main heading text (Orbitron)
+ *   label?       — small column/category label top-right (JetBrains Mono)
+ *   description? — optional subheading body text (Inter)
+ *   accent?      — show neon-green underline accent bar (default: false)
+ *   as?          — heading level: 'h1' | 'h2' | 'h3' (default: 'h2')
+ */
+interface Props {
+	title: string;
+	label?: string;
+	description?: string;
+	accent?: boolean;
+	as?: 'h1' | 'h2' | 'h3';
+}
+
+const {
+	title,
+	label,
+	description,
+	accent = false,
+	as: Tag = 'h2',
+} = Astro.props;
+---
+
+<header class="section-header mb-6">
+	<div class="flex items-start justify-between gap-4">
+		<div class="flex flex-col gap-1.5">
+			<Tag class="font-orbitron text-lg font-bold uppercase tracking-[0.16em] text-cyan-100 leading-tight">
+				{title}
+			</Tag>
+			{accent && (
+				<div class="h-px w-12 rounded-full" style="background: var(--neon-green); box-shadow: var(--neon-green-glow);" />
+			)}
+		</div>
+		{label && (
+			<span class="font-tech text-[11px] uppercase tracking-[0.2em] text-cyan-300/70 flex-shrink-0 mt-1">
+				{label}
+			</span>
+		)}
+	</div>
+	{description && (
+		<p class="font-body mt-3 text-sm text-slate-400/90 leading-relaxed max-w-prose">
+			{description}
+		</p>
+	)}
+</header>
