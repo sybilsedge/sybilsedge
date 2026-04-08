@@ -6,8 +6,10 @@
  *   tag        — uppercase category label (e.g. 'WOODWORK', 'TECH')
  *   title      — card heading (Orbitron)
  *   body       — body text (Inter)
- *   iconSvg?   — inline SVG string for the tag icon (use set:html)
- *   href?      — makes the card a link; renders an <a> wrapper
+ *   iconSvg?   — inline SVG string for the tag icon (TRUSTED INTERNAL SOURCES ONLY;
+ *                never pass user-supplied strings — rendered via set:html)
+ *   href?      — optional card link; rendered as an overlay <a> to avoid nested
+ *                interactive elements when the slot contains links/buttons
  *   footer?    — optional bottom-right text (e.g. date, progress %)
  *   featured?  — highlight with neon-border instead of blueprint-border
  *   progress?  — 0-100 number; renders a cyan progress bar at the bottom
@@ -35,52 +37,61 @@ const {
 } = Astro.props;
 
 const borderClass = featured ? 'neon-border' : 'blueprint-border';
-const Tag = href ? 'a' : 'article';
+
+// Clamp progress to [0, 100] to prevent bar overflow/underflow.
+const clampedProgress =
+	progress !== undefined ? Math.min(100, Math.max(0, progress)) : undefined;
 ---
 
-<Tag
-	{...(href ? { href } : {})}
-	class={`tech-card ${borderClass} rounded-md bg-black/40 p-4 flex flex-col gap-3 ${
-		href ? 'transition-all duration-150 hover:bg-black/60 hover:scale-[1.01] no-underline' : ''
+<article
+	class={`tech-card relative ${borderClass} rounded-md bg-black/40 p-4 flex flex-col gap-3 ${
+		href ? 'transition-all duration-150 hover:bg-black/60 hover:scale-[1.01]' : ''
 	}`}
 >
-	<!-- Tag row -->
-	<div class="flex items-center justify-between">
-		<div class="flex items-center gap-2">
-			{iconSvg && (
-				<span class="text-cyan-300 flex-shrink-0" set:html={iconSvg} />
+	{href && <a href={href} aria-label={title} class="absolute inset-0 rounded-md" />}
+
+	<div class="relative z-10 flex flex-col gap-3 flex-1 pointer-events-none">
+		<!-- Tag row -->
+		<div class="flex items-center justify-between">
+			<div class="flex items-center gap-2">
+				{iconSvg && (
+					<span aria-hidden="true" class="text-cyan-300 flex-shrink-0" set:html={iconSvg} />
+				)}
+				<p class="font-tech text-[11px] uppercase tracking-[0.18em] text-cyan-300/80">{tag}</p>
+			</div>
+			{footer && (
+				<p class="font-tech text-[11px] text-cyan-200/70">{footer}</p>
 			)}
-			<p class="font-tech text-[11px] uppercase tracking-[0.18em] text-cyan-300/80">{tag}</p>
 		</div>
-		{footer && (
-			<p class="font-tech text-[11px] text-cyan-200/70">{footer}</p>
+
+		<!-- Title -->
+		<h3 class="font-orbitron text-sm font-bold uppercase tracking-[0.08em] text-cyan-100 leading-snug">
+			{title}
+		</h3>
+
+		<!-- Body -->
+		<p class="font-body text-sm text-slate-300/90 leading-relaxed flex-1">{body}</p>
+
+		<!-- Progress bar -->
+		{clampedProgress !== undefined && (
+			<div class="mt-1">
+				<div class="flex items-center justify-between mb-1">
+					<span class="font-tech text-[10px] uppercase tracking-[0.14em] text-cyan-300/50">Progress</span>
+					<span class="font-tech text-[10px] text-cyan-300/70">{clampedProgress}%</span>
+				</div>
+				<div class="h-px w-full bg-cyan-900/50 rounded-full overflow-hidden">
+					<div
+						class="h-full bg-cyan-400/70 rounded-full transition-all duration-500"
+						style={`width: ${clampedProgress}%`}
+					/>
+				</div>
+			</div>
 		)}
 	</div>
 
-	<!-- Title -->
-	<h3 class="font-orbitron text-sm font-bold uppercase tracking-[0.08em] text-cyan-100 leading-snug">
-		{title}
-	</h3>
-
-	<!-- Body -->
-	<p class="font-body text-sm text-slate-300/90 leading-relaxed flex-1">{body}</p>
-
-	<!-- Default slot for extra content (e.g. badges, links) -->
-	<slot />
-
-	<!-- Progress bar -->
-	{progress !== undefined && (
-		<div class="mt-1">
-			<div class="flex items-center justify-between mb-1">
-				<span class="font-tech text-[10px] uppercase tracking-[0.14em] text-cyan-300/50">Progress</span>
-				<span class="font-tech text-[10px] text-cyan-300/70">{progress}%</span>
-			</div>
-			<div class="h-px w-full bg-cyan-900/50 rounded-full overflow-hidden">
-				<div
-					class="h-full bg-cyan-400/70 rounded-full transition-all duration-500"
-					style={`width: ${progress}%`}
-				/>
-			</div>
-		</div>
-	)}
-</Tag>
+	<!-- Slot for extra content (e.g. badges, links); z-20 + pointer-events-auto restores
+	     interactivity for slot content that sits above the overlay link -->
+	<div class="relative z-20 pointer-events-auto">
+		<slot />
+	</div>
+</article>
