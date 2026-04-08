@@ -1,24 +1,62 @@
 ---
 import '../styles/global.css';
+import Nav from '../components/Nav.astro';
 
 interface Props {
 	title?: string;
+	description?: string;
+	image?: string;
 }
 
-const { title = 'sybilsedge.com | Command Center' } = Astro.props;
+const {
+	title = 'sybilsedge.com | Command Center',
+	description = 'The digital identity of Sybil Melton — writer, cloud architect, maker, and cook.',
+	image = '/og-default.png',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsedge.com');
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
+
+		<!-- Primary meta -->
 		<title>{title}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonicalURL} />
+
+		<!-- Open Graph -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={canonicalURL} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={image} />
+
+		<!-- Twitter Card -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={image} />
 	</head>
 	<body class="min-h-screen bg-grid text-slate-100">
-		<slot />
+		<!-- Skip to content -->
+		<a
+			href="#main-content"
+			class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded focus:bg-[#0a0a0a] focus:px-4 focus:py-2 focus:font-tech focus:text-sm focus:text-cyan-300 focus:blueprint-border"
+		>
+			Skip to content
+		</a>
+
+		<Nav />
+
+		<main id="main-content">
+			<slot />
+		</main>
 	</body>
 </html>

@@ -9,12 +9,16 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   output: 'server',
   adapter: cloudflare({
-    platformProxy: {
-      enabled: true,
-    },
+    // Build-time image optimization — no Cloudflare Images binding needed
+    imageService: 'compile',
   }),
   vite: {
     plugins: [tailwindcss()],
+    // Prevent vite from externalizing node builtins needed by Content Collections
+    ssr: {
+      target: 'webworker',
+      noExternal: true,
+    },
   },
   integrations: [react()],
 });
