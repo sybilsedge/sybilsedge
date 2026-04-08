@@ -9,13 +9,16 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   output: 'server',
   adapter: cloudflare({
-    // Use build-time image compilation — avoids requiring Cloudflare Images binding
+    // Build-time image optimization — no Cloudflare Images binding needed
     imageService: 'compile',
-    // Use Node.js for prerendering — required for Content Collections (node:fs)
-    prerenderEnvironment: 'node',
   }),
   vite: {
     plugins: [tailwindcss()],
+    // Prevent vite from externalizing node builtins needed by Content Collections
+    ssr: {
+      target: 'webworker',
+      noExternal: true,
+    },
   },
   integrations: [react()],
 });
