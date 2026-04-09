@@ -39,12 +39,12 @@ export const skills = {
 export const experience = [
 	{
 		title: 'Senior Solution Architect',
-		org: 'DroneUp',
+		org: 'Current Employer',
 		period: 'Jul 2022 — Present',
 		bullets: [
 			'Core Security & IT representative on the Architecture Review Board; pioneered adoption of Architecture Decision Records (ADRs).',
 			'Architected GCP Shared VPC strategy with hybrid connectivity via Cloud Interconnect and Cloud VPN for SD-WAN integration; designed a FedRAMP-mirrored Sandbox for government-adjacent workloads.',
-			'Standardized Terraform and CI/CD pipelines (GitHub/CircleCI); migrated 100% of legacy cloud and network assets into state-managed IaC.',
+			'Standardized Terraform and CI/CD pipelines; migrated 100% of legacy cloud and network assets into state-managed IaC.',
 			'Engineered a synchronization engine between NetBox, Jira Assets CMDB, and cloud platforms using custom Python; automated device re-provisioning from CMDB metadata.',
 			'Designed multi-tier observability framework using Prometheus, Grafana, and OpenTelemetry.',
 			'Led alignment of cloud architecture with SOC2, NIST 800-53, and 800-171; implemented zero-trust IAM using Okta and Lumos.',
@@ -52,10 +52,10 @@ export const experience = [
 	},
 	{
 		title: 'Principal Technical Architect',
-		org: 'Sentara Healthcare',
+		org: 'Previous Employer',
 		period: '2018 — 2022',
 		bullets: [
-			'Architected dual-hub SD-WAN (VeloCloud) across 200+ clinical sites to ensure 100% uptime for critical patient-care traffic.',
+			'Architected dual-hub SD-WAN across 200+ sites to ensure 100% uptime for critical traffic.',
 			'Migrated legacy switching to Cisco ACI (VXLAN) fabric; implemented Azure Virtual WAN hub-and-spoke architectures with NVAs.',
 			'Engineered transition from legacy Cisco ASA/Firepower and Palo Alto environments to FortiGate Next-Generation Firewalls.',
 			'Served as Level 4 escalation and Senior Design Authority; engineered visibility fabric using Gigamon TAPs and Viavi Observer for deep-packet inspection across two data centers.',
@@ -64,7 +64,7 @@ export const experience = [
 	},
 	{
 		title: 'Network Architect',
-		org: 'Dominion Enterprises',
+		org: 'Previous Employer',
 		period: '2012 — 2018',
 		bullets: [
 			'Implemented AWS Direct Connect; engineered OpenStack (OVS) and VMware DVS environments for private cloud networking.',
@@ -75,7 +75,7 @@ export const experience = [
 	},
 	{
 		title: 'Network Engineer',
-		org: 'L-3 Communications',
+		org: 'Previous Employer',
 		period: '2010 — 2012',
 		bullets: [
 			'Engineered high-availability military converged network (Voice, Data, Video) across campus, data center, and remote theater environments.',
@@ -86,14 +86,14 @@ export const experience = [
 ];
 
 export const previousRoles = [
-	{ title: 'Network Engineer, NMCI NOC', org: 'Harris IT Services', period: '2008 — 2010', location: 'Norfolk, VA' },
-	{ title: 'Network Administrator', org: 'Brighthouse Networks', period: '2007 — 2008', location: 'Brandon, FL' },
-	{ title: 'Cisco Failure Analysis Engineer', org: 'Jabil After Market Services', period: '2006 — 2007', location: 'St. Petersburg, FL' },
+	{ title: 'Network Engineer, NMCI NOC', org: 'Previous Employer', period: '2008 — 2010', location: 'Norfolk, VA' },
+	{ title: 'Network Administrator', org: 'Previous Employer', period: '2007 — 2008', location: 'Brandon, FL' },
+	{ title: 'Cisco Failure Analysis Engineer', org: 'Previous Employer', period: '2006 — 2007', location: 'St. Petersburg, FL' },
 	{ title: 'Fire Controlman, Work Center Supervisor', org: 'US Navy', period: '2000 — 2006', location: 'Norfolk, VA' },
 ];
 
 export const certs = [
-	{ name: 'Professional Cloud Architect', issuer: 'Google Cloud', year: 'Active', highlight: true },
+	{ name: 'Professional Cloud Architect', issuer: 'Google Cloud', year: '2025', highlight: true },
 	{ name: 'Master of Science in Computer Science', issuer: 'Old Dominion University', year: '2010', highlight: false },
 	{ name: 'CCNP Enterprise / CCDP', issuer: 'Cisco', year: 'Previously held', highlight: false },
 ];
