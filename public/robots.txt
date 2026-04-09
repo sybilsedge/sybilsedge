@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sybilsedge.com/sitemap-index.xml
