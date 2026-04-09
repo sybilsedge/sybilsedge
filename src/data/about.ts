@@ -6,9 +6,9 @@ export const bio = [
 export const timeline = [
 	{ year: '2026', event: 'Launched sybilsedge.com — digital identity built in public.' },
 	{ year: '2025', event: 'Achieved Google Cloud Professional Architect certification (active).' },
-	{ year: '2022', event: 'Joined DroneUp as Senior Solution Architect.' },
+	{ year: '2022', event: 'Joined current employer as Senior Solution Architect.' },
 	{ year: '2017', event: 'Passed Cisco Certified Design Professional.' },
-	{ year: '2015', event: 'Completed Master of Science in Computer Science at Old Dominion University.' },
+	{ year: '2015', event: 'Completed Master of Science in Computer Science.' },
 	{ year: '2014', event: 'Passed CCIE Data Center written exam.' },
 	{ year: '2012', event: 'Recertified CCNP.' },
 	{ year: '2012', event: 'Transitioned into Network Architect role at Data Center host.' },
