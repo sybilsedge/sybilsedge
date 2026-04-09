@@ -10,7 +10,7 @@ export const skills = {
 	'Networking': [
 		'BGP / OSPF / VXLAN EVPN',
 		'Cisco ACI / Nexus (VDC/vPC)',
-		'SD-WAN (VeloCloud / Cato)',
+		'SD-WAN (VeloCloud / Cato / Peplink)',
 		'Data Center Modernization',
 		'Juniper Mist / Cisco WLC',
 	],
@@ -94,6 +94,8 @@ export const previousRoles = [
 
 export const certs = [
 	{ name: 'Professional Cloud Architect', issuer: 'Google Cloud', year: '2025', highlight: true },
-	{ name: 'Master of Science in Computer Science', issuer: 'Old Dominion University', year: '2010', highlight: false },
-	{ name: 'CCNP Enterprise / CCDP', issuer: 'Cisco', year: 'Previously held', highlight: false },
+	{ name: 'Master of Science in Computer Science', issuer: 'Old Dominion University', year: '2015', highlight: true },
+	{ name: 'CCNP Enterprise / CCDP', issuer: 'Cisco', year: 'Previously held, 2022', highlight: false },
+	{ name: 'Security+', issuer: 'PeopleCert', year: 'Previously held, 2012', highlight: false },
+	{ name: 'ITILv3 Foundations', issuer: 'PeopleCert', year: 'Previously held, 2008', highlight: false }
 ];
