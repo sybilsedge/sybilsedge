@@ -52,7 +52,7 @@ export const experience = [
 	},
 	{
 		title: 'Principal Technical Architect',
-		org: 'Previous Employer',
+		org: 'Healthcare',
 		period: '2018 — 2022',
 		bullets: [
 			'Architected dual-hub SD-WAN across 200+ sites to ensure 100% uptime for critical traffic.',
@@ -64,7 +64,7 @@ export const experience = [
 	},
 	{
 		title: 'Network Architect',
-		org: 'Previous Employer',
+		org: 'Data Center',
 		period: '2012 — 2018',
 		bullets: [
 			'Implemented AWS Direct Connect; engineered OpenStack (OVS) and VMware DVS environments for private cloud networking.',
@@ -75,7 +75,7 @@ export const experience = [
 	},
 	{
 		title: 'Network Engineer',
-		org: 'Previous Employer',
+		org: 'Military support',
 		period: '2010 — 2012',
 		bullets: [
 			'Engineered high-availability military converged network (Voice, Data, Video) across campus, data center, and remote theater environments.',
@@ -86,9 +86,9 @@ export const experience = [
 ];
 
 export const previousRoles = [
-	{ title: 'Network Engineer, NMCI NOC', org: 'Previous Employer', period: '2008 — 2010', location: 'Norfolk, VA' },
-	{ title: 'Network Administrator', org: 'Previous Employer', period: '2007 — 2008', location: 'Brandon, FL' },
-	{ title: 'Cisco Failure Analysis Engineer', org: 'Previous Employer', period: '2006 — 2007', location: 'St. Petersburg, FL' },
+	{ title: 'Network Engineer', org: 'NMCI NOC', period: '2008 — 2010', location: 'Norfolk, VA' },
+	{ title: 'Network Administrator', org: 'Internet Service Provider', period: '2007 — 2008', location: 'Brandon, FL' },
+	{ title: 'Cisco Failure Analysis Engineer', org: 'Cisco Manufacturer', period: '2006 — 2007', location: 'St. Petersburg, FL' },
 	{ title: 'Fire Controlman, Work Center Supervisor', org: 'US Navy', period: '2000 — 2006', location: 'Norfolk, VA' },
 ];
 
