@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import TechCard from '../components/TechCard.astro';
+import { bio, timeline, interests } from '../data/about';
 
 const pillars = [
 	{
@@ -29,21 +30,6 @@ const pillars = [
 	},
 ];
 
-const timeline = [
-	{ year: '2026', event: 'Launched sybilsedge.com — digital identity built in public.' },
-	{ year: '2024', event: 'Began writing Noir Garden Journal, a spy thriller set in rural Virginia.' },
-	{ year: '2022', event: 'Achieved Google Cloud Professional Cloud Architect certification.' },
-	{ year: '2015', event: 'Transitioned from network engineering into full-stack cloud architecture.' },
-	{ year: '2010', event: 'Completed Master’s in Computer Science.' },
-	{ year: '2008', event: 'First enterprise networking role — the beginning of 17+ years in IT infrastructure.' },
-];
-
-const interests = [
-	'Astro', 'Cloudflare Workers', 'Spy Fiction', 'Sourdough', 'NFL', 'NHL',
-	'Anime', 'Hard Rock', 'Heavy Metal', 'Electronica', 'Home Projects', 'Gardening',
-];
-
-// Inline SVGs for section headings (replaces <Zap client:load />)
 const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
 const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`;
 ---
@@ -64,15 +50,9 @@ const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" v
 				<span set:html={pinSvg} aria-hidden="true" />
 				<span class="font-tech text-[11px] uppercase tracking-[0.16em]">Suffolk, Virginia, US</span>
 			</div>
-			<p class="mt-5 max-w-3xl text-base leading-relaxed text-slate-300/90">
-				I build systems by day and worlds by night. As a Senior Cloud Architect with 17+ years of experience,
-				I design and implement complex IT solutions across cloud, networking, security, and observability.
-				Outside the terminal, I write spy thrillers, bake sourdough, and take on home projects that are
-				never quite as simple as they look on the tin.
-			</p>
-			<p class="mt-3 max-w-3xl text-base leading-relaxed text-slate-300/90">
-				This site is my command center — a live record of what I’m building, writing, cooking, and thinking about.
-			</p>
+			{bio.map((paragraph) => (
+				<p class="mt-5 max-w-3xl text-base leading-relaxed text-slate-300/90">{paragraph}</p>
+			))}
 		</header>
 
 		<!-- Content pillars -->
