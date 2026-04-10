@@ -1,5 +1,5 @@
 ---
-title: "Back Deck Rebuild"
+title: "Back Deck Repaint"
 category: "home"
 status: "wip"
 description: "Repainting 400sq foot deck."
