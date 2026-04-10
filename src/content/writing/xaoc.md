@@ -25,4 +25,4 @@ featured: true
 
 ## About the Project
 
-Spanning Eastern Russia to the Swiss Alps, the story follows ICPO analyst Yasutake Masanori, XAoC CEO Katerina Orlova, and whistleblower Larisa Sokolova as they unravel a plot of hacks, chases, and moral compromises amid neural implants and shadow operations. Key characters navigate corporate intrigue, family betrayals, and high-stakes assaults to prevent mass detonation, exploring themes of power, ethical ambiguity, and truth manipulation in a near-future world
+Spanning Eastern Russia to the Swiss Alps, the story follows ICPO analyst Yasutake Masanori, XAoC CEO Katerina Orlova, and whistleblower Larisa Sokolova as they unravel a plot of hacks, chases, and moral compromises amid neural implants and shadow operations. Key characters navigate corporate intrigue, family betrayals, and high-stakes assaults to prevent mass detonation, exploring themes of power, ethical ambiguity, and truth manipulation in a near-future world.
