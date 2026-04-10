@@ -2,7 +2,7 @@
 title: "Back Deck Repaint"
 category: "home"
 status: "wip"
-description: "Repainting 400sq foot deck."
+description: "Repainting 400 sq ft deck."
 image: ""
 date: 2026-03-01
 featured: false
