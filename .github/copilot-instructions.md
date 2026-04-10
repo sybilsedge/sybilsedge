@@ -60,7 +60,7 @@ Cloudflare Workers serve static headers from `public/_headers`. This file is the
 Do not set these headers in component or page code.
 
 ### Updating the CSP
-Security response headers are configured in `astro.config.mjs` under the `headers` array.
+Security response headers are configured in `public/_headers` under the `/*` route.
 
 If you add any new external resource (font, script, API, image CDN), you **must** update
 the `Content-Security-Policy` value or the resource will be silently blocked in production.
