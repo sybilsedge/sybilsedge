@@ -59,6 +59,22 @@ Cloudflare Workers serve static headers from `public/_headers`. This file is the
 
 Do not set these headers in component or page code.
 
+### Updating the CSP
+Security response headers are configured in `public/_headers` under the `/*` route.
+
+If you add any new external resource (font, script, API, image CDN), you **must** update
+the `Content-Security-Policy` value or the resource will be silently blocked in production.
+
+| Resource type | Directive to update |
+|---------------|-------------------|
+| External font | `style-src` + `font-src` |
+| External script | `script-src` |
+| API / fetch call | `connect-src` |
+| External image | `img-src` |
+
+After updating, re-run Lighthouse Best Practices on the preview URL to confirm the score
+stays at 100 before merging to main.
+
 ### MDX is code, not content
 All four content collections accept `.mdx` files, which execute JavaScript at build time. Treat new MDX-imported components as code — they require the same review as any `.tsx` file. If user-submitted content is ever supported in the future, it must never be rendered as MDX without a dedicated sanitization step.
 

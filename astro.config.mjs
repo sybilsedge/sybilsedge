@@ -23,4 +23,7 @@ export default defineConfig({
     },
   },
   integrations: [react(), sitemap()],
+  // Security headers are served for Cloudflare deployments from public/_headers.
+  // Do not configure them here; keep the canonical CSP and related headers in
+  // public/_headers (or a global src/middleware.ts if headers must be dynamic).
 });
