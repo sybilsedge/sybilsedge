@@ -24,6 +24,26 @@ const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" v
 	title="Kitchen | Sybilsedge"
 	description="Recipes — sourdough, slow braises, fermentation, and everything else that comes out of the kitchen."
 >
+	<style>
+		.filter-btn {
+			color: rgba(103, 232, 249, 0.6);
+		}
+		.filter-btn:hover {
+			color: rgba(207, 250, 254, 1);
+		}
+		.filter-btn.is-active {
+			color: rgba(207, 250, 254, 1);
+			border-color: rgba(103, 232, 249, 0.6);
+			background-color: rgba(103, 232, 249, 0.05);
+		}
+		.recipe-card {
+			transition: opacity 0.2s ease, display 0.2s ease;
+		}
+		.recipe-card.is-hidden {
+			display: none;
+		}
+	</style>
+
 	<div class="mx-auto w-full max-w-[1500px] px-4 py-6 md:px-8 md:py-10">
 
 		<!-- Page header -->
@@ -41,9 +61,8 @@ const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" v
 		<div class="mb-6 flex flex-wrap gap-2" role="group" aria-label="Filter recipes by category">
 			{categories.map((cat) => (
 				<button
-					class="filter-btn rounded blueprint-border px-4 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/60 hover:text-cyan-100 transition-colors data-[active]:text-cyan-100 data-[active]:border-cyan-300/60 data-[active]:bg-cyan-300/5"
+					class={`filter-btn${cat === 'all' ? ' is-active' : ''} rounded blueprint-border px-4 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors`}
 					data-filter={cat}
-					data-active={cat === 'all' ? 'true' : undefined}
 					aria-pressed={cat === 'all' ? 'true' : 'false'}
 				>
 					{cat === 'all' ? 'All' : categoryConfig[cat].label}
@@ -118,19 +137,19 @@ const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" v
 
 	</div>
 
-	<script lang="ts">
+	<script>
 		const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
 		const cards = document.querySelectorAll<HTMLElement>('.recipe-card');
 
 		function setFilter(cat: string) {
 			buttons.forEach((btn) => {
 				const isActive = btn.dataset.filter === cat;
-				if (isActive) { btn.setAttribute('data-active', 'true'); }
-				else { btn.removeAttribute('data-active'); }
+				btn.classList.toggle('is-active', isActive);
 				btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
 			});
 			cards.forEach((card) => {
-				card.style.display = (cat === 'all' || card.dataset.category === cat) ? '' : 'none';
+				const match = cat === 'all' || card.dataset.category === cat;
+				card.classList.toggle('is-hidden', !match);
 			});
 		}
 
