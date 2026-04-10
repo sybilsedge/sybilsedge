@@ -9,16 +9,17 @@ synopsis: |-
 
   Meanwhile, XAoC cybersecurity analyst Larisa Sokolova stumbles onto falsified inventory logs and watches an innocent colleague dragged away by the company's shadow enforcement arm. Forced to flee with raw evidence, she reaches out to investigative journalist Chuman Patel — only to watch her leaked data get weaponized, corrupted, and turned into a narrative that protects the very conspirators she tried to expose.
 
-  At the center of it all is Katerina Orlova — CEO, family matriarch, and the ruthless architect of a decades-long shadow war against her father Alexander, whose criminal network has been quietly repurposing XAoC prosthetics into remote-detonated bombs. As quarantines lock down borders, evidence is erased, and the body count climbs, Katerina, Yasutake, and Larisa are forced into morally compromised alliances to stop the next transmission — before thousands of people unknowingly carrying bombs become the next casualties.
-excerpt: "The glass doors hissed open, admitting a gust of freezing slyakot and Boris Frolov. Outside, the night was a frozen void at eight p.m. — the city already entombed in a mid-winter darkness that even the neon couldn't pierce. A jagged mix of sleet and rain lashed the pavement, turning the streets into a river of gray salt and chemical runoff.
+  At the center of it all is Katerina Orlova — CEO, family matriarch, and the ruthless architect of a decades-long shadow war against her father, Alexander, whose criminal network has been quietly repurposing XAoC prosthetics into remote-detonated bombs. As quarantines lock down borders, evidence is erased, and the body count climbs, Katerina, Yasutake, and Larisa are forced into morally compromised alliances to stop the next transmission — before thousands of people unknowingly carrying bombs become the next casualties.
+excerpt: | -
+  The glass doors hissed open, admitting a gust of freezing slyakot and Boris Frolov. Outside, the night was a frozen void at eight p.m. — the city already entombed in a mid-winter darkness that even the neon couldn't pierce. A jagged mix of sleet and rain lashed the pavement, turning the streets into a river of gray salt and chemical runoff.
 
-Boris steered his rig into the shop, wheels leaving thick slush tracks across the pristine porcelain. To his left, adolescents snickered — one tapping his Aura awake, standard wrist issue and phone-killer since rollout. A holographic chronometer flickered above: 10:11, 2070.
+  Boris steered his rig into the shop, wheels leaving thick slush tracks across the pristine porcelain. To his left, adolescents snickered — one tapping his Aura awake, standard wrist issue and phone-killer since rollout. A holographic chronometer flickered above: 10:11, 2070.
 
-Boris navigated the black wrought-iron tables with a slow, grinding deliberation, his sleet-drenched Ratnik jacket dripping onto the floor — a rust-colored ghost haunting their perfect, climate-controlled world.
+  Boris navigated the black wrought-iron tables with a slow, grinding deliberation, his sleet-drenched Ratnik jacket dripping onto the floor — a rust-colored ghost haunting their perfect, climate-controlled world.
 
-...His left arm detonated.
+  ...His left arm detonated.
 
-The blast wave turned the storefront into a hail of diamond-sharp glass. Tables and chairs were stripped from the floor, transformed into jagged shrapnel that raked the interior. A deafening, pressurized vacuum swallowed the world, followed by a ringing silence that lasted only as long as a heartbeat — before the screams tore through."
+  The blast wave turned the storefront into a hail of diamond-sharp glass. Tables and chairs were stripped from the floor, transformed into jagged shrapnel that raked the interior. A deafening, pressurized vacuum swallowed the world, followed by a ringing silence that lasted only as long as a heartbeat — before the screams tore through.
 coverImage: ""
 date: 2024-09-01
 featured: true
