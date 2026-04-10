@@ -1,0 +1,28 @@
+---
+title: "The Shadow Docket"
+genre: "Cyberpunk Techno-Thriller"
+status: "draft"
+synopsis: "In 2070, a routine morning in St. Petersburg turns catastrophic when Boris Frolov — a disabled veteran fitted with a military-surplus prosthetic arm — detonates in a crowded coffee house, killing a dozen civilians. Within hours, four more coordinated explosions strike Paris, Hamburg, Brussels, and Rotterdam, all triggered remotely through a single restricted NPL quantum frequency, all involving XAoC Cybernetics prosthetics installed just one week prior.
+
+ICPO Counter-Terrorism analyst Yasutake Masanori — himself a cybernetic amputee — recognizes a chilling contradiction: precision-engineered limbs sabotaged with crude, deliberate trigger mechanisms. His investigation points not to the RBLA, the radical cell claiming responsibility, but to something buried inside XAoC's own supply chain — and directly into the Orlova family, the dynasty that built the company.
+
+Meanwhile, XAoC cybersecurity analyst Larisa Sokolova stumbles onto falsified inventory logs and watches an innocent colleague dragged away by the company's shadow enforcement arm. Forced to flee with raw evidence, she reaches out to investigative journalist Chuman Patel — only to watch her leaked data get weaponized, corrupted, and turned into a narrative that protects the very conspirators she tried to expose.
+
+At the center of it all is Katerina Orlova — CEO, family matriarch, and the ruthless architect of a decades-long shadow war against her father Alexander, whose criminal network has been quietly repurposing XAoC prosthetics into remote-detonated bombs. As quarantines lock down borders, evidence is erased, and the body count climbs, Katerina, Yasutake, and Larisa are forced into morally compromised alliances to stop the next transmission — before thousands of people unknowingly carrying bombs become the next casualties."
+excerpt: "The glass doors hissed open, admitting a gust of freezing slyakot and Boris Frolov. Outside, the night was a frozen void at eight p.m. — the city already entombed in a mid-winter darkness that even the neon couldn't pierce. A jagged mix of sleet and rain lashed the pavement, turning the streets into a river of gray salt and chemical runoff.
+
+Boris steered his rig into the shop, wheels leaving thick slush tracks across the pristine porcelain. To his left, adolescents snickered — one tapping his Aura awake, standard wrist issue and phone-killer since rollout. A holographic chronometer flickered above: 10:11, 2070.
+
+Boris navigated the black wrought-iron tables with a slow, grinding deliberation, his sleet-drenched Ratnik jacket dripping onto the floor — a rust-colored ghost haunting their perfect, climate-controlled world.
+
+...His left arm detonated.
+
+The blast wave turned the storefront into a hail of diamond-sharp glass. Tables and chairs were stripped from the floor, transformed into jagged shrapnel that raked the interior. A deafening, pressurized vacuum swallowed the world, followed by a ringing silence that lasted only as long as a heartbeat — before the screams tore through."
+coverImage: ""
+date: 2024-09-01
+featured: true
+---
+
+## About the Project
+
+Spanning Eastern Russia to the Swiss Alps, the story follows ICPO analyst Yasutake Masanori, XAoC CEO Katerina Orlova, and whistleblower Larisa Sokolova as they unravel a plot of hacks, chases, and moral compromises amid neural implants and shadow operations. Key characters navigate corporate intrigue, family betrayals, and high-stakes assaults to prevent mass detonation, exploring themes of power, ethical ambiguity, and truth manipulation in a near-future world.
