@@ -62,6 +62,7 @@ const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" v
 			<div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3" id="recipes-grid">
 				{sorted.map((entry) => {
 					const cat = categoryConfig[entry.data.category];
+					const slug = entry.id.replace(/\.mdx?$/, '');
 					return (
 						<article
 							class="recipe-card group blueprint-border rounded-md bg-black/35 p-6 flex flex-col gap-3 transition-shadow duration-200 hover:shadow-[0_0_24px_rgba(0,255,255,0.07)]"
@@ -102,7 +103,7 @@ const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" v
 							<!-- View recipe link -->
 							<div class="mt-auto pt-1">
 								<a
-									href={`/kitchen/${entry.slug}`}
+									href={`/kitchen/${slug}`}
 									class="flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-[#39ff14]/60 hover:text-[#39ff14] transition-colors w-fit"
 								>
 									View Recipe

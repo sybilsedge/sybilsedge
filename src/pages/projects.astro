@@ -69,6 +69,7 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 				{sorted.map((entry) => {
 					const { label: statusLabel, classes: statusClasses } = statusConfig[entry.data.status];
 					const cat = categoryConfig[entry.data.category];
+					const slug = entry.id.replace(/\.mdx?$/, '');
 					return (
 						<article
 							class="project-card group blueprint-border rounded-md bg-black/35 p-6 flex flex-col gap-3 transition-shadow duration-200 hover:shadow-[0_0_24px_rgba(0,255,255,0.07)]"
@@ -116,7 +117,7 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 									</a>
 								) : <span />}
 								<a
-									href={`/projects/${entry.slug}`}
+									href={`/projects/${slug}`}
 									class="flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.14em] text-[#39ff14]/60 hover:text-[#39ff14] transition-colors"
 								>
 									Details
