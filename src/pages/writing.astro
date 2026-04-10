@@ -111,49 +111,44 @@ const bookSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" 
 		</div>
 	</div>
 
-	<script lang="ts">
-		const modal = document.getElementById('excerpt-modal') as HTMLDivElement | null;
-		const modalTitle = document.getElementById('modal-title') as HTMLElement | null;
-		const modalExcerpt = document.getElementById('modal-excerpt') as HTMLElement | null;
-		const closeBtn = document.getElementById('modal-close') as HTMLButtonElement | null;
-		const excerptTriggers = Array.from(
-			document.querySelectorAll<HTMLButtonElement>('.excerpt-trigger'),
-		);
+	<script>
+		const modal = document.getElementById('excerpt-modal');
+		const modalTitle = document.getElementById('modal-title');
+		const modalExcerpt = document.getElementById('modal-excerpt');
+		const closeBtn = document.getElementById('modal-close');
 
-		let lastFocused: HTMLButtonElement | null = null;
+		let lastFocused = null;
 
-		if (modal && modalTitle && modalExcerpt && closeBtn) {
-			const openModal = (title: string, excerpt: string) => {
-				modalTitle.textContent = title;
-				modalExcerpt.textContent = excerpt;
-				modal.style.display = 'flex';
-				closeBtn.focus();
-			};
-
-			const closeModal = () => {
-				modal.style.display = 'none';
-				lastFocused?.focus();
-				lastFocused = null;
-			};
-
-			excerptTriggers.forEach((btn) => {
-				btn.addEventListener('click', () => {
-					lastFocused = btn;
-					const title = btn.dataset.title ?? '';
-					const excerpt = btn.dataset.excerpt ?? '';
-					openModal(title, excerpt);
-				});
-			});
-
-			closeBtn.addEventListener('click', closeModal);
-
-			modal.addEventListener('click', (e: MouseEvent) => {
-				if (e.target === modal) closeModal();
-			});
-
-			document.addEventListener('keydown', (e: KeyboardEvent) => {
-				if (e.key === 'Escape') closeModal();
-			});
+		function openModal(title, excerpt) {
+			modalTitle.textContent = title;
+			modalExcerpt.textContent = excerpt;
+			modal.style.display = 'flex';
+			closeBtn.focus();
 		}
+
+		function closeModal() {
+			modal.style.display = 'none';
+			if (lastFocused) lastFocused.focus();
+			lastFocused = null;
+		}
+
+		document.querySelectorAll('.excerpt-trigger').forEach(function(btn) {
+			btn.addEventListener('click', function() {
+				lastFocused = btn;
+				var title = btn.dataset.title || '';
+				var excerpt = btn.dataset.excerpt || '';
+				openModal(title, excerpt);
+			});
+		});
+
+		closeBtn.addEventListener('click', closeModal);
+
+		modal.addEventListener('click', function(e) {
+			if (e.target === modal) closeModal();
+		});
+
+		document.addEventListener('keydown', function(e) {
+			if (e.key === 'Escape') closeModal();
+		});
 	</script>
 </Layout>
