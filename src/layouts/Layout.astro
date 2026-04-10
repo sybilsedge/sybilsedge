@@ -43,6 +43,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsed
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />
 		<meta name="twitter:image" content={image} />
+
+		<!-- Font preconnect — reduces render-blocking by establishing connections early -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	</head>
 	<body class="min-h-screen bg-grid text-slate-100">
 		<!-- Skip to content -->
