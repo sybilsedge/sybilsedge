@@ -1,0 +1,25 @@
+/*
+  # ---------------------------------------------------------------------------
+  # SECURITY HEADERS — last updated 2026-04-10
+  # Applied to all routes via the /* glob.
+  #
+  # IMPORTANT — CSP MAINTENANCE:
+  # The Content-Security-Policy allowlist MUST be updated whenever a new
+  # external resource is introduced. Failing to do so will silently block
+  # the resource in production.
+  #
+  #   New external font   → add origin to style-src AND font-src
+  #   New script CDN      → add origin to script-src
+  #   New API / fetch     → add origin to connect-src
+  #   New image CDN       → add origin to img-src
+  #
+  # After any CSP change, re-run Lighthouse Best Practices on the preview
+  # URL to confirm the score remains at 100 before merging to main.
+  # ---------------------------------------------------------------------------
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com; font-src 'self' https://api.fontshare.com https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  Cross-Origin-Opener-Policy: same-origin
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
