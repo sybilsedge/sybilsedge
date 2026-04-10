@@ -1,0 +1,38 @@
+---
+title: "Sourdough Discard Pizza Crust"
+category: "baking"
+description: "A crisp, chewy cast iron pizza crust made with sourdough discard. Minimal yeast, maximum flavor — the starter does the heavy lifting overnight if you let it."
+tags: ["sourdough", "discard", "pizza", "cast iron", "yeast"]
+prepTime: "20 min + 2–4 hr rise"
+cookTime: "10–15 min"
+servings: 2
+date: 2026-04-10
+featured: false
+---
+
+## Ingredients
+
+- 1 cup (227 g) sourdough starter, unfed/discard
+- ½ cup + 2 tablespoons to ¾ cup (141–170 g) water, lukewarm
+- 2½ cups (300 g) King Arthur Unbleached All-Purpose Flour
+- 1 teaspoon table salt
+- ½ teaspoon instant yeast or active dry yeast
+
+## Instructions
+
+1. Stir any liquid on top of your refrigerated starter back into it before measuring 1 cup (227 g) into a large mixing bowl.
+2. Combine the lesser amount of water, the flour, salt, and yeast with the sourdough starter.
+3. Mix to combine, adding the remaining water 1 tablespoon at a time if the dough looks dry.
+4. Knead for about 7 minutes using a stand mixer with its dough hook, until the dough cleans the sides of the bowl.
+5. Place the dough in a lightly greased container, cover, and let rise until almost doubled in bulk — 2–4 hours depending on starter vitality.
+6. Preheat oven to 475°F. Place an oiled cast iron skillet in the oven to heat up with it.
+7. Roll out the dough at least 2 inches wider than the pan. If it snaps back, give it a 15-minute rest and try again.
+8. When the oven is up to temperature, carefully remove the cast iron. Place the dough inside and position it up the sides.
+9. Add sauce and toppings.
+10. Bake 10–15 minutes until the crust is golden and the toppings are cooked through.
+
+## Notes
+
+- **Long cold ferment:** Skip the yeast entirely and refrigerate the dough overnight (up to 72 hours) after mixing. The flavor deepens considerably. Pull it out 1–2 hours before baking to take the chill off.
+- **Cast iron tip:** The preheated skillet gives you an immediate bottom crust — no soggy center.
+- **Hydration:** Discard hydration varies. If your starter is on the stiff side, lean toward the full ¾ cup of water.
