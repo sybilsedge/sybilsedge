@@ -1,17 +1,19 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
+
+export const prerender = true;
 
 export async function getStaticPaths() {
 	const recipes = await getCollection('recipes');
 	return recipes.map((entry) => ({
-		params: { slug: entry.slug },
+		params: { slug: entry.id },
 		props: { entry },
 	}));
 }
 
 const { entry } = Astro.props;
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
 	baking:       { label: 'Baking',       color: 'text-amber-400/80 border-amber-400/30 bg-amber-400/5' },
