@@ -2,10 +2,11 @@
 title: "Back Deck Repaint"
 category: "home"
 status: "wip"
-description: "Repainting 400 sq ft deck."
+description: "Repainting 400 sq ft deck — stripping, sanding, priming, and painting after replacing rotted boards."
 image: ""
 date: 2026-03-01
-featured: false
+featured: true
+progress: 55
 tags: ["Painting", "Outdoor"]
 ---
 
@@ -21,6 +22,5 @@ Because of the weather, it has been a slow process.
 2. **Replaced rotted boards** — complete
 3. **Pressure wash** — complete
 4. **Sanding** — in progress
-5. **Priming** - upcoming
-6. **Painting** - upcoming
-
+5. **Priming** — upcoming
+6. **Painting** — upcoming

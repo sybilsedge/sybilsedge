@@ -1,27 +1,24 @@
 ---
-title: "Sybilsedge.com"
+title: "sybilsedge.com"
 category: "tech"
 status: "active"
-description: "Personal digital identity site built with Astro 6, Tailwind CSS, and deployed on Cloudflare Workers. Blueprint-cyberpunk aesthetic with zero JS by default and Astro Islands for interactive components."
+description: "Personal site built with Astro, deployed on Cloudflare Workers. Blueprint aesthetic with dark mode, content collections, and live GitHub activity feed."
 githubUrl: "https://github.com/sybilsedge/sybilsedge"
 image: ""
 date: 2026-04-01
 featured: true
-tags: ["Astro", "Tailwind", "Cloudflare", "TypeScript"]
+progress: 72
+tags: ["Astro", "Cloudflare", "TypeScript"]
 ---
 
 ## Overview
 
-This site is the project. Built in public on Cloudflare Workers using Astro 6 in SSR mode with the Cloudflare adapter. The design system is a blueprint-cyberpunk aesthetic — deep charcoal backgrounds, electric cyan and neon green accents, Orbitron headers, and a persistent CSS grid overlay that simulates a drafting board.
+Personal site and portfolio, built from scratch with Astro SSR deployed to Cloudflare Workers.
+Features a blueprint / dark sci-fi aesthetic with content collections for writing, projects, recipes, and posts.
 
 ## Stack
 
-- **Framework:** Astro 6 (SSR, `@astrojs/cloudflare`)
+- **Framework:** Astro 5 with Cloudflare adapter
 - **Styling:** Tailwind CSS v4
-- **Icons:** Inline SVG
-- **Data:** Astro Content Collections
-- **Deploy:** Cloudflare Workers
-
-## Status
-
-Active development. Building out content pillar pages iteratively.
+- **Deploy:** Cloudflare Workers via Wrangler
+- **Content:** Astro content collections (glob loader)

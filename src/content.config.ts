@@ -32,6 +32,8 @@ const projects = defineCollection({
 		date: z.coerce.date(),
 		featured: z.boolean().default(false),
 		tags: z.array(z.string()).default([]),
+		// 0–100 completion percentage — renders a progress bar in the gallery card
+		progress: z.number().min(0).max(100).optional(),
 	}),
 });
 
