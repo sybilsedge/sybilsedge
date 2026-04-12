@@ -15,7 +15,8 @@ type Commit = {
 	sha: string;
 	message: string;
 	author: string;
-	date: string;
+	sortKey: number;      // epoch ms — used for chronological sort
+	dateDisplay: string;  // formatted string — used for display only
 	url: string;
 };
 
@@ -38,13 +39,15 @@ for (const repo of GITHUB_REPOS) {
 		if (res.ok) {
 			const data = await res.json();
 			for (const c of data) {
+				const commitDate = new Date(c.commit.author.date as string);
 				allCommits.push({
 					repo,
 					sha: (c.sha as string).slice(0, 7),
 					message: (c.commit.message as string).split('\n')[0].slice(0, 72),
 					author: c.commit.author.name as string,
-					date: new Date(c.commit.author.date as string).toLocaleDateString('en-US', {
-						month: 'short', day: 'numeric',
+					sortKey: commitDate.getTime(),
+					dateDisplay: commitDate.toLocaleDateString('en-US', {
+						month: 'short', day: 'numeric', year: 'numeric',
 					}),
 					url: c.html_url as string,
 				});
@@ -55,8 +58,8 @@ for (const repo of GITHUB_REPOS) {
 	}
 }
 
-// Sort commits newest-first across all repos
-allCommits.sort((a, b) => b.date.localeCompare(a.date));
+// Sort newest-first using epoch ms, not the display string
+allCommits.sort((a, b) => b.sortKey - a.sortKey);
 const commits = allCommits.slice(0, 4);
 
 // ─── WRITING PROGRESS ──────────────────────────────────────────────────────
@@ -98,7 +101,7 @@ const healthIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="1
 						<div class="min-w-0 flex-1">
 							<div class="flex items-center justify-between gap-2">
 								<p class="font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/60 truncate">{c.repo}</p>
-								<p class="font-tech shrink-0 text-[10px] text-cyan-300/40">{c.date}</p>
+								<p class="font-tech shrink-0 text-[10px] text-cyan-300/40">{c.dateDisplay}</p>
 							</div>
 							<p class="mt-1 text-sm text-slate-200/90 group-hover:text-cyan-100 transition-colors line-clamp-2">{c.message}</p>
 							<p class="font-tech mt-1 text-[10px] text-cyan-300/40">{c.sha}</p>
