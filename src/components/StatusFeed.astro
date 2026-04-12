@@ -25,7 +25,6 @@ const entries = [
 	},
 ];
 
-// Inline SVGs keyed by type — avoids dynamic JSX component refs in .astro
 const icons: Record<string, string> = {
 	pen: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>`,
 	code: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
@@ -35,8 +34,8 @@ const icons: Record<string, string> = {
 
 <section class="blueprint-border rounded-md bg-black/35 p-4 md:p-5">
 	<header class="mb-4 flex items-center justify-between">
-		<h2 class="font-orbitron text-lg uppercase tracking-[0.16em] text-cyan-100">Status Feed</h2>
-		<span class="font-tech text-[11px] uppercase tracking-[0.2em] text-cyan-300/70">Column 01</span>
+		<h2 class="font-orbitron text-lg uppercase tracking-[0.16em] text-cyan-100">Status Hub</h2>
+		<span class="font-tech text-[11px] uppercase tracking-[0.2em] text-cyan-300/70">Control Plane</span>
 	</header>
 
 	<div class="space-y-3">
