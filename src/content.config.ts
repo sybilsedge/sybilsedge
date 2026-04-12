@@ -13,6 +13,9 @@ const writing = defineCollection({
 		coverImage: z.string().optional(),
 		date: z.coerce.date(),
 		featured: z.boolean().default(false),
+		// Progress tracking fields — update in frontmatter to reflect current state
+		wordCount: z.number().optional(),
+		chapterStatus: z.string().optional(),
 	}),
 });
 
