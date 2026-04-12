@@ -19,13 +19,21 @@ type Commit = {
 	url: string;
 };
 
+const githubToken = import.meta.env.GITHUB_TOKEN;
+
 const allCommits: Commit[] = [];
 
 for (const repo of GITHUB_REPOS) {
 	try {
+		const headers: Record<string, string> = {
+			Accept: 'application/vnd.github+json',
+		};
+		if (githubToken) {
+			headers['Authorization'] = `Bearer ${githubToken}`;
+		}
 		const res = await fetch(
 			`https://api.github.com/repos/${repo}/commits?per_page=${COMMITS_PER_REPO}`,
-			{ headers: { Accept: 'application/vnd.github+json' } }
+			{ headers }
 		);
 		if (res.ok) {
 			const data = await res.json();
