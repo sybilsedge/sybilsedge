@@ -1,35 +1,67 @@
 ---
-import ActiveProjectStatus from './ActiveProjectStatus';
+import { getCollection } from 'astro:content';
 
-const entries = [
-	{
-		iconType: 'pen',
-		type: 'WRITING',
-		title: 'Noir Garden Journal',
-		note: 'Chapter 08 revised with stronger scene transitions.',
-		stamp: 'Today 05:40',
-	},
-	{
-		iconType: 'code',
-		type: 'CODING',
-		title: 'Sybilsedge Dashboard',
-		note: 'SSR metrics endpoint hooked into status aggregation.',
-		stamp: 'Today 09:15',
-	},
-	{
-		iconType: 'terminal',
-		type: 'SYSTEM',
-		title: 'CI Pipeline Audit',
-		note: 'Dependency locks and test shards scheduled for cleanup.',
-		stamp: 'Yesterday 23:12',
-	},
+// ─── CONFIG ────────────────────────────────────────────────────────────────
+// To add more repos later, append entries to this array.
+// Format: 'owner/repo'
+const GITHUB_REPOS = [
+	'sybilsedge/sybilsedge',
 ];
+const COMMITS_PER_REPO = 3;
 
-const icons: Record<string, string> = {
-	pen: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>`,
-	code: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
-	terminal: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>`,
+// ─── GITHUB COMMITS ────────────────────────────────────────────────────────
+type Commit = {
+	repo: string;
+	sha: string;
+	message: string;
+	author: string;
+	date: string;
+	url: string;
 };
+
+const allCommits: Commit[] = [];
+
+for (const repo of GITHUB_REPOS) {
+	try {
+		const res = await fetch(
+			`https://api.github.com/repos/${repo}/commits?per_page=${COMMITS_PER_REPO}`,
+			{ headers: { Accept: 'application/vnd.github+json' } }
+		);
+		if (res.ok) {
+			const data = await res.json();
+			for (const c of data) {
+				allCommits.push({
+					repo,
+					sha: (c.sha as string).slice(0, 7),
+					message: (c.commit.message as string).split('\n')[0].slice(0, 72),
+					author: c.commit.author.name as string,
+					date: new Date(c.commit.author.date as string).toLocaleDateString('en-US', {
+						month: 'short', day: 'numeric',
+					}),
+					url: c.html_url as string,
+				});
+			}
+		}
+	} catch {
+		// silently skip unavailable repos — dashboard still renders
+	}
+}
+
+// Sort commits newest-first across all repos
+allCommits.sort((a, b) => b.date.localeCompare(a.date));
+const commits = allCommits.slice(0, 4);
+
+// ─── WRITING PROGRESS ──────────────────────────────────────────────────────
+const writingEntries = await getCollection('writing');
+const activeWriting = writingEntries
+	.filter((e) => e.data.status === 'draft' && (e.data.wordCount || e.data.chapterStatus))
+	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+	.slice(0, 2);
+
+// ─── ICONS ─────────────────────────────────────────────────────────────────
+const commitIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><line x1="3" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="21" y2="12"/></svg>`;
+const writeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
+const healthIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`;
 ---
 
 <section class="blueprint-border rounded-md bg-black/35 p-4 md:p-5">
@@ -38,20 +70,88 @@ const icons: Record<string, string> = {
 		<span class="font-tech text-[11px] uppercase tracking-[0.2em] text-cyan-300/70">Control Plane</span>
 	</header>
 
-	<div class="space-y-3">
-		<ActiveProjectStatus client:visible />
-		{
-			entries.map((entry) => (
-				<article class="blueprint-border rounded-md bg-black/40 p-3">
-					<div class="mb-2 flex items-center gap-2">
-						<span class="text-cyan-300" set:html={icons[entry.iconType]} />
-						<p class="font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/80">{entry.type}</p>
+	<!-- GitHub Activity -->
+	<div class="mb-4">
+		<p class="font-tech mb-2 text-[10px] uppercase tracking-[0.22em] text-cyan-300/50">// GitHub Activity</p>
+		{commits.length === 0 ? (
+			<div class="blueprint-border rounded-md bg-black/40 p-3">
+				<p class="font-tech text-[11px] text-cyan-300/40">No commits retrieved</p>
+			</div>
+		) : (
+			<div class="space-y-2">
+				{commits.map((c) => (
+					<a
+						href={c.url}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="blueprint-border group flex items-start gap-3 rounded-md bg-black/40 p-3 transition-colors hover:bg-cyan-300/5"
+					>
+						<span class="mt-0.5 shrink-0 text-cyan-300" set:html={commitIcon} />
+						<div class="min-w-0 flex-1">
+							<div class="flex items-center justify-between gap-2">
+								<p class="font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/60 truncate">{c.repo}</p>
+								<p class="font-tech shrink-0 text-[10px] text-cyan-300/40">{c.date}</p>
+							</div>
+							<p class="mt-1 text-sm text-slate-200/90 group-hover:text-cyan-100 transition-colors line-clamp-2">{c.message}</p>
+							<p class="font-tech mt-1 text-[10px] text-cyan-300/40">{c.sha}</p>
+						</div>
+					</a>
+				))}
+			</div>
+		)}
+	</div>
+
+	<!-- Divider -->
+	<div class="my-3 border-t border-cyan-300/10"></div>
+
+	<!-- Writing Progress -->
+	<div class="mb-4">
+		<p class="font-tech mb-2 text-[10px] uppercase tracking-[0.22em] text-cyan-300/50">// Writing Progress</p>
+		{activeWriting.length === 0 ? (
+			<div class="blueprint-border rounded-md bg-black/40 p-3">
+				<p class="font-tech text-[11px] text-cyan-300/40">No active drafts</p>
+			</div>
+		) : (
+			<div class="space-y-2">
+				{activeWriting.map((entry) => (
+					<div class="blueprint-border rounded-md bg-black/40 p-3">
+						<div class="flex items-start gap-3">
+							<span class="mt-0.5 shrink-0 text-cyan-300" set:html={writeIcon} />
+							<div class="min-w-0 flex-1">
+								<p class="font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/60">{entry.data.genre}</p>
+								<h3 class="font-orbitron mt-0.5 text-sm uppercase tracking-[0.08em] text-cyan-100">{entry.data.title}</h3>
+								<div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+									{entry.data.wordCount && (
+										<p class="font-tech text-[11px] text-cyan-300/70">
+											{entry.data.wordCount.toLocaleString()} words
+										</p>
+									)}
+									{entry.data.chapterStatus && (
+										<p class="font-tech text-[11px] text-cyan-300/70">{entry.data.chapterStatus}</p>
+									)}
+								</div>
+							</div>
+						</div>
 					</div>
-					<h3 class="font-orbitron text-sm uppercase tracking-[0.08em] text-cyan-100">{entry.title}</h3>
-					<p class="mt-2 text-sm text-slate-300/90">{entry.note}</p>
-					<p class="font-tech mt-3 text-[11px] text-cyan-300/70">{entry.stamp}</p>
-				</article>
-			))
-		}
+				))}
+			</div>
+		)}
+	</div>
+
+	<!-- Divider -->
+	<div class="my-3 border-t border-cyan-300/10"></div>
+
+	<!-- System Health -->
+	<div>
+		<p class="font-tech mb-2 text-[10px] uppercase tracking-[0.22em] text-cyan-300/50">// System Health</p>
+		<div class="blueprint-border rounded-md bg-black/40 p-3">
+			<div class="flex items-center gap-3">
+				<span class="shrink-0 text-cyan-300/40" set:html={healthIcon} />
+				<div>
+					<p class="font-orbitron text-sm uppercase tracking-[0.08em] text-cyan-100/40">Cloudflare Deployment</p>
+					<p class="font-tech mt-0.5 text-[10px] text-cyan-300/30">Status feed — coming in Pass 2</p>
+				</div>
+			</div>
+		</div>
 	</div>
 </section>
