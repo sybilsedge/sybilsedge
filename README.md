@@ -6,7 +6,7 @@ Personal site for Sybil Melton — built with [Astro](https://astro.build) and d
 
 | Layer | Technology |
 | :------------ | :----------------------------------- |
-| Framework | Astro 5 (SSR, Cloudflare adapter) |
+| Framework | Astro 6 (SSR, Cloudflare adapter) |
 | Styling | Tailwind CSS v4 |
 | Deploy | Cloudflare Workers via Wrangler |
 | Content | Astro content collections |
