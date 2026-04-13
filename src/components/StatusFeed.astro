@@ -8,10 +8,13 @@ const GITHUB_REPOS = [
 const COMMITS_PER_REPO = 3;
 
 // ─── RUNTIME ENV ──────────────────────────────────────────────────────────
-// Read the token from Cloudflare Workers runtime env at request time.
-// This keeps the secret out of the build bundle entirely.
-// See: https://docs.astro.build/en/guides/integrations-guide/cloudflare/#runtime-api
-const githubToken = Astro.locals.runtime.env.GITHUB_TOKEN;
+// Astro.locals.runtime is only available in Cloudflare Workers SSR context.
+// Preview deployments and local dev may not have it bound, so we guard
+// against undefined before accessing .env to avoid a hard 500 crash.
+const runtime = (Astro.locals as Record<string, unknown>).runtime as
+	| { env: Record<string, string | undefined> }
+	| undefined;
+const githubToken = runtime?.env?.GITHUB_TOKEN ?? undefined;
 
 // ─── GITHUB COMMITS ────────────────────────────────────────────────────────
 type Commit = {
