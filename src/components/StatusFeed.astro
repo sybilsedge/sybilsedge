@@ -2,12 +2,16 @@
 import { getCollection } from 'astro:content';
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
-// To add more repos later, append entries to this array.
-// Format: 'owner/repo'
 const GITHUB_REPOS = [
 	'sybilsedge/sybilsedge',
 ];
 const COMMITS_PER_REPO = 3;
+
+// ─── RUNTIME ENV ──────────────────────────────────────────────────────────
+// Read the token from Cloudflare Workers runtime env at request time.
+// This keeps the secret out of the build bundle entirely.
+// See: https://docs.astro.build/en/guides/integrations-guide/cloudflare/#runtime-api
+const githubToken = Astro.locals.runtime.env.GITHUB_TOKEN;
 
 // ─── GITHUB COMMITS ────────────────────────────────────────────────────────
 type Commit = {
@@ -20,14 +24,13 @@ type Commit = {
 	url: string;
 };
 
-const githubToken = import.meta.env.GITHUB_TOKEN;
-
 const allCommits: Commit[] = [];
 
 for (const repo of GITHUB_REPOS) {
 	try {
 		const headers: Record<string, string> = {
 			Accept: 'application/vnd.github+json',
+			'X-GitHub-Api-Version': '2022-11-28',
 		};
 		if (githubToken) {
 			headers['Authorization'] = `Bearer ${githubToken}`;
@@ -58,7 +61,7 @@ for (const repo of GITHUB_REPOS) {
 	}
 }
 
-// Sort newest-first using epoch ms, not the display string
+// Sort newest-first using epoch ms
 allCommits.sort((a, b) => b.sortKey - a.sortKey);
 const commits = allCommits.slice(0, 4);
 
