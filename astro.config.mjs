@@ -13,6 +13,11 @@ export default defineConfig({
   adapter: cloudflare({
     // Build-time image optimization — no Cloudflare Images binding needed
     imageService: 'compile',
+    // Explicitly disable Astro sessions — prevents the adapter from injecting
+    // a SESSION KV binding stub into dist/server/wrangler.json, which would
+    // cause a UserError at runtime (KV bindings require an "id" field).
+    // Re-enable and provision a real KV namespace if sessions are needed later.
+    sessions: false,
   }),
   vite: {
     plugins: [tailwindcss()],
