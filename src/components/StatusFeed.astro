@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import { env as cfEnv } from 'cloudflare:workers';
+import { env } from 'cloudflare:workers';
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 const GITHUB_REPOS = [
@@ -11,7 +11,7 @@ const COMMITS_PER_REPO = 3;
 // ─── RUNTIME ENV ──────────────────────────────────────────────────────────
 // Read GITHUB_TOKEN from the Cloudflare Workers runtime env (set via wrangler secret).
 // Cast to string | undefined — the secret may not be bound in all environments.
-const githubToken = cfEnv.GITHUB_TOKEN as string | undefined;
+const githubToken = env.GITHUB_TOKEN as string | undefined;
 
 // ─── GITHUB COMMITS ────────────────────────────────────────────────────────
 type Commit = {
