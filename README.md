@@ -64,6 +64,21 @@ Grant **Contents: Read-only** on the `sybilsedge/sybilsedge` repository.
 > Secrets set via `wrangler secret put` are automatically available at runtime —
 > no entry in `wrangler.jsonc` is required.
 
+### Local development
+
+To test the GitHub commit feed locally, create a `.dev.vars` file in the project root
+(this file is git-ignored and must never be committed):
+
+```sh
+# .dev.vars — local secrets for `astro dev` / `wrangler dev`
+# Use a fine-grained PAT (prefix: github_pat_), not a classic token (ghp_).
+GITHUB_TOKEN=github_pat_...
+```
+
+`astro dev` picks this file up automatically via the `@astrojs/cloudflare` Vite plugin.
+Without it, the commit feed will render without authentication (public repos still work
+at GitHub's lower 60 req/hr rate limit).
+
 ## Content Collections
 
 All content lives in `src/content/` as Markdown files. Schemas are defined in `src/content.config.ts`.
@@ -79,5 +94,4 @@ To feature a project in the Maker Gallery, set `featured: true` and optionally a
 
 ## Open Issues
 
-- **#60** — Migrate `GITHUB_TOKEN` access from `import.meta.env` to `Astro.locals.runtime.env`
 - **#61** — Investigate Cloudflare Cache/KV caching for the GitHub commit feed
