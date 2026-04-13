@@ -18,7 +18,7 @@ Features a blueprint / dark sci-fi aesthetic with content collections for writin
 
 ## Stack
 
-- **Framework:** Astro 5 with Cloudflare adapter
+- **Framework:** Astro 6 with Cloudflare adapter
 - **Styling:** Tailwind CSS v4
 - **Deploy:** Cloudflare Workers via Wrangler
 - **Content:** Astro content collections (glob loader)
