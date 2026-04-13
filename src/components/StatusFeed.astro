@@ -1,13 +1,17 @@
 ---
 import { getCollection } from 'astro:content';
+import { env } from 'cloudflare:workers';
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
-// To add more repos later, append entries to this array.
-// Format: 'owner/repo'
 const GITHUB_REPOS = [
 	'sybilsedge/sybilsedge',
 ];
 const COMMITS_PER_REPO = 3;
+
+// ─── RUNTIME ENV ──────────────────────────────────────────────────────────
+// Read GITHUB_TOKEN from the Cloudflare Workers runtime env (set via wrangler secret).
+// Cast to string | undefined — the secret may not be bound in all environments.
+const githubToken = env.GITHUB_TOKEN as string | undefined;
 
 // ─── GITHUB COMMITS ────────────────────────────────────────────────────────
 type Commit = {
@@ -20,14 +24,13 @@ type Commit = {
 	url: string;
 };
 
-const githubToken = import.meta.env.GITHUB_TOKEN;
-
 const allCommits: Commit[] = [];
 
 for (const repo of GITHUB_REPOS) {
 	try {
 		const headers: Record<string, string> = {
 			Accept: 'application/vnd.github+json',
+			'X-GitHub-Api-Version': '2022-11-28',
 		};
 		if (githubToken) {
 			headers['Authorization'] = `Bearer ${githubToken}`;
@@ -58,7 +61,7 @@ for (const repo of GITHUB_REPOS) {
 	}
 }
 
-// Sort newest-first using epoch ms, not the display string
+// Sort newest-first using epoch ms
 allCommits.sort((a, b) => b.sortKey - a.sortKey);
 const commits = allCommits.slice(0, 4);
 
