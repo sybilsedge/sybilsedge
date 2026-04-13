@@ -4,3 +4,10 @@ interface Env {
 	/** GitHub fine-grained PAT — read-only, public repos. Set via: npx wrangler secret put GITHUB_TOKEN */
 	GITHUB_TOKEN: string;
 }
+
+// Provides types for the `cloudflare:workers` virtual module used in Astro v6 SSR.
+// Use `import { env } from 'cloudflare:workers'` to access Worker bindings/secrets.
+declare module 'cloudflare:workers' {
+	const env: Env;
+	export { env };
+}

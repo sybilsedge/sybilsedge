@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { env as cfEnv } from 'cloudflare:workers';
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 const GITHUB_REPOS = [
@@ -8,13 +9,9 @@ const GITHUB_REPOS = [
 const COMMITS_PER_REPO = 3;
 
 // ─── RUNTIME ENV ──────────────────────────────────────────────────────────
-// Astro.locals.runtime is only available in Cloudflare Workers SSR context.
-// Preview deployments and local dev may not have it bound, so we guard
-// against undefined before accessing .env to avoid a hard 500 crash.
-const runtime = (Astro.locals as Record<string, unknown>).runtime as
-	| { env: Record<string, string | undefined> }
-	| undefined;
-const githubToken = runtime?.env?.GITHUB_TOKEN ?? undefined;
+// Read GITHUB_TOKEN from the Cloudflare Workers runtime env (set via wrangler secret).
+// Cast to string | undefined — the secret may not be bound in all environments.
+const githubToken = cfEnv.GITHUB_TOKEN as string | undefined;
 
 // ─── GITHUB COMMITS ────────────────────────────────────────────────────────
 type Commit = {
