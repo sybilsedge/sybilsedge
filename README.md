@@ -1,46 +1,83 @@
-# Astro Starter Kit: Basics
+# sybilsedge.com
 
-```sh
-npm create astro@latest -- --template basics
-```
+Personal site for Sybil Melton — built with [Astro](https://astro.build) and deployed on [Cloudflare Workers](https://workers.cloudflare.com).
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Stack
 
-## 🚀 Project Structure
+| Layer | Technology |
+| :------------ | :----------------------------------- |
+| Framework | Astro 6 (SSR, Cloudflare adapter) |
+| Styling | Tailwind CSS v4 |
+| Deploy | Cloudflare Workers via Wrangler |
+| Content | Astro content collections |
+| Runtime | `@astrojs/cloudflare` |
 
-Inside of your Astro project, you'll see the following folders and files:
+## Project Structure
 
 ```text
 /
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
+├── public/              # Static assets (favicon, fonts)
+├── src/
+│   ├── components/      # Astro components (TechCard, StatusFeed, etc.)
+│   ├── content/         # Content collection entries (.md files)
+│   │   ├── projects/
+│   │   ├── recipes/
+│   │   ├── writing/
+│   │   └── posts/
+│   ├── layouts/         # Base page layouts
+│   ├── pages/           # File-based routes
+│   └── content.config.ts  # Active content collection schemas
+├── wrangler.jsonc       # Cloudflare Workers config
 └── package.json
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Local Development
 
-## 🧞 Commands
+```sh
+# Install dependencies
+npm install
 
-All commands are run from the root of the project, from a terminal:
+# Start dev server (localhost:4321)
+npm run dev
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+# Build for production
+npm run build
 
-## 👀 Want to learn more?
+# Preview production build locally
+npm run preview
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+# Deploy to Cloudflare Workers
+npx wrangler deploy
+```
+
+## Environment Variables
+
+Runtime secrets are stored as **Cloudflare Worker secrets** — never committed to the repo.
+
+| Secret | Purpose | How to set |
+| :------------- | :---------------------------------------------- | :------------------------------------ |
+| `GITHUB_TOKEN` | Authenticated GitHub API requests (commit feed) | `npx wrangler secret put GITHUB_TOKEN` |
+
+To create the token: GitHub → Settings → Developer settings → Fine-grained tokens.
+Grant **Contents: Read-only** on the `sybilsedge/sybilsedge` repository.
+
+> Secrets set via `wrangler secret put` are automatically available at runtime —
+> no entry in `wrangler.jsonc` is required.
+
+## Content Collections
+
+All content lives in `src/content/` as Markdown files. Schemas are defined in `src/content.config.ts`.
+
+| Collection | Path | Key fields |
+| :--------- | :-------------------------- | :--------------------------------------- |
+| `projects` | `src/content/projects/` | `category`, `status`, `featured`, `progress` |
+| `recipes` | `src/content/recipes/` | `category`, `featured` |
+| `writing` | `src/content/writing/` | `status`, `wordCount`, `chapterStatus` |
+| `posts` | `src/content/posts/` | `draft`, `featured` |
+
+To feature a project in the Maker Gallery, set `featured: true` and optionally add a `progress` value (0–100) in the frontmatter.
+
+## Open Issues
+
+- **#60** — Migrate `GITHUB_TOKEN` access from `import.meta.env` to `Astro.locals.runtime.env`
+- **#61** — Investigate Cloudflare Cache/KV caching for the GitHub commit feed
