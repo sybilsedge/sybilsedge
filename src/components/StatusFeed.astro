@@ -10,8 +10,9 @@ const COMMITS_PER_REPO = 3;
 
 // ─── RUNTIME ENV ──────────────────────────────────────────────────────────
 // Read GITHUB_TOKEN from the Cloudflare Workers runtime env (set via wrangler secret).
-// Cast to string | undefined — the secret may not be bound in all environments.
-const githubToken = env.GITHUB_TOKEN as string | undefined;
+// The secret is optional — unauthenticated requests still work for public repos
+// but are subject to GitHub's lower rate limit (60 req/hr vs 5 000 with auth).
+const githubToken = env.GITHUB_TOKEN;
 
 // ─── GITHUB COMMITS ────────────────────────────────────────────────────────
 type Commit = {
@@ -25,11 +26,13 @@ type Commit = {
 };
 
 const allCommits: Commit[] = [];
+let commitFetchError: string | null = null;
 
 for (const repo of GITHUB_REPOS) {
 	try {
 		const headers: Record<string, string> = {
 			Accept: 'application/vnd.github+json',
+			'User-Agent': 'sybilsedge/1.0',
 			'X-GitHub-Api-Version': '2022-11-28',
 		};
 		if (githubToken) {
@@ -55,9 +58,15 @@ for (const repo of GITHUB_REPOS) {
 					url: c.html_url as string,
 				});
 			}
+		} else {
+			const msg = `GitHub API ${res.status} for ${repo}. ${githubToken ? 'Check token permissions.' : 'No token configured — using unauthenticated access.'}`;
+			console.error(`[StatusFeed] ${msg}`);
+			commitFetchError = msg;
 		}
-	} catch {
-		// silently skip unavailable repos — dashboard still renders
+	} catch (err) {
+		const msg = `Fetch failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`;
+		console.error(`[StatusFeed] ${msg}`);
+		commitFetchError = msg;
 	}
 }
 
@@ -89,7 +98,9 @@ const healthIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="1
 		<p class="font-tech mb-2 text-[10px] uppercase tracking-[0.22em] text-cyan-300/50">// GitHub Activity</p>
 		{commits.length === 0 ? (
 			<div class="blueprint-border rounded-md bg-black/40 p-3">
-				<p class="font-tech text-[11px] text-cyan-300/40">No commits retrieved</p>
+				<p class="font-tech text-[11px] text-cyan-300/40">
+					{commitFetchError ? `Error: ${commitFetchError}` : 'No commits retrieved'}
+				</p>
 			</div>
 		) : (
 			<div class="space-y-2">
