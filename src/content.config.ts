@@ -22,13 +22,16 @@ const writing = defineCollection({
 // Tech, home, and garden projects
 const projects = defineCollection({
 	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects' }),
-	schema: z.object({
+	schema: ({ image }) => z.object({
 		title: z.string(),
 		category: z.enum(['tech', 'home', 'garden']),
 		status: z.enum(['active', 'complete', 'archived', 'wip']),
 		description: z.string(),
 		githubUrl: z.string().url().optional(),
-		image: z.string().optional(),
+		image: z.object({
+			src: image(),
+			alt: z.string(),
+		  }).optional(),
 		date: z.coerce.date(),
 		featured: z.boolean().default(false),
 		tags: z.array(z.string()).default([]),

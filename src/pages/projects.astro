@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import { Image } from 'astro:assets';
 
 const allProjects = await getCollection('projects');
 const projects = allProjects.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -48,6 +49,16 @@ const categories = ['all', ...new Set(projects.map((p) => p.data.category))] as 
 					<a href={`/projects/${project.id}`} class="group">
 						<h2 class="font-orbitron text-sm uppercase tracking-[0.08em] text-cyan-100 group-hover:text-cyan-300 transition-colors">{project.data.title}</h2>
 					</a>
+					<!-- Hero image at the top of the card -->
+					{project.data.image && (
+						<Image
+						src={project.data.image.src}
+						alt={project.data.image.alt}
+						width={800}
+						height={450}
+						class="w-full rounded-t-lg"
+						/>
+					)}
 					<p class="text-sm text-slate-300/80 leading-relaxed flex-1">{project.data.description}</p>
 					{project.data.tags.length > 0 && (
 						<div class="flex flex-wrap gap-1.5">
