@@ -6,8 +6,7 @@ description: "Personal site built with Astro, deployed on Cloudflare Workers. Bl
 githubUrl: "https://github.com/sybilsedge/sybilsedge"
 image: ""
 date: 2026-04-01
-featured: true
-progress: 72
+featured: false
 tags: ["Astro", "Cloudflare", "TypeScript"]
 ---
 
