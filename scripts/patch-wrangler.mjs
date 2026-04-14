@@ -3,11 +3,15 @@
  * https://github.com/withastro/astro/issues/16107
  *
  * The adapter generates dist/server/wrangler.json with:
- *   - assets.binding: "ASSETS"  → reserved name, breaks Workers deploy
  *   - kv_namespaces with no id   → invalid, breaks wrangler validation
  *   - triggers: {}               → invalid schema, breaks wrangler validation
  *
- * This script strips those fields so wrangler deploy succeeds.
+ * NOTE: assets.binding "ASSETS" is intentionally kept. The image-passthrough-endpoint
+ * that @astrojs/cloudflare uses to serve optimised images calls env.ASSETS.fetch().
+ * Without this binding, env.ASSETS is undefined at runtime and all images silently
+ * fail to load. Wrangler ≥ 4.x accepts "ASSETS" as a binding name without error.
+ *
+ * This script strips the invalid fields so wrangler deploy succeeds.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -23,12 +27,6 @@ try {
 }
 
 const config = JSON.parse(raw);
-
-// Remove reserved ASSETS binding name (keep assets block, just drop binding key)
-if (config.assets?.binding) {
-  console.log(`patch-wrangler: removing assets.binding "${config.assets.binding}"`);
-  delete config.assets.binding;
-}
 
 // Remove SESSION KV stub (has no id, fails wrangler validation)
 if (Array.isArray(config.kv_namespaces)) {
