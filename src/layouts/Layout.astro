@@ -5,16 +5,19 @@ import Nav from '../components/Nav.astro';
 interface Props {
 	title?: string;
 	description?: string;
-	image?: string;
+	// Pass a root-relative path like '/og/home.png'.
+	// Defaults to '/og/default.png' when omitted.
+	ogImage?: string;
 }
 
 const {
 	title = 'sybilsedge.com | Command Center',
 	description = 'The digital identity of Sybil Melton — writer, cloud architect, maker, and cook.',
-	image = '/og-default.png',
+	ogImage = '/og/default.png',
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsedge.com');
+const ogImageURL = new URL(ogImage, Astro.site ?? 'https://sybilsedge.com');
 ---
 
 <!doctype html>
@@ -36,13 +39,16 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsed
 		<meta property="og:url" content={canonicalURL} />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
-		<meta property="og:image" content={image} />
+		<meta property="og:image" content={ogImageURL} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:type" content="image/png" />
 
 		<!-- Twitter Card -->
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />
-		<meta name="twitter:image" content={image} />
+		<meta name="twitter:image" content={ogImageURL} />
 
 		<!-- Font preconnect — reduces render-blocking by establishing connections early -->
 		<link rel="preconnect" href="https://fonts.googleapis.com" />

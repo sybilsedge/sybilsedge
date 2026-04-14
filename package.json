@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/generate-og.mjs",
     "postbuild": "node scripts/patch-wrangler.mjs",
     "preview": "astro preview",
     "astro": "astro"
@@ -19,5 +19,9 @@
     "react-dom": "^19.2.5",
     "tailwindcss": "^4.2.2",
     "lucide-react": "^1.7.0"
+  },
+  "devDependencies": {
+    "satori": "^0.11.4",
+    "@resvg/resvg-js": "^2.6.2"
   }
 }
