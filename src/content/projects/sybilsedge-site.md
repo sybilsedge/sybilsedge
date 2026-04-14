@@ -4,7 +4,9 @@ category: "tech"
 status: "active"
 description: "Personal site built with Astro, deployed on Cloudflare Workers. Blueprint aesthetic with dark mode, content collections, and live GitHub activity feed."
 githubUrl: "https://github.com/sybilsedge/sybilsedge"
-image: ""
+image:
+  src: ""
+  alt: ""
 date: 2026-04-01
 featured: false
 tags: ["Astro", "Cloudflare", "TypeScript"]
