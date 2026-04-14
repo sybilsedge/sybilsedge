@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import TechCard from './TechCard.astro';
 import SectionHeader from './SectionHeader.astro';
+import GalleryIsland from './GalleryIsland.astro';
 
 // Pull featured projects, sorted newest-first
 // To feature a project in the gallery, set `featured: true` in its frontmatter.
@@ -53,4 +54,7 @@ const categoryIcons: Record<string, string> = {
 			))
 		)}
 	</div>
+
+	{/* Photo gallery — only renders when at least one featured project has an image */}
+	<GalleryIsland type="projects" featuredOnly={true} />
 </section>

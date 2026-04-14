@@ -1,0 +1,90 @@
+---
+/**
+ * GalleryIsland — Astro wrapper for the GalleryLightbox React island.
+ *
+ * This component runs entirely on the server:
+ *   1. Fetches the requested content collection.
+ *   2. Filters entries that have an `image` field.
+ *   3. Pre-optimises every image via `getImage()` so the React island only
+ *      receives plain, serialisable strings — no Node / Astro APIs needed
+ *      inside the client bundle.
+ *
+ * The React island (`GalleryLightbox`) hydrates with `client:visible` so
+ * no JavaScript is shipped until the component scrolls into the viewport.
+ *
+ * Props:
+ *   type        — 'projects' | 'recipes'  (which collection to pull from)
+ *   featuredOnly — when true, only items with `featured: true` are included
+ *   limit        — cap the number of gallery items (default: all)
+ */
+import { getCollection } from 'astro:content';
+import { getImage } from 'astro:assets';
+import GalleryLightbox from './GalleryLightbox.tsx';
+import type { GalleryItem } from './GalleryLightbox.tsx';
+
+interface Props {
+	type: 'projects' | 'recipes';
+	featuredOnly?: boolean;
+	limit?: number;
+}
+
+const { type, featuredOnly = false, limit } = Astro.props;
+
+const items: GalleryItem[] = [];
+
+if (type === 'projects') {
+	const all = await getCollection('projects');
+	const filtered = all
+		.filter((p) => p.data.image && (!featuredOnly || p.data.featured))
+		.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+		.slice(0, limit);
+
+	for (const project of filtered) {
+		if (!project.data.image) continue;
+
+		const optimised = await getImage({
+			src: project.data.image.src,
+			width: 1200,
+			format: 'webp',
+		});
+
+		items.push({
+			src: optimised.src,
+			alt: project.data.image.alt,
+			width: optimised.attributes.width ? Number(optimised.attributes.width) : undefined,
+			height: optimised.attributes.height ? Number(optimised.attributes.height) : undefined,
+			title: project.data.title,
+			caption: project.data.description,
+		});
+	}
+} else if (type === 'recipes') {
+	const all = await getCollection('recipes');
+	const filtered = all
+		.filter((r) => r.data.image && (!featuredOnly || r.data.featured))
+		.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+		.slice(0, limit);
+
+	for (const recipe of filtered) {
+		if (!recipe.data.image) continue;
+
+		const optimised = await getImage({
+			src: recipe.data.image.src,
+			width: 1200,
+			format: 'webp',
+		});
+
+		items.push({
+			src: optimised.src,
+			alt: recipe.data.image.alt,
+			width: optimised.attributes.width ? Number(optimised.attributes.width) : undefined,
+			height: optimised.attributes.height ? Number(optimised.attributes.height) : undefined,
+			title: recipe.data.title,
+			caption: recipe.data.description,
+		});
+	}
+}
+---
+
+{items.length > 0 && (
+	<GalleryLightbox items={items} client:visible />
+)}

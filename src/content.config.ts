@@ -43,7 +43,7 @@ const projects = defineCollection({
 // Recipes — cooking, baking, preservation
 const recipes = defineCollection({
 	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/recipes' }),
-	schema: z.object({
+	schema: ({ image }) => z.object({
 		title: z.string(),
 		category: z.enum(['baking', 'cooking', 'preservation']),
 		description: z.string(),
@@ -51,7 +51,12 @@ const recipes = defineCollection({
 		prepTime: z.string().optional(),
 		cookTime: z.string().optional(),
 		servings: z.number().optional(),
-		image: z.string().optional(),
+		// Use Astro's image() helper so images are validated and optimised at
+		// build time via getImage() — must be a local path relative to the entry.
+		image: z.object({
+			src: image(),
+			alt: z.string(),
+		}).optional(),
 		date: z.coerce.date(),
 		featured: z.boolean().default(false),
 	}),
