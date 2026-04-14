@@ -18,10 +18,12 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.5",
     "tailwindcss": "^4.2.2",
-    "lucide-react": "^1.7.0"
+    "lucide-react": "^1.07.0"
   },
   "devDependencies": {
     "satori": "^0.12.1",
-    "@resvg/resvg-js": "^2.6.2"
+    "@resvg/resvg-js": "^2.6.2",
+    "@fontsource/orbitron": "^5.1.1",
+    "@fontsource/inter": "^5.1.1"
   }
 }
