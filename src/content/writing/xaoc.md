@@ -2,7 +2,7 @@
 title: "The Shadow Docket"
 genre: "Cyberpunk Techno-Thriller"
 status: "draft"
-wordCount: 81,081
+wordCount: 81081
 chapterStatus: "Ch. 39 — active draft"
 synopsis: |
   In 2070, a routine morning in St. Petersburg turns catastrophic when Boris Frolov — a disabled veteran fitted with a military-surplus prosthetic arm — detonates in a crowded coffee house, killing a dozen civilians. Within hours, four more coordinated explosions strike Paris, Hamburg, Brussels, and Rotterdam, all triggered remotely through a single restricted NPL quantum frequency, all involving XAoC Cybernetics prosthetics installed just one week prior.
