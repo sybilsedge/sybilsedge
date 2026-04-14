@@ -55,6 +55,7 @@ const categoryIcons: Record<string, string> = {
 		)}
 	</div>
 
-	{/* Photo gallery — only renders when at least one featured project has an image */}
-	<GalleryIsland type="projects" featuredOnly={true} />
+	{/* Photo gallery — reuses the already-fetched `featured` list to avoid a
+	    second getCollection() call inside GalleryIsland */}
+	<GalleryIsland type="projects" entries={featured} />
 </section>

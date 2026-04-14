@@ -2,7 +2,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 
 export interface GalleryItem {
+	/** Full-resolution URL shown inside the lightbox. */
 	src: string;
+	/** Smaller thumbnail URL shown in the grid; falls back to `src` if omitted. */
+	thumbSrc?: string;
 	alt: string;
 	width?: number;
 	height?: number;
@@ -18,11 +21,27 @@ export default function GalleryLightbox({ items }: Props) {
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
 	const dialogRef = useRef<HTMLDivElement>(null);
 	const closeButtonRef = useRef<HTMLButtonElement>(null);
+	// Tracks the thumbnail button that triggered the lightbox so focus can be
+	// returned to it on close — required for keyboard/screen-reader users.
+	const triggerRef = useRef<HTMLElement | null>(null);
 
 	const isOpen = activeIndex !== null;
 	const current = activeIndex !== null ? items[activeIndex] : null;
 
-	const close = useCallback(() => setActiveIndex(null), []);
+	const open = useCallback((idx: number) => {
+		triggerRef.current = document.activeElement instanceof HTMLElement
+			? document.activeElement
+			: null;
+		setActiveIndex(idx);
+	}, []);
+
+	const close = useCallback(() => {
+		setActiveIndex(null);
+		// Return focus to the thumbnail that opened the dialog.
+		triggerRef.current?.focus();
+		triggerRef.current = null;
+	}, []);
+
 	const prev = useCallback(
 		() => setActiveIndex((i) => (i !== null ? (i - 1 + items.length) % items.length : null)),
 		[items.length],
@@ -42,12 +61,16 @@ export default function GalleryLightbox({ items }: Props) {
 			if (e.key === 'ArrowRight') next();
 		};
 
-		document.addEventListener('keydown', onKey);
+		// Capture the current overflow so we restore it exactly on close,
+		// rather than unconditionally resetting to '' which could clobber
+		// a pre-existing inline overflow value set elsewhere in the app.
+		const prevOverflow = document.body.style.overflow;
 		document.body.style.overflow = 'hidden';
+		document.addEventListener('keydown', onKey);
 
 		return () => {
 			document.removeEventListener('keydown', onKey);
-			document.body.style.overflow = '';
+			document.body.style.overflow = prevOverflow;
 		};
 	}, [isOpen, close, prev, next]);
 
@@ -100,12 +123,12 @@ export default function GalleryLightbox({ items }: Props) {
 						key={idx}
 						type="button"
 						role="listitem"
-						onClick={() => setActiveIndex(idx)}
+						onClick={() => open(idx)}
 						className="group relative aspect-video overflow-hidden rounded-md blueprint-border bg-black/40"
 						aria-label={`Open ${item.title ?? item.alt} in lightbox`}
 					>
 						<img
-							src={item.src}
+							src={item.thumbSrc ?? item.src}
 							alt={item.alt}
 							width={item.width}
 							height={item.height}
