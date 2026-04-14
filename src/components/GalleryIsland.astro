@@ -21,6 +21,7 @@ import { getCollection } from 'astro:content';
 import { getImage } from 'astro:assets';
 import GalleryLightbox from './GalleryLightbox.tsx';
 import type { GalleryItem } from './GalleryLightbox.tsx';
+import type { ImageMetadata } from 'astro';
 
 interface Props {
 	type: 'projects' | 'recipes';
@@ -30,61 +31,50 @@ interface Props {
 
 const { type, featuredOnly = false, limit } = Astro.props;
 
-const items: GalleryItem[] = [];
-
-if (type === 'projects') {
-	const all = await getCollection('projects');
-	const filtered = all
-		.filter((p) => p.data.image && (!featuredOnly || p.data.featured))
-		.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-		.slice(0, limit);
-
-	for (const project of filtered) {
-		if (!project.data.image) continue;
-
-		const optimised = await getImage({
-			src: project.data.image.src,
-			width: 1200,
-			format: 'webp',
-		});
-
-		items.push({
-			src: optimised.src,
-			alt: project.data.image.alt,
-			width: optimised.attributes.width ? Number(optimised.attributes.width) : undefined,
-			height: optimised.attributes.height ? Number(optimised.attributes.height) : undefined,
-			title: project.data.title,
-			caption: project.data.description,
-		});
-	}
-} else if (type === 'recipes') {
-	const all = await getCollection('recipes');
-	const filtered = all
-		.filter((r) => r.data.image && (!featuredOnly || r.data.featured))
-		.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-		.slice(0, limit);
-
-	for (const recipe of filtered) {
-		if (!recipe.data.image) continue;
-
-		const optimised = await getImage({
-			src: recipe.data.image.src,
-			width: 1200,
-			format: 'webp',
-		});
-
-		items.push({
-			src: optimised.src,
-			alt: recipe.data.image.alt,
-			width: optimised.attributes.width ? Number(optimised.attributes.width) : undefined,
-			height: optimised.attributes.height ? Number(optimised.attributes.height) : undefined,
-			title: recipe.data.title,
-			caption: recipe.data.description,
-		});
-	}
+/** Optimise one image and return a serialisable GalleryItem. */
+async function toGalleryItem(
+	imageData: { src: ImageMetadata; alt: string },
+	title: string,
+	caption: string,
+): Promise<GalleryItem> {
+	const optimised = await getImage({ src: imageData.src, width: 1200, format: 'webp' });
+	return {
+		src: optimised.src,
+		alt: imageData.alt,
+		width: optimised.attributes.width ? Number(optimised.attributes.width) : undefined,
+		height: optimised.attributes.height ? Number(optimised.attributes.height) : undefined,
+		title,
+		caption,
+	};
 }
+
+const rawProjects =
+	type === 'projects'
+		? (await getCollection('projects'))
+				.filter((p) => p.data.image && (!featuredOnly || p.data.featured))
+				.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+				.slice(0, limit)
+		: [];
+
+const rawRecipes =
+	type === 'recipes'
+		? (await getCollection('recipes'))
+				.filter((r) => r.data.image && (!featuredOnly || r.data.featured))
+				.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+				.slice(0, limit)
+		: [];
+
+const items: GalleryItem[] = await Promise.all([
+	...rawProjects
+		.filter((p) => p.data.image)
+		.map((p) => toGalleryItem(p.data.image!, p.data.title, p.data.description)),
+	...rawRecipes
+		.filter((r) => r.data.image)
+		.map((r) => toGalleryItem(r.data.image!, r.data.title, r.data.description)),
+]);
 ---
 
 {items.length > 0 && (
 	<GalleryLightbox items={items} client:visible />
 )}
+
