@@ -5,8 +5,8 @@ import Nav from '../components/Nav.astro';
 interface Props {
 	title?: string;
 	description?: string;
-	// Pass a root-relative path like '/og/home.png'.
-	// Defaults to '/og/default.png' when omitted.
+	// Pass a root-relative path like '/og/writing.png'.
+	// Defaults to '/og/default.png' which is generated at build time.
 	ogImage?: string;
 }
 
@@ -17,7 +17,7 @@ const {
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsedge.com');
-const ogImageURL = new URL(ogImage, Astro.site ?? 'https://sybilsedge.com');
+const ogImageURL = new URL(ogImage, Astro.site ?? 'https://sybilsedge.com').toString();
 ---
 
 <!doctype html>

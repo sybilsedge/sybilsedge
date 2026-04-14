@@ -21,7 +21,7 @@
     "lucide-react": "^1.7.0"
   },
   "devDependencies": {
-    "satori": "^0.11.4",
+    "satori": "^0.12.1",
     "@resvg/resvg-js": "^2.6.2"
   }
 }
