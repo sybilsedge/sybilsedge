@@ -3,7 +3,9 @@ title: "Back Deck Repaint"
 category: "home"
 status: "wip"
 description: "Repainting 400 sq ft deck — stripping, sanding, priming, and painting after replacing rotted boards."
-image: ""
+image:
+  src: "../../assets/images/kitchen/deck-board-replacement.jpg"
+  alt: "After replacing rotten boards"
 date: 2026-03-01
 featured: true
 progress: 55
