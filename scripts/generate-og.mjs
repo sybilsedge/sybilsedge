@@ -22,16 +22,12 @@ const OUT_DIR = resolve(__dirname, '../dist/client/og');
 mkdirSync(OUT_DIR, { recursive: true });
 
 // ── FONT LOADING ─────────────────────────────────────────────────────────────
-// We embed base64 fonts so the generator works in CI without a network call.
-// Orbitron (display) + Inter (body) — both open source, loaded from node_modules
-// or falling back to a system font if unavailable.
 let orbitronFont, interFont;
 try {
   orbitronFont = readFileSync(
     resolve(__dirname, '../node_modules/@fontsource/orbitron/files/orbitron-latin-700-normal.woff')
   );
 } catch {
-  // Fallback: satori will use its built-in sans-serif
   orbitronFont = null;
 }
 try {
@@ -46,19 +42,23 @@ const fonts = [];
 if (orbitronFont) fonts.push({ name: 'Orbitron', data: orbitronFont, weight: 700, style: 'normal' });
 if (interFont)   fonts.push({ name: 'Inter',    data: interFont,    weight: 400, style: 'normal' });
 
+if (fonts.length === 0) {
+  console.error('og: ERROR — no fonts loaded. Check @fontsource/orbitron and @fontsource/inter are installed.');
+  process.exit(1);
+}
+
+console.log(`og: loaded ${fonts.map(f => f.name).join(', ')}`);
+
 // ── DESIGN TOKENS ────────────────────────────────────────────────────────────
 const BG       = '#080c10';
-const SURFACE  = '#0d1117';
 const CYAN     = '#67e8f9';
 const CYAN_DIM = 'rgba(103,232,249,0.5)';
-const TEXT     = '#e2e8f0';
 const MUTED    = 'rgba(226,232,240,0.55)';
 const BORDER   = 'rgba(103,232,249,0.25)';
-const FONT_DISPLAY = orbitronFont ? 'Orbitron' : 'sans-serif';
-const FONT_BODY    = interFont    ? 'Inter'    : 'sans-serif';
+const FONT_DISPLAY = orbitronFont ? 'Orbitron' : 'Inter';
+const FONT_BODY    = interFont    ? 'Inter'    : 'Orbitron';
 
 // ── GRID PATTERN (inline SVG data URI) ───────────────────────────────────────
-// Blueprint crosshatch grid rendered as a background image.
 const GRID_SVG = `data:image/svg+xml,${encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40">'
   + '<path d="M0 0h40v40H0z" fill="none"/>'
@@ -67,14 +67,10 @@ const GRID_SVG = `data:image/svg+xml,${encodeURIComponent(
 )}`;
 
 // ── OG CARD COMPONENT ────────────────────────────────────────────────────────
-/**
- * @param {object} opts
- * @param {string} opts.title       - Main heading
- * @param {string} opts.description - Subheading / description
- * @param {string} [opts.label]     - Small all-caps label above title (e.g. 'Portfolio')
- * @param {string} [opts.section]   - Bottom-left section indicator
- */
+// NOTE: Satori requires display:flex on every element with more than one child.
 function OgCard({ title, description, label, section }) {
+  const titleSize = title.length > 30 ? '52px' : '64px';
+
   return {
     type: 'div',
     props: {
@@ -99,6 +95,7 @@ function OgCard({ title, description, label, section }) {
               top: 0, left: 0, right: 0,
               height: '3px',
               background: `linear-gradient(90deg, ${CYAN} 0%, transparent 100%)`,
+              display: 'flex',
             },
             children: [],
           },
@@ -112,6 +109,7 @@ function OgCard({ title, description, label, section }) {
               top: 0, left: 0, bottom: 0,
               width: '3px',
               background: `linear-gradient(180deg, ${CYAN} 0%, transparent 100%)`,
+              display: 'flex',
             },
             children: [],
           },
@@ -128,35 +126,35 @@ function OgCard({ title, description, label, section }) {
               gap: '20px',
             },
             children: [
-              // Label
-              label ? {
+              // Label (optional)
+              ...(label ? [{
                 type: 'div',
                 props: {
                   style: {
+                    display: 'flex',
                     fontFamily: FONT_BODY,
                     fontSize: '13px',
                     fontWeight: 400,
                     letterSpacing: '0.22em',
-                    textTransform: 'uppercase',
                     color: CYAN_DIM,
                   },
-                  children: [label],
+                  children: [label.toUpperCase()],
                 },
-              } : null,
+              }] : []),
               // Title
               {
                 type: 'div',
                 props: {
                   style: {
+                    display: 'flex',
                     fontFamily: FONT_DISPLAY,
-                    fontSize: title.length > 30 ? '52px' : '64px',
+                    fontSize: titleSize,
                     fontWeight: 700,
                     letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
                     color: CYAN,
                     lineHeight: 1.1,
                   },
-                  children: [title],
+                  children: [title.toUpperCase()],
                 },
               },
               // Description
@@ -164,6 +162,7 @@ function OgCard({ title, description, label, section }) {
                 type: 'div',
                 props: {
                   style: {
+                    display: 'flex',
                     fontFamily: FONT_BODY,
                     fontSize: '22px',
                     fontWeight: 400,
@@ -174,7 +173,7 @@ function OgCard({ title, description, label, section }) {
                   children: [description],
                 },
               },
-            ].filter(Boolean),
+            ],
           },
         },
         // Footer row
@@ -193,24 +192,24 @@ function OgCard({ title, description, label, section }) {
                 type: 'div',
                 props: {
                   style: {
+                    display: 'flex',
                     fontFamily: FONT_BODY,
                     fontSize: '14px',
                     letterSpacing: '0.18em',
-                    textTransform: 'uppercase',
                     color: CYAN_DIM,
                   },
-                  children: [section ?? 'sybilsedge.com'],
+                  children: [(section ?? 'sybilsedge.com').toUpperCase()],
                 },
               },
               {
                 type: 'div',
                 props: {
                   style: {
+                    display: 'flex',
                     fontFamily: FONT_DISPLAY,
                     fontSize: '14px',
                     fontWeight: 700,
                     letterSpacing: '0.16em',
-                    textTransform: 'uppercase',
                     color: CYAN,
                   },
                   children: ['SYBILSEDGE.COM'],
@@ -225,8 +224,6 @@ function OgCard({ title, description, label, section }) {
 }
 
 // ── PAGE DEFINITIONS ─────────────────────────────────────────────────────────
-// Each entry produces one PNG at dist/client/og/<filename>.png
-// To add more pages, append to this array.
 const PAGES = [
   {
     filename: 'default',
