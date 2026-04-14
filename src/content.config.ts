@@ -1,6 +1,5 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
-import { image } from 'astro:config/client';
 
 // Writing portfolio — fiction, essays, WIP novels
 const writing = defineCollection({
