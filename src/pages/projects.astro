@@ -21,13 +21,13 @@ const categories = ['all', ...new Set(projects.map((p) => p.data.category))] as 
 		</header>
 
 		<!-- Filters -->
-		<div class="mb-6 flex flex-wrap gap-2">
+		<div role="group" aria-label="Filter projects by category" class="mb-6 flex flex-wrap gap-2">
 			{categories.map((cat) => (
 				<button
 					type="button"
 					data-filter={cat}
-					data-active={cat === 'all' ? 'true' : undefined}
-					class="rounded blueprint-border px-3 py-1.5 font-tech text-[11px] uppercase tracking-[0.14em] text-cyan-300/60 transition-colors hover:text-cyan-100 data-[active]:text-cyan-100 data-[active]:border-cyan-300/60 data-[active]:bg-cyan-300/5"
+					aria-pressed={cat === 'all' ? 'true' : 'false'}
+					class="rounded blueprint-border px-3 py-1.5 font-tech text-[11px] uppercase tracking-[0.14em] text-cyan-300/60 transition-colors hover:text-cyan-100 aria-pressed:text-cyan-100 aria-pressed:border-cyan-300/60 aria-pressed:bg-cyan-300/5"
 				>
 					{cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1)}
 				</button>
@@ -67,8 +67,8 @@ const categories = ['all', ...new Set(projects.map((p) => p.data.category))] as 
 		btns.forEach((btn) => {
 			btn.addEventListener('click', () => {
 				const filter = btn.dataset.filter ?? 'all';
-				btns.forEach((b) => b.removeAttribute('data-active'));
-				btn.setAttribute('data-active', 'true');
+				btns.forEach((b) => b.setAttribute('aria-pressed', 'false'));
+				btn.setAttribute('aria-pressed', 'true');
 				cards.forEach((card) => {
 					card.style.display = (filter === 'all' || card.dataset.category === filter) ? '' : 'none';
 				});
