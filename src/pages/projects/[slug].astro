@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
 
 export const prerender = true;
 
@@ -71,16 +72,16 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 					))}
 				</div>
 			)}
-			<!-- Hero image at the top of the card -->
-					{entry.data.image && (
-						<Image
-						src={entry.data.image.src}
-						alt={entry.data.image.alt}
-						width={800}
-						height={450}
-						class="w-full rounded-t-lg"
-						/>
-					)}
+			<!-- Project hero image in the page header -->
+			{entry.data.image && (
+				<Image
+					src={entry.data.image.src}
+					alt={entry.data.image.alt}
+					width={800}
+					height={450}
+					class="w-full rounded-t-lg"
+				/>
+			)}
 			<!-- GitHub link -->
 			{entry.data.githubUrl && (
 				<a

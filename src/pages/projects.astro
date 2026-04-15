@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
-import { Image } from 'astro:assets';
 
 const allProjects = await getCollection('projects');
 const projects = allProjects.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
