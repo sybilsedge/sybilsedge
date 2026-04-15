@@ -6,7 +6,12 @@ description: "Repainting 400 sq ft deck — stripping, sanding, priming, and pai
 image:
   src: "../../assets/images/projects/deck-board-replacement.jpg"
   alt: "After replacing rotten boards"
-date: 2026-03-01
+images:
+  - src: "../../assets/images/projects/20260414_185940.jpg"
+    alt: "Floor sanded"
+  - src: "../../assets/images/projects/20260414_185954.jpg"
+    alt: "Railing sanded"
+date: 2026-04-15
 featured: true
 progress: 55
 tags: ["Painting", "Outdoor"]
