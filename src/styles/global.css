@@ -83,6 +83,11 @@ body {
   box-shadow: var(--neon-green-glow);
 }
 
+/* Cyan glow shadow — use on images or cards that need a soft cyan halo */
+.glow-cyan {
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+}
+
 /* Focus styles */
 :focus-visible {
   outline: 2px solid var(--blueprint-cyan);

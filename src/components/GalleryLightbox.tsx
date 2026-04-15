@@ -11,6 +11,8 @@ export interface GalleryItem {
 	height?: number;
 	title?: string;
 	caption?: string;
+	/** Key/value pairs displayed in the lightbox sidebar (e.g. "Oven: 475°F"). */
+	metadata?: Record<string, string>;
 }
 
 interface Props {

@@ -35,6 +35,8 @@ const projects = defineCollection({
 		images: z.array(z.object({
 			src: image(),
 			alt: z.string(),
+			caption: z.string().optional(),
+			metadata: z.record(z.string(), z.string()).optional(),
 		})).optional(),
 		date: z.coerce.date(),
 		featured: z.boolean().default(false),
@@ -61,6 +63,12 @@ const recipes = defineCollection({
 			src: image(),
 			alt: z.string(),
 		}).optional(),
+		images: z.array(z.object({
+			src: image(),
+			alt: z.string(),
+			caption: z.string().optional(),
+			metadata: z.record(z.string(), z.string()).optional(),
+		})).optional(),
 		date: z.coerce.date(),
 		featured: z.boolean().default(false),
 	}),

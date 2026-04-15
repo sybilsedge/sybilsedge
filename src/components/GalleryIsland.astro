@@ -29,9 +29,17 @@ import GalleryLightbox from './GalleryLightbox.tsx';
 import type { GalleryItem } from './GalleryLightbox.tsx';
 import type { ImageMetadata } from 'astro';
 
+interface ImageEntry {
+	src: ImageMetadata;
+	alt: string;
+	caption?: string;
+	metadata?: Record<string, string>;
+}
+
 interface EntryWithImage {
 	data: {
 		image?: { src: ImageMetadata; alt: string };
+		images?: ImageEntry[];
 		title: string;
 		description: string;
 		featured?: boolean;
@@ -49,9 +57,9 @@ const { type, entries: providedEntries, featuredOnly = false, limit } = Astro.pr
 
 /** Optimise one image into a thumbnail + full-resolution pair. */
 async function toGalleryItem(
-	imageData: { src: ImageMetadata; alt: string },
+	imageData: ImageEntry,
 	title: string,
-	caption: string,
+	fallbackCaption: string,
 ): Promise<GalleryItem> {
 	const [thumb, full] = await Promise.all([
 		getImage({ src: imageData.src, width: 400, format: 'webp' }),
@@ -64,23 +72,40 @@ async function toGalleryItem(
 		width: full.attributes.width ? Number(full.attributes.width) : undefined,
 		height: full.attributes.height ? Number(full.attributes.height) : undefined,
 		title,
-		caption,
+		caption: imageData.caption ?? fallbackCaption,
+		metadata: imageData.metadata,
 	};
+}
+
+/**
+ * Collect all optimisable image entries from a content entry.
+ * Prefers the `images` array when present; falls back to the single `image`.
+ */
+function collectImages(entry: EntryWithImage): ImageEntry[] {
+	if (entry.data.images && entry.data.images.length > 0) {
+		return entry.data.images;
+	}
+	if (entry.data.image) {
+		return [{ src: entry.data.image.src, alt: entry.data.image.alt }];
+	}
+	return [];
 }
 
 // Use provided entries when available; otherwise fetch the collection.
 let sourceEntries: EntryWithImage[];
 if (providedEntries) {
-	sourceEntries = providedEntries.filter((e) => e.data.image);
+	sourceEntries = providedEntries.filter(
+		(e) => (e.data.images && e.data.images.length > 0) || e.data.image,
+	);
 } else if (type === 'projects') {
 	const all = await getCollection('projects');
 	sourceEntries = all
-		.filter((p) => p.data.image && (!featuredOnly || p.data.featured))
+		.filter((p) => ((p.data.images && p.data.images.length > 0) || p.data.image) && (!featuredOnly || p.data.featured))
 		.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 } else {
 	const all = await getCollection('recipes');
 	sourceEntries = all
-		.filter((r) => r.data.image && (!featuredOnly || r.data.featured))
+		.filter((r) => ((r.data.images && r.data.images.length > 0) || r.data.image) && (!featuredOnly || r.data.featured))
 		.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 }
 
@@ -89,9 +114,11 @@ if (limit !== undefined) {
 }
 
 const items: GalleryItem[] = await Promise.all(
-	sourceEntries
-		.filter((e) => e.data.image)
-		.map((e) => toGalleryItem(e.data.image!, e.data.title, e.data.description)),
+	sourceEntries.flatMap((e) =>
+		collectImages(e).map((img) =>
+			toGalleryItem(img, e.data.title, e.data.description),
+		),
+	),
 );
 ---
 

@@ -9,19 +9,35 @@ image:
 images:
   - src: "../../assets/images/projects/20260414_185940.jpg"
     alt: "Floor sanded"
+    caption: "Deck floor after 80-grit orbital sanding — old paint fully removed."
+    metadata:
+      Grit: "80 → 120"
+      Tool: "Orbital sander"
+      Area: "~320 sq ft"
   - src: "../../assets/images/projects/20260414_185954.jpg"
     alt: "Railing sanded"
+    caption: "Railings hand-sanded to bare wood, ready for primer."
+    metadata:
+      Grit: "100 → 150"
+      Tool: "Sanding block"
+      Wood: "Cedar"
 date: 2026-04-15
 featured: true
 progress: 55
 tags: ["Painting", "Outdoor"]
 ---
 
+import BlueprintGallery from '../../components/BlueprintGallery.tsx';
+
 ## Overview
 
 We bought the house 2 years ago and the deck was already painted.
 We have been stripping, sanding, and cleaning.
 Because of the weather, it has been a slow process.
+
+## Photo Log
+
+<BlueprintGallery items={props.galleryItems} label="Build Documentation" client:visible />
 
 ## Phases
 
