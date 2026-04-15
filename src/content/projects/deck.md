@@ -9,7 +9,7 @@ image:
 images:
   - src: "../../assets/images/projects/20260414_185940.jpg"
     alt: "Floor sanded"
-  - src: "../../assets/images/kitchen/20260414_185954.jpg"
+  - src: "../../assets/images/projects/20260414_185954.jpg"
     alt: "Railing sanded"
 date: 2026-04-15
 featured: true

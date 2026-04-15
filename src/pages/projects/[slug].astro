@@ -1,6 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
+import { Image, getImage } from 'astro:assets';
+import GalleryLightbox from '../../components/GalleryLightbox.tsx';
+import type { GalleryItem } from '../../components/GalleryLightbox.tsx';
 
 export const prerender = true;
 
@@ -14,6 +17,25 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+
+// Pre-optimise extra gallery images (if any) for the lightbox.
+const galleryItems: GalleryItem[] = entry.data.images
+	? await Promise.all(
+		entry.data.images.map(async (img) => {
+			const [thumb, full] = await Promise.all([
+				getImage({ src: img.src, width: 400, format: 'webp' }),
+				getImage({ src: img.src, width: 1200, format: 'webp' }),
+			]);
+			return {
+				src: full.src,
+				thumbSrc: thumb.src,
+				alt: img.alt,
+				width: full.attributes.width ? Number(full.attributes.width) : undefined,
+				height: full.attributes.height ? Number(full.attributes.height) : undefined,
+			} satisfies GalleryItem;
+		}),
+	)
+	: [];
 
 const statusConfig: Record<string, { label: string; classes: string }> = {
 	active:   { label: 'ACTIVE',   classes: 'border-[#39ff14]/40 text-[#39ff14]/80 bg-[#39ff14]/5' },
@@ -99,6 +121,13 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 		<div class="blueprint-border rounded-md bg-black/35 p-6 md:p-8 prose-project">
 			<Content />
 		</div>
+
+		<!-- Extra photo gallery (images: [] in frontmatter) -->
+		{galleryItems.length > 0 && (
+			<div class="mt-6">
+				<GalleryLightbox items={galleryItems} client:visible />
+			</div>
+		)}
 
 	</div>
 
