@@ -11,7 +11,7 @@
  *
  * Usage in MDX:
  *   import BlueprintGallery from '../../components/BlueprintGallery.tsx';
- *   <BlueprintGallery items={frontmatter.images} />
+ *   <BlueprintGallery items={props.galleryItems} />
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
