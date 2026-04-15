@@ -113,15 +113,13 @@ if (limit !== undefined) {
 	sourceEntries = sourceEntries.slice(0, limit);
 }
 
-const items: GalleryItem[] = (
-	await Promise.all(
-		sourceEntries.flatMap((e) =>
-			collectImages(e).map((img) =>
-				toGalleryItem(img, e.data.title, e.data.description),
-			),
+const items: GalleryItem[] = await Promise.all(
+	sourceEntries.flatMap((e) =>
+		collectImages(e).map((img) =>
+			toGalleryItem(img, e.data.title, e.data.description),
 		),
-	)
-).flat();
+	),
+);
 ---
 
 {items.length > 0 && (
