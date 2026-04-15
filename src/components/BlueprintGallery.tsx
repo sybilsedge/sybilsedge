@@ -281,7 +281,7 @@ export default function BlueprintGallery({ items, label }: Props) {
 								>
 									{/* Blueprint grid background on sidebar */}
 									<div
-										className="pointer-events-none absolute inset-0 rounded-md opacity-30"
+										className="pointer-events-none relative overflow-hidden inset-0 rounded-md opacity-30"
 										style={{
 											backgroundImage:
 												'linear-gradient(to right, #00ffff10 1px, transparent 1px), linear-gradient(to bottom, #00ffff10 1px, transparent 1px)',
