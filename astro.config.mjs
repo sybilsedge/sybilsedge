@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
+import mdx from '@astrojs/mdx';
 import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 
@@ -27,7 +28,7 @@ export default defineConfig({
       noExternal: true,
     },
   },
-  integrations: [react(), sitemap()],
+  integrations: [react(), mdx(), sitemap()],
   // Security headers are served for Cloudflare deployments from public/_headers.
   // Do not configure them here; keep the canonical CSP and related headers in
   // public/_headers (or a global src/middleware.ts if headers must be dynamic).

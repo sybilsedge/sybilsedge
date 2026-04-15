@@ -1,6 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
+import { getImage } from 'astro:assets';
+import type { BlueprintImage } from '../../components/BlueprintGallery.tsx';
 
 export const prerender = true;
 
@@ -14,6 +16,29 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+
+// Pre-optimise the `images` array so the BlueprintGallery island receives
+// plain serialisable strings — no Astro APIs leak into the client bundle.
+let galleryItems: BlueprintImage[] = [];
+if (entry.data.images && entry.data.images.length > 0) {
+	galleryItems = await Promise.all(
+		entry.data.images.map(async (img) => {
+			const [thumb, full] = await Promise.all([
+				getImage({ src: img.src, width: 400, format: 'webp' }),
+				getImage({ src: img.src, width: 1200, format: 'webp' }),
+			]);
+			return {
+				src: full.src,
+				thumbSrc: thumb.src,
+				alt: img.alt,
+				width: full.attributes.width ? Number(full.attributes.width) : undefined,
+				height: full.attributes.height ? Number(full.attributes.height) : undefined,
+				caption: img.caption,
+				metadata: img.metadata,
+			} satisfies BlueprintImage;
+		}),
+	);
+}
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
 	baking:       { label: 'Baking',       color: 'text-amber-400/80 border-amber-400/30 bg-amber-400/5' },
@@ -91,7 +116,7 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 
 		<!-- Recipe content -->
 		<div class="blueprint-border rounded-md bg-black/35 p-6 md:p-8 prose-recipe">
-			<Content />
+			<Content galleryItems={galleryItems} />
 		</div>
 
 	</div>
