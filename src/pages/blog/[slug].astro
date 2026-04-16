@@ -15,30 +15,37 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
-const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`;
+const icons: Record<string, string> = {
+	arrow: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`,
+};
+const formattedDate = entry.data.date.toLocaleDateString('en-US', {
+	year: 'numeric',
+	month: 'long',
+	day: 'numeric',
+});
 ---
 
 <Layout
 	title={`${entry.data.title} | Blog | Sybilsedge`}
 	description={entry.data.description}
-	ogImage="/og/home.png"
+	ogImage="/og/default.png"
 >
 	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
 		<a
 			href="/"
 			class="mb-6 inline-flex items-center gap-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/50 hover:text-cyan-300 transition-colors"
 		>
-			<span set:html={arrowSvg} />
+			<span set:html={icons.arrow} />
 			Back to Dashboard
 		</a>
 
 		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-6 md:p-8">
-			<p class="font-tech text-[11px] text-cyan-300/35">{entry.data.date.toLocaleDateString()}</p>
+			<p class="font-tech text-[11px] text-cyan-300/35">{formattedDate}</p>
 			<h1 class="font-orbitron mt-2 text-2xl uppercase tracking-[0.1em] text-cyan-100 md:text-3xl">{entry.data.title}</h1>
 			<p class="mt-4 text-base leading-relaxed text-slate-300/85">{entry.data.description}</p>
 			{entry.data.tags.length > 0 && (
 				<div class="mt-4 flex flex-wrap gap-1.5">
-					{entry.data.tags.map((tag: string) => (
+					{entry.data.tags.map((tag) => (
 						<span class="rounded font-tech text-[10px] uppercase tracking-[0.1em] px-2 py-0.5 bg-black/40 border border-cyan-300/10 text-cyan-300/45">{tag}</span>
 					))}
 				</div>
