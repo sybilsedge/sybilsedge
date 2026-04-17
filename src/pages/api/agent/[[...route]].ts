@@ -1,14 +1,22 @@
 import type { APIRoute } from "astro";
-import { routeAgentRequest } from "@cloudflare/agents";
+import { routeAgentRequest } from "agents-sdk";
 import { env } from "cloudflare:workers";
 
 export { SybilProxyAgent } from "../../../../agent/sybil-proxy";
 
+/**
+ * Normalises the request URL before handing it to routeAgentRequest:
+ * 1. Always strips trailing slashes so downstream path matching is canonical.
+ * 2. Rewrites the bare /api/agent path to the default agent instance so
+ *    direct WebSocket upgrades to /api/agent also resolve correctly.
+ */
 function toAgentRoutableRequest(request: Request): Request {
 	const url = new URL(request.url);
-	const normalizedPath = url.pathname.replace(/\/+$/, "");
+	// Step 1 — strip trailing slashes (applies to all paths, including nested ones).
+	url.pathname = url.pathname.replace(/\/+$/, "");
 
-	if (normalizedPath === "/api/agent") {
+	// Step 2 — rewrite /api/agent → default agent instance path.
+	if (url.pathname === "/api/agent") {
 		url.pathname = "/api/agent/sybil-proxy-agent/default";
 	}
 

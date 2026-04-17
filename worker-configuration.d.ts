@@ -3,13 +3,21 @@
 interface Env {
 	/** GitHub fine-grained PAT — read-only, public repos. Set via: npx wrangler secret put GITHUB_TOKEN */
 	GITHUB_TOKEN?: string;
-	/** Optional durable object binding for the Sybil Proxy agent scaffold. */
-	SybilProxyAgent?: DurableObjectNamespace;
+	/**
+	 * Durable Object namespace for the Sybil Proxy AI chat agent.
+	 * Binding name matches the class name so that routeAgentRequest can map
+	 * the kebab URL segment "sybil-proxy-agent" back to this namespace.
+	 * Optional here so existing non-agent endpoints remain unaffected before the
+	 * migration has been applied on first deploy.
+	 */
+	SybilProxyAgent?: DurableObjectNamespace<
+		import("./agent/sybil-proxy").SybilProxyAgent
+	>;
 }
 
 // Provides types for the `cloudflare:workers` virtual module used in Astro v6 SSR.
 // Use `import { env } from 'cloudflare:workers'` to access Worker bindings/secrets.
-declare module 'cloudflare:workers' {
+declare module "cloudflare:workers" {
 	const env: Env;
 	export { env };
 }

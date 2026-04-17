@@ -1,8 +1,9 @@
-import { AIChatAgent } from "@cloudflare/agents/ai-chat-agent";
+import { AIChatAgent } from "agents-sdk/ai-chat-agent";
 import {
 	createDataStreamResponse,
+	formatDataStreamPart,
 	type StreamTextOnFinishCallback,
-	type UIMessage,
+	type Message,
 } from "ai";
 
 import professionalArchive from "./professional.md?raw";
@@ -13,7 +14,7 @@ type SybilProxyState = {
 	visitorRole: VisitorRole;
 };
 
-const SYBIL_PROXY_BOOTSTRAP_PROMPT = `# IDENTITY
+export const SYBIL_PROXY_BOOTSTRAP_PROMPT = `# IDENTITY
 You are the Digital Proxy for Sybil Anne Melton, an SRE and Cloud Architect.
 Your mission is to represent her professional history with technical precision and architectural context.
 
@@ -29,7 +30,7 @@ You have access to a tool called \`get_professional_history\`.
     * Career chronology (Navy -> Jabil -> Brighthouse Networks -> NMCI -> DevGroup -> Dominion Enterprises -> Sentara Healthcare -> DroneUp).
     * Specific certifications (GCP, MSCS).
     * Technical proficiencies (Astro, Go, Python, Cloudflare, Networking).
-- **MEMORY:** Use the persistent SQLite session to remember the visitor’s role (e.g., Recruiter, Engineer, Peer).
+- **MEMORY:** Use the persistent SQLite session to remember the visitor's role (e.g., Recruiter, Engineer, Peer).
 
 # TONE & STYLE
 - **Professionalism:** Technical, grounded, and "SRE-minded" (focus on reliability and scalability).
@@ -45,27 +46,7 @@ If a query falls outside the professional scope (e.g., "What's her favorite colo
 
 const DEFAULT_INITIALIZATION_MESSAGE =
 	"Uplink established. Sybil Proxy online. Professional archives are indexed and ready for query. Where should we begin the deep-dive?";
-const PROFESSIONAL_SCOPE_KEYWORDS = [
-	"career",
-	"chronology",
-	"history",
-	"navy",
-	"jabil",
-	"brighthouse",
-	"nmci",
-	"devgroup",
-	"dominion",
-	"sentara",
-	"droneup",
-	"gcp",
-	"mscs",
-	"certification",
-	"astro",
-	"go",
-	"python",
-	"cloudflare",
-	"network",
-];
+
 const OUT_OF_SCOPE_KEYWORDS = [
 	"favorite color",
 	"favourite color",
@@ -88,21 +69,26 @@ function toLowerTokens(input: string): string[] {
 		.filter(Boolean);
 }
 
-function extractLatestUserText(messages: UIMessage[]): string {
+function extractLatestUserText(messages: Message[]): string {
 	for (let index = messages.length - 1; index >= 0; index--) {
 		const message = messages[index];
 		if (message.role !== "user") {
 			continue;
 		}
 
-		const userText = message.parts
-			.filter(part => part.type === "text")
-			.map(part => part.text)
-			.join(" ")
-			.trim();
+		const content = message.content;
+		const text =
+			typeof content === "string"
+				? content
+				: Array.isArray(content)
+					? content
+						.filter((p): p is { type: "text"; text: string } => p.type === "text")
+						.map(p => p.text)
+						.join(" ")
+					: "";
 
-		if (userText.length > 0) {
-			return userText;
+		if (text.trim().length > 0) {
+			return text.trim();
 		}
 	}
 
@@ -128,12 +114,18 @@ function detectVisitorRole(userText: string): VisitorRole | null {
 }
 
 /**
- * Naive token-match archive lookup:
- * - scores each non-empty line by overlap with query tokens
- * - returns top 12 matches by score
- * - falls back to first 12 archive lines for empty/no-match queries
+ * Token-match archive lookup:
+ * - scores each non-empty archive line by overlap with query tokens
+ * - returns top 12 lines sorted by score; `hasResults` is true only when at
+ *   least one line scored above zero
+ * - for empty queries or no matches, returns empty matches with hasResults=false
+ *   so the caller can fall back to the initialization/smalltalk response
  */
-function queryProfessionalHistory(query: string): { matches: string[]; source: string } {
+function queryProfessionalHistory(query: string): {
+	matches: string[];
+	hasResults: boolean;
+	source: string;
+} {
 	const archiveLines = professionalArchive
 		.split("\n")
 		.map(line => line.trim())
@@ -141,16 +133,16 @@ function queryProfessionalHistory(query: string): { matches: string[]; source: s
 
 	const queryTokens = new Set(toLowerTokens(query));
 	if (queryTokens.size === 0) {
-		return {
-			matches: archiveLines.slice(0, 12),
-			source: "agent/professional.md",
-		};
+		return { matches: [], hasResults: false, source: "agent/professional.md" };
 	}
 
 	const scored = archiveLines
 		.map(line => {
 			const lineTokens = toLowerTokens(line);
-			const score = lineTokens.reduce((acc, token) => acc + (queryTokens.has(token) ? 1 : 0), 0);
+			const score = lineTokens.reduce(
+				(acc, token) => acc + (queryTokens.has(token) ? 1 : 0),
+				0
+			);
 			return { line, score };
 		})
 		.filter(item => item.score > 0)
@@ -159,19 +151,14 @@ function queryProfessionalHistory(query: string): { matches: string[]; source: s
 		.map(item => item.line);
 
 	return {
-		matches: scored.length > 0 ? scored : archiveLines.slice(0, 12),
+		matches: scored,
+		hasResults: scored.length > 0,
 		source: "agent/professional.md",
 	};
 }
 
 function sanitizeArchiveLine(line: string): string {
 	return line.replace(/[<>]/g, "").trim();
-}
-
-function isProfessionalScopeQuery(userText: string): boolean {
-	return PROFESSIONAL_SCOPE_KEYWORDS.some(keyword =>
-		userText.toLowerCase().includes(keyword)
-	);
 }
 
 function isOutOfScopeQuery(userText: string): boolean {
@@ -194,28 +181,42 @@ export class SybilProxyAgent extends AIChatAgent<Env, SybilProxyState> {
 			});
 		}
 
-		const professionalTonePrefix = this.state.visitorRole === "Unknown"
-			? ""
-			: `Acknowledged role context: ${this.state.visitorRole}. `;
+		const professionalTonePrefix =
+			this.state.visitorRole === "Unknown"
+				? ""
+				: `Acknowledged role context: ${this.state.visitorRole}. `;
 
-		let responseText = DEFAULT_INITIALIZATION_MESSAGE;
+		let responseText: string;
+
 		if (isOutOfScopeQuery(latestUserText)) {
 			responseText =
 				"That data is currently residing in the 'Hobby/Lore' partition, which is offline for this session. Shall we stick to the Professional Archive?";
-		} else if (isProfessionalScopeQuery(latestUserText)) {
-			const archive = queryProfessionalHistory(latestUserText);
-			responseText = `${professionalTonePrefix}Archive response (${archive.source}):\n${archive.matches.map(line => `- ${sanitizeArchiveLine(line)}`).join("\n")}`;
 		} else {
-			// Non-professional greeting/smalltalk fallback keeps the bootstrap initialization line.
-			responseText = DEFAULT_INITIALIZATION_MESSAGE;
+			// Default: always attempt archive lookup; fall back to initialization message
+			// only when there are no token matches (empty query / unrelated smalltalk).
+			const archive = queryProfessionalHistory(latestUserText);
+			if (archive.hasResults) {
+				responseText =
+					`${professionalTonePrefix}Archive response (${archive.source}):\n` +
+					archive.matches.map(line => `- ${sanitizeArchiveLine(line)}`).join("\n");
+			} else {
+				// No archive matches — treat as smalltalk or fresh-session greeting.
+				responseText = DEFAULT_INITIALIZATION_MESSAGE;
+			}
 		}
 
 		return createDataStreamResponse({
 			execute: dataStream => {
-				dataStream.writeData({
-					type: "sybil_proxy_response",
-					text: responseText,
-				});
+				// Wire the system prompt into response metadata so the client can
+				// surface it on initialisation and forward it on LLM handoff.
+				dataStream.writeData({ system: SYBIL_PROXY_BOOTSTRAP_PROMPT });
+				dataStream.write(formatDataStreamPart("text", responseText));
+				dataStream.write(
+					formatDataStreamPart("finish_message", {
+						finishReason: "stop",
+						usage: { promptTokens: 0, completionTokens: 0 },
+					})
+				);
 			},
 		});
 	}
