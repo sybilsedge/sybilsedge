@@ -156,9 +156,7 @@ export class SybilProxyAgent extends AIChatAgent<Env, SybilProxyState> {
 			? ""
 			: `Acknowledged role context: ${this.state.visitorRole}. `;
 
-		let responseText = SYBIL_PROXY_BOOTSTRAP_PROMPT.includes("# IDENTITY")
-			? DEFAULT_INITIALIZATION_MESSAGE
-			: DEFAULT_INITIALIZATION_MESSAGE;
+		let responseText = DEFAULT_INITIALIZATION_MESSAGE;
 		if (isOutOfScopeQuery(latestUserText)) {
 			responseText =
 				"That data is currently residing in the 'Hobby/Lore' partition, which is offline for this session. Shall we stick to the Professional Archive?";
@@ -173,7 +171,6 @@ export class SybilProxyAgent extends AIChatAgent<Env, SybilProxyState> {
 					type: "sybil_proxy_response",
 					text: responseText,
 				});
-				dataStream.write(`0:${JSON.stringify(responseText)}\n`);
 			},
 		});
 	}
