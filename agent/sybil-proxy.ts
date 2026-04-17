@@ -54,7 +54,7 @@ function toLowerTokens(input: string): string[] {
 }
 
 function extractLatestUserText(messages: UIMessage[]): string {
-	for (let index = messages.length - 1; index >= 0; index -= 1) {
+	for (let index = messages.length - 1; index >= 0; index--) {
 		const message = messages[index];
 		if (message.role !== "user") {
 			continue;
@@ -140,6 +140,7 @@ export class SybilProxyAgent extends AIChatAgent<Env, SybilProxyState> {
 		visitorRole: "Unknown",
 	};
 
+	// `_onFinish` is part of the AIChatAgent override signature and kept for SDK parity.
 	override async onChatMessage(_onFinish) {
 		const latestUserText = extractLatestUserText(this.messages);
 		const detectedRole = detectVisitorRole(latestUserText);
@@ -150,7 +151,7 @@ export class SybilProxyAgent extends AIChatAgent<Env, SybilProxyState> {
 			});
 		}
 
-		const get_professional_history = async (query: string) => queryProfessionalHistory(query);
+		const getProfessionalHistory = async (query: string) => queryProfessionalHistory(query);
 
 		const professionalTonePrefix = this.state.visitorRole === "Unknown"
 			? ""
@@ -161,8 +162,11 @@ export class SybilProxyAgent extends AIChatAgent<Env, SybilProxyState> {
 			responseText =
 				"That data is currently residing in the 'Hobby/Lore' partition, which is offline for this session. Shall we stick to the Professional Archive?";
 		} else if (isProfessionalScopeQuery(latestUserText)) {
-			const archive = await get_professional_history(latestUserText);
+			const archive = await getProfessionalHistory(latestUserText);
 			responseText = `${professionalTonePrefix}Archive response (${archive.source}):\n${archive.matches.map(line => `- ${line}`).join("\n")}`;
+		} else {
+			// Non-professional greeting/smalltalk fallback keeps the bootstrap initialization line.
+			responseText = DEFAULT_INITIALIZATION_MESSAGE;
 		}
 
 		return createDataStreamResponse({
