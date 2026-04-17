@@ -26,6 +26,11 @@ export default defineConfig({
     ssr: {
       target: 'webworker',
       noExternal: true,
+      // cloudflare:* virtual modules are provided by the workerd runtime and
+      // must NOT be bundled by Vite — doing so breaks DurableObject class
+      // inheritance (partyserver/agents-sdk extend DurableObject from
+      // cloudflare:workers, which becomes undefined when inlined).
+      external: [/^cloudflare:/],
     },
   },
   integrations: [react(), mdx(), sitemap()],

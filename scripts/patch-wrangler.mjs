@@ -11,6 +11,11 @@
  * Without this binding, env.ASSETS is undefined at runtime and all images silently
  * fail to load. Wrangler ≥ 4.x accepts "ASSETS" as a binding name without error.
  *
+ * This script also injects the SybilProxyAgent Durable Object binding and its
+ * initial SQLite-backed migration. These are kept out of the source wrangler.jsonc
+ * so that the Cloudflare Vite Plugin's Miniflare dev server does not attempt to
+ * resolve and wrap the DO class at build-time (before the bundle exists).
+ *
  * This script strips the invalid fields so wrangler deploy succeeds.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -42,6 +47,22 @@ if (Array.isArray(config.kv_namespaces)) {
 if (config.triggers !== undefined && Object.keys(config.triggers).length === 0) {
   console.log('patch-wrangler: removing empty triggers field');
   delete config.triggers;
+}
+
+// Inject SybilProxyAgent Durable Object binding and v1 SQLite migration.
+// Kept here rather than in wrangler.jsonc so that the Miniflare sync step
+// doesn't try to resolve/wrap the DO class before the bundle exists.
+if (!config.durable_objects) config.durable_objects = { bindings: [] };
+const doBindings = config.durable_objects.bindings;
+if (!doBindings.some(b => b.name === 'SybilProxyAgent')) {
+  doBindings.push({ name: 'SybilProxyAgent', class_name: 'SybilProxyAgent' });
+  console.log('patch-wrangler: added SybilProxyAgent Durable Object binding');
+}
+
+if (!config.migrations) config.migrations = [];
+if (!config.migrations.some(m => m.tag === 'v1')) {
+  config.migrations.push({ tag: 'v1', new_sqlite_classes: ['SybilProxyAgent'] });
+  console.log('patch-wrangler: added v1 SQLite migration for SybilProxyAgent');
 }
 
 writeFileSync(configPath, JSON.stringify(config, null, 2));
