@@ -3,6 +3,10 @@
 interface Env {
 	/** GitHub fine-grained PAT — read-only, public repos. Set via: npx wrangler secret put GITHUB_TOKEN */
 	GITHUB_TOKEN?: string;
+	/** Cloudflare Workers AI binding for chat model inference. */
+	AI: Ai;
+	/** Durable Object namespace for the Sybil Proxy AI chat agent. */
+	SybilProxyAgent: DurableObjectNamespace<import("./agent/sybil-proxy").SybilProxyAgent>;
 }
 
 // Provides types for the `cloudflare:workers` virtual module used in Astro v6 SSR.
