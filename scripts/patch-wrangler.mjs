@@ -18,8 +18,8 @@
  *
  * This script strips the invalid fields so wrangler deploy succeeds.
  */
-import { readFileSync, writeFileSync, appendFileSync, readdirSync } from 'node:fs';
-import { resolve, relative } from 'node:path';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 const configPath = resolve('dist/server/wrangler.json');
 
@@ -67,53 +67,3 @@ if (!config.migrations.some(m => m.tag === 'v1')) {
 
 writeFileSync(configPath, JSON.stringify(config, null, 2));
 console.log('patch-wrangler: dist/server/wrangler.json patched successfully');
-
-// ─── Inject SybilProxyAgent top-level export into _worker.js ─────────────────
-// Cloudflare requires every Durable Object class listed in a migration to be a
-// named top-level export of the worker entry file.  Astro's Cloudflare adapter
-// bundles API routes as dynamically-imported chunks, so the
-// `export { SybilProxyAgent }` in [[...route]].ts is only a chunk-level export
-// and never reaches _worker.js.  We fix that here by finding the compiled chunk
-// that contains the class and appending a re-export to _worker.js.
-
-const serverDir = resolve('dist/server');
-const workerPath = resolve(serverDir, '_worker.js');
-
-// Recursively collect all .js files under dist/server
-function collectJsFiles(dir) {
-  const entries = readdirSync(dir, { withFileTypes: true });
-  const results = [];
-  for (const entry of entries) {
-    const full = resolve(dir, entry.name);
-    if (entry.isDirectory()) {
-      results.push(...collectJsFiles(full));
-    } else if (entry.name.endsWith('.js')) {
-      results.push(full);
-    }
-  }
-  return results;
-}
-
-let agentChunkPath = null;
-for (const filePath of collectJsFiles(serverDir)) {
-  if (filePath === workerPath) continue;
-  const content = readFileSync(filePath, 'utf-8');
-  if (/class SybilProxyAgent\b/.test(content) || /SybilProxyAgent\s+extends\b/.test(content)) {
-    agentChunkPath = filePath;
-    break;
-  }
-}
-
-if (agentChunkPath) {
-  const relPath = './' + relative(serverDir, agentChunkPath).replace(/\\/g, '/');
-  // Only append if _worker.js doesn't already re-export it (idempotent)
-  const workerContent = readFileSync(workerPath, 'utf-8');
-  if (!workerContent.includes('SybilProxyAgent')) {
-    appendFileSync(workerPath, `\nexport { SybilProxyAgent } from "${relPath}";\n`);
-    console.log(`patch-wrangler: appended SybilProxyAgent top-level export to _worker.js (from ${relPath})`);
-  } else {
-    console.log('patch-wrangler: _worker.js already exports SybilProxyAgent — skipping');
-  }
-} else {
-  console.warn('patch-wrangler: WARNING — could not find compiled chunk for SybilProxyAgent; DO migration may fail');
-}
