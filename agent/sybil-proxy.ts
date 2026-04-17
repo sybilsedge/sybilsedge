@@ -1,7 +1,8 @@
-import { AIChatAgent } from "@cloudflare/ai-chat";
-import { convertToModelMessages, streamText, tool, type UIMessage } from "ai";
-import { createWorkersAI } from "workers-ai-provider";
-import { z } from "zod";
+import { AIChatAgent } from "@cloudflare/agents/ai-chat-agent";
+import {
+	createDataStreamResponse,
+	type UIMessage,
+} from "ai";
 
 import professionalArchive from "./professional.md?raw";
 
@@ -40,6 +41,9 @@ If a query falls outside the professional scope (e.g., "What's her favorite colo
 
 # INITIALIZATION
 "Uplink established. Sybil Proxy online. Professional archives are indexed and ready for query. Where should we begin the deep-dive?"`;
+
+const DEFAULT_INITIALIZATION_MESSAGE =
+	"Uplink established. Sybil Proxy online. Professional archives are indexed and ready for query. Where should we begin the deep-dive?";
 
 function toLowerTokens(input: string): string[] {
 	return input
@@ -119,12 +123,24 @@ function queryProfessionalHistory(query: string): { matches: string[]; source: s
 	};
 }
 
+function isProfessionalScopeQuery(userText: string): boolean {
+	return /(career|chronology|history|navy|jabil|brighthouse|nmci|devgroup|dominion|sentara|droneup|gcp|mscs|certification|astro|go|python|cloudflare|network)/i.test(
+		userText
+	);
+}
+
+function isOutOfScopeQuery(userText: string): boolean {
+	return /(favorite color|favourite color|favorite food|favourite food|hobby|hobbies|music|movie|movies|pets?)/i.test(
+		userText
+	);
+}
+
 export class SybilProxyAgent extends AIChatAgent<Env, SybilProxyState> {
 	initialState: SybilProxyState = {
 		visitorRole: "Unknown",
 	};
 
-	override async onChatMessage(onFinish) {
+	override async onChatMessage(_onFinish) {
 		const latestUserText = extractLatestUserText(this.messages);
 		const detectedRole = detectVisitorRole(latestUserText);
 		if (detectedRole && detectedRole !== this.state.visitorRole) {
@@ -134,30 +150,31 @@ export class SybilProxyAgent extends AIChatAgent<Env, SybilProxyState> {
 			});
 		}
 
-		const workersAI = createWorkersAI({ binding: this.env.AI });
-		const system = `${SYBIL_PROXY_BOOTSTRAP_PROMPT}
+		const get_professional_history = async (query: string) => queryProfessionalHistory(query);
 
-# SESSION CONTEXT
-- Current visitor role memory: ${this.state.visitorRole}
-- Use get_professional_history when chronology/certifications/technical proficiency specifics are requested.`;
+		const professionalTonePrefix = this.state.visitorRole === "Unknown"
+			? ""
+			: `Acknowledged role context: ${this.state.visitorRole}. `;
 
-		const result = streamText({
-			model: workersAI("@cf/meta/llama-3.3-70b-instruct-fp8-fast"),
-			system,
-			messages: await convertToModelMessages(this.messages),
-			tools: {
-				get_professional_history: tool({
-					description: "Query the local professional archive for Sybil Melton's verified professional history.",
-					inputSchema: z.object({
-						query: z.string().min(1),
-					}),
-					execute: async ({ query }) => queryProfessionalHistory(query),
-				}),
+		let responseText = SYBIL_PROXY_BOOTSTRAP_PROMPT.includes("# IDENTITY")
+			? DEFAULT_INITIALIZATION_MESSAGE
+			: DEFAULT_INITIALIZATION_MESSAGE;
+		if (isOutOfScopeQuery(latestUserText)) {
+			responseText =
+				"That data is currently residing in the 'Hobby/Lore' partition, which is offline for this session. Shall we stick to the Professional Archive?";
+		} else if (isProfessionalScopeQuery(latestUserText)) {
+			const archive = await get_professional_history(latestUserText);
+			responseText = `${professionalTonePrefix}Archive response (${archive.source}):\n${archive.matches.map(line => `- ${line}`).join("\n")}`;
+		}
+
+		return createDataStreamResponse({
+			execute: dataStream => {
+				dataStream.writeData({
+					type: "sybil_proxy_response",
+					text: responseText,
+				});
+				dataStream.write(`0:${JSON.stringify(responseText)}\n`);
 			},
-			maxSteps: 5,
-			onFinish,
 		});
-
-		return result.toUIMessageStreamResponse();
 	}
 }

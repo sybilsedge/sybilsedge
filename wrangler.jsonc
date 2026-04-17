@@ -2,23 +2,6 @@
 	"name": "sybilsedge",
 	"compatibility_date": "2026-04-06",
 	"compatibility_flags": ["nodejs_compat"],
-	"ai": {
-		"binding": "AI"
-	},
-	"durable_objects": {
-		"bindings": [
-			{
-				"name": "SybilProxyAgent",
-				"class_name": "SybilProxyAgent"
-			}
-		]
-	},
-	"migrations": [
-		{
-			"tag": "v1-sybil-proxy-agent",
-			"new_sqlite_classes": ["SybilProxyAgent"]
-		}
-	],
 	"assets": {
 		"directory": "./dist"
 	},

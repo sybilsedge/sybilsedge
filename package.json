@@ -14,17 +14,15 @@
     "@astrojs/mdx": "^5.0.3",
     "@astrojs/react": "^5.0.3",
     "@astrojs/sitemap": "^3.7.2",
-    "@cloudflare/ai-chat": "^0.4.4",
+    "@cloudflare/agents": "0.0.16",
     "@tailwindcss/vite": "^4.2.2",
-    "agents": "^0.11.2",
-    "ai": "^6.0.168",
+    "ai": "4.3.16",
     "astro": "^6.1.6",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.8.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.5",
-    "tailwindcss": "^4.2.2",
-    "workers-ai-provider": "^3.1.11"
+    "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.8",
