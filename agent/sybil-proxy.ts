@@ -1,6 +1,7 @@
 import { AIChatAgent } from "@cloudflare/agents/ai-chat-agent";
 import {
 	createDataStreamResponse,
+	type StreamTextOnFinishCallback,
 	type UIMessage,
 } from "ai";
 
@@ -25,7 +26,7 @@ Your mission is to represent her professional history with technical precision a
 You have access to a tool called \`get_professional_history\`.
 - **DO NOT** guess on specific dates, company names, or technical stacks.
 - **DO** call \`get_professional_history(query)\` whenever a visitor asks about:
-    * Career chronology (Navy -> Jabil -> Brighthouse Networks -> NMCI -> DevGroup -> Dominion Enterprises -> Sentara Healthcare-> DroneUp).
+    * Career chronology (Navy -> Jabil -> Brighthouse Networks -> NMCI -> DevGroup -> Dominion Enterprises -> Sentara Healthcare -> DroneUp).
     * Specific certifications (GCP, MSCS).
     * Technical proficiencies (Astro, Go, Python, Cloudflare, Networking).
 - **MEMORY:** Use the persistent SQLite session to remember the visitor’s role (e.g., Recruiter, Engineer, Peer).
@@ -44,6 +45,40 @@ If a query falls outside the professional scope (e.g., "What's her favorite colo
 
 const DEFAULT_INITIALIZATION_MESSAGE =
 	"Uplink established. Sybil Proxy online. Professional archives are indexed and ready for query. Where should we begin the deep-dive?";
+const PROFESSIONAL_SCOPE_KEYWORDS = [
+	"career",
+	"chronology",
+	"history",
+	"navy",
+	"jabil",
+	"brighthouse",
+	"nmci",
+	"devgroup",
+	"dominion",
+	"sentara",
+	"droneup",
+	"gcp",
+	"mscs",
+	"certification",
+	"astro",
+	"go",
+	"python",
+	"cloudflare",
+	"network",
+];
+const OUT_OF_SCOPE_KEYWORDS = [
+	"favorite color",
+	"favourite color",
+	"favorite food",
+	"favourite food",
+	"hobby",
+	"hobbies",
+	"music",
+	"movie",
+	"movies",
+	"pet",
+	"pets",
+];
 
 function toLowerTokens(input: string): string[] {
 	return input
@@ -92,6 +127,12 @@ function detectVisitorRole(userText: string): VisitorRole | null {
 	return null;
 }
 
+/**
+ * Naive token-match archive lookup:
+ * - scores each non-empty line by overlap with query tokens
+ * - returns top 12 matches by score
+ * - falls back to first 12 archive lines for empty/no-match queries
+ */
 function queryProfessionalHistory(query: string): { matches: string[]; source: string } {
 	const archiveLines = professionalArchive
 		.split("\n")
@@ -123,16 +164,18 @@ function queryProfessionalHistory(query: string): { matches: string[]; source: s
 	};
 }
 
+function sanitizeArchiveLine(line: string): string {
+	return line.replace(/[<>]/g, "").trim();
+}
+
 function isProfessionalScopeQuery(userText: string): boolean {
-	return /(career|chronology|history|navy|jabil|brighthouse|nmci|devgroup|dominion|sentara|droneup|gcp|mscs|certification|astro|go|python|cloudflare|network)/i.test(
-		userText
+	return PROFESSIONAL_SCOPE_KEYWORDS.some(keyword =>
+		userText.toLowerCase().includes(keyword)
 	);
 }
 
 function isOutOfScopeQuery(userText: string): boolean {
-	return /(favorite color|favourite color|favorite food|favourite food|hobby|hobbies|music|movie|movies|pets?)/i.test(
-		userText
-	);
+	return OUT_OF_SCOPE_KEYWORDS.some(keyword => userText.toLowerCase().includes(keyword));
 }
 
 export class SybilProxyAgent extends AIChatAgent<Env, SybilProxyState> {
@@ -140,8 +183,8 @@ export class SybilProxyAgent extends AIChatAgent<Env, SybilProxyState> {
 		visitorRole: "Unknown",
 	};
 
-	// `_onFinish` is part of the AIChatAgent override signature and kept for SDK parity.
-	override async onChatMessage(_onFinish) {
+	// `_onFinish` is intentionally unused in this deterministic scaffold implementation.
+	override async onChatMessage(_onFinish: StreamTextOnFinishCallback<Record<string, never>>) {
 		const latestUserText = extractLatestUserText(this.messages);
 		const detectedRole = detectVisitorRole(latestUserText);
 		if (detectedRole && detectedRole !== this.state.visitorRole) {
@@ -150,8 +193,6 @@ export class SybilProxyAgent extends AIChatAgent<Env, SybilProxyState> {
 				visitorRole: detectedRole,
 			});
 		}
-
-		const getProfessionalHistory = async (query: string) => queryProfessionalHistory(query);
 
 		const professionalTonePrefix = this.state.visitorRole === "Unknown"
 			? ""
@@ -162,8 +203,8 @@ export class SybilProxyAgent extends AIChatAgent<Env, SybilProxyState> {
 			responseText =
 				"That data is currently residing in the 'Hobby/Lore' partition, which is offline for this session. Shall we stick to the Professional Archive?";
 		} else if (isProfessionalScopeQuery(latestUserText)) {
-			const archive = await getProfessionalHistory(latestUserText);
-			responseText = `${professionalTonePrefix}Archive response (${archive.source}):\n${archive.matches.map(line => `- ${line}`).join("\n")}`;
+			const archive = queryProfessionalHistory(latestUserText);
+			responseText = `${professionalTonePrefix}Archive response (${archive.source}):\n${archive.matches.map(line => `- ${sanitizeArchiveLine(line)}`).join("\n")}`;
 		} else {
 			// Non-professional greeting/smalltalk fallback keeps the bootstrap initialization line.
 			responseText = DEFAULT_INITIALIZATION_MESSAGE;

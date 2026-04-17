@@ -3,6 +3,8 @@
 interface Env {
 	/** GitHub fine-grained PAT — read-only, public repos. Set via: npx wrangler secret put GITHUB_TOKEN */
 	GITHUB_TOKEN?: string;
+	/** Optional durable object binding for the Sybil Proxy agent scaffold. */
+	SybilProxyAgent?: DurableObjectNamespace;
 }
 
 // Provides types for the `cloudflare:workers` virtual module used in Astro v6 SSR.

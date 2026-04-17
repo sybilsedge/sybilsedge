@@ -16,7 +16,7 @@ function toAgentRoutableRequest(request: Request): Request {
 }
 
 export const ALL: APIRoute = async ({ request }) => {
-	if (!(env as Record<string, unknown>).SybilProxyAgent) {
+	if (!env.SybilProxyAgent) {
 		return new Response(
 			"SybilProxyAgent Durable Object binding is not configured yet. Add the binding and migration in wrangler.jsonc to enable /api/agent WebSocket routing.",
 			{ status: 503 }
