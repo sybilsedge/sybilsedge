@@ -44,5 +44,39 @@ if (config.triggers !== undefined && Object.keys(config.triggers).length === 0) 
   delete config.triggers;
 }
 
+// ── Inject Workers AI binding ─────────────────────────────────────────────
+if (!config.ai) {
+  config.ai = { binding: 'AI' };
+  console.log('patch-wrangler: added Workers AI binding');
+}
+
+// ── Inject Durable Object binding for SybilTwinDO ────────────────────────
+if (!config.durable_objects) {
+  config.durable_objects = {
+    bindings: [{ name: 'SYBIL_TWIN', class_name: 'SybilTwinDO' }],
+  };
+  console.log('patch-wrangler: added SYBIL_TWIN DO binding');
+} else if (!Array.isArray(config.durable_objects.bindings)) {
+  config.durable_objects.bindings = [
+    { name: 'SYBIL_TWIN', class_name: 'SybilTwinDO' },
+  ];
+  console.log('patch-wrangler: added SYBIL_TWIN DO binding (created bindings array)');
+} else if (!config.durable_objects.bindings.some(b => b.name === 'SYBIL_TWIN')) {
+  config.durable_objects.bindings.push({
+    name: 'SYBIL_TWIN',
+    class_name: 'SybilTwinDO',
+  });
+  console.log('patch-wrangler: added SYBIL_TWIN to existing DO bindings');
+}
+
+// ── Inject DO migration for SybilTwinDO ──────────────────────────────────
+if (!Array.isArray(config.migrations)) {
+  config.migrations = [{ tag: 'v1', new_classes: ['SybilTwinDO'] }];
+  console.log('patch-wrangler: added SybilTwinDO migration v1');
+} else if (!config.migrations.some(m => Array.isArray(m.new_classes) && m.new_classes.includes('SybilTwinDO'))) {
+  config.migrations.push({ tag: 'v1', new_classes: ['SybilTwinDO'] });
+  console.log('patch-wrangler: appended SybilTwinDO to migrations');
+}
+
 writeFileSync(configPath, JSON.stringify(config, null, 2));
 console.log('patch-wrangler: dist/server/wrangler.json patched successfully');
