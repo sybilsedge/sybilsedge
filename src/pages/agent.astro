@@ -1,0 +1,29 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AgentChat from '../components/AgentChat';
+---
+
+<Layout
+	title="Digital Twin | Sybilsedge"
+	description="Sybil's digital twin — ask questions about her professional background, projects, and creative work."
+	ogImage="/og/default.png"
+>
+	<div class="mx-auto w-full max-w-[1500px] px-4 py-6 md:px-8 md:py-10">
+
+		<!-- Page header -->
+		<header class="mb-6 rounded-md blueprint-border bg-black/35 p-4 md:mb-8 md:p-6">
+			<p class="font-tech text-[11px] uppercase tracking-[0.22em] text-cyan-300/85">Digital Twin Interface</p>
+			<h1 class="font-orbitron mt-2 text-2xl uppercase tracking-[0.15em] text-cyan-100 md:text-4xl">
+				Sybil.Twin
+			</h1>
+			<p class="mt-3 max-w-3xl text-sm text-slate-300/90 md:text-base">
+				An AI trained on my portfolio data. Ask about my background, projects, writing, or anything else.
+				Conversations persist for 30 days.
+			</p>
+		</header>
+
+		<!-- Chat island -->
+		<AgentChat client:load />
+
+	</div>
+</Layout>
