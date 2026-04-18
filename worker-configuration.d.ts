@@ -28,6 +28,66 @@ interface DurableObjectNamespace {
 	get(id: DurableObjectId): DurableObjectStub;
 }
 
+// ── R2 (object storage) types ────────────────────────────────────────────────
+
+interface R2HTTPMetadata {
+	contentType?: string;
+	contentLanguage?: string;
+	contentDisposition?: string;
+	contentEncoding?: string;
+	cacheControl?: string;
+	cacheExpiry?: Date;
+}
+
+interface R2Object {
+	key: string;
+	version: string;
+	size: number;
+	etag: string;
+	httpEtag: string;
+	checksums: Record<string, string>;
+	uploaded: Date;
+	httpMetadata?: R2HTTPMetadata;
+	customMetadata?: Record<string, string>;
+}
+
+interface R2ObjectBody extends R2Object {
+	body: ReadableStream<Uint8Array>;
+	bodyUsed: boolean;
+	arrayBuffer(): Promise<ArrayBuffer>;
+	text(): Promise<string>;
+	json<T>(): Promise<T>;
+	blob(): Promise<Blob>;
+	writeHttpMetadata(headers: Headers): void;
+}
+
+interface R2Objects {
+	objects: R2Object[];
+	truncated: boolean;
+	cursor?: string;
+	delimitedPrefixes: string[];
+}
+
+interface R2ListOptions {
+	limit?: number;
+	prefix?: string;
+	cursor?: string;
+	delimiter?: string;
+	include?: Array<'httpMetadata' | 'customMetadata'>;
+}
+
+interface R2Bucket {
+	head(key: string): Promise<R2Object | null>;
+	get(key: string): Promise<R2ObjectBody | null>;
+	put(
+		key: string,
+		value: ReadableStream | ArrayBuffer | ArrayBufferView | string | null | Blob,
+		options?: Record<string, unknown>
+	): Promise<R2Object>;
+	delete(keys: string | string[]): Promise<void>;
+	list(options?: R2ListOptions): Promise<R2Objects>;
+}
+
 // ── Workers AI binding ───────────────────────────────────────────────────────
 
 interface AiRunInputs {
@@ -57,6 +117,8 @@ interface Env {
 	AI: Ai;
 	/** Durable Object namespace for SybilTwinDO (conversation persistence). */
 	SYBIL_TWIN: DurableObjectNamespace;
+	/** Private R2 bucket for digital-twin knowledge-base documents. Optional — gracefully skipped when unbound (e.g. local dev without binding). */
+	SYBIL_TWIN_KB?: R2Bucket;
 }
 
 // Provides types for the `cloudflare:workers` virtual module used in Astro v6 SSR.

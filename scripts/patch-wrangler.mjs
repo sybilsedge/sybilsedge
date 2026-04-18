@@ -74,5 +74,16 @@ if (!Array.isArray(config.migrations)) {
   console.log('patch-wrangler: appended SybilTwinDO to migrations');
 }
 
+// ── Inject R2 binding for private knowledge-base bucket ──────────────────
+const R2_BINDING = { binding: 'SYBIL_TWIN_KB', bucket_name: 'sybil-twin-kb' };
+
+if (!Array.isArray(config.r2_buckets)) {
+  config.r2_buckets = [R2_BINDING];
+  console.log('patch-wrangler: added SYBIL_TWIN_KB R2 binding');
+} else if (!config.r2_buckets.some(b => b.binding === 'SYBIL_TWIN_KB')) {
+  config.r2_buckets.push(R2_BINDING);
+  console.log('patch-wrangler: added SYBIL_TWIN_KB to existing R2 bindings');
+}
+
 writeFileSync(configPath, JSON.stringify(config, null, 2));
 console.log('patch-wrangler: dist/server/wrangler.json patched successfully');
