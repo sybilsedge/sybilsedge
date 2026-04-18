@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { isValidSessionId, isValidMessage } from '../../agent/types';
 import { buildSystemPrompt } from '../../agent/context';
+import { loadKbContext } from '../../agent/r2-context';
 
 export const prerender = false;
 
@@ -13,9 +14,29 @@ const DO_BASE = 'http://do';
 // Module-level cache: the prompt is built once per worker isolate and reused.
 // On failure the cached Promise is cleared so the next request retries.
 let systemPromptCache: Promise<string> | null = null;
+
+/**
+ * Builds the full system prompt with R2 KB context merged in.
+ * R2 load failures are non-fatal — the prompt falls back to local data only.
+ */
+async function buildPromptWithKb(): Promise<string> {
+	let kbContext: string | undefined;
+	if (env.SYBIL_TWIN_KB) {
+		try {
+			kbContext = await loadKbContext(env.SYBIL_TWIN_KB);
+			if (kbContext) {
+				console.log(`[agent] R2 KB loaded: ${kbContext.length} chars`);
+			}
+		} catch (err) {
+			console.error('[agent] R2 KB load failed; proceeding without KB context:', err);
+		}
+	}
+	return buildSystemPrompt(kbContext);
+}
+
 function getSystemPrompt(): Promise<string> {
 	if (!systemPromptCache) {
-		systemPromptCache = buildSystemPrompt().catch((err) => {
+		systemPromptCache = buildPromptWithKb().catch((err) => {
 			console.error('[agent] buildSystemPrompt failed; cache cleared for retry:', err);
 			systemPromptCache = null;
 			throw err;
