@@ -10,6 +10,20 @@ const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 /** Arbitrary base URL — DO stubs route by binding, not real HTTP. */
 const DO_BASE = 'http://do';
 
+// Module-level cache: the prompt is built once per worker isolate and reused.
+// On failure the cached Promise is cleared so the next request retries.
+let systemPromptCache: Promise<string> | null = null;
+function getSystemPrompt(): Promise<string> {
+	if (!systemPromptCache) {
+		systemPromptCache = buildSystemPrompt().catch((err) => {
+			console.error('[agent] buildSystemPrompt failed; cache cleared for retry:', err);
+			systemPromptCache = null;
+			throw err;
+		});
+	}
+	return systemPromptCache;
+}
+
 export const POST: APIRoute = async ({ request }) => {
 	const reqId = crypto.randomUUID().slice(0, 8);
 	const t0 = Date.now();
@@ -60,7 +74,7 @@ export const POST: APIRoute = async ({ request }) => {
 	// ── 3. Build messages for the model ───────────────────────────────────
 	let systemPrompt: string;
 	try {
-		systemPrompt = await buildSystemPrompt();
+		systemPrompt = await getSystemPrompt();
 	} catch (err) {
 		console.error(`[agent:${reqId}] context build failed:`, err);
 		systemPrompt =
@@ -98,28 +112,46 @@ export const POST: APIRoute = async ({ request }) => {
 
 	(async () => {
 		const reader = aiStream.getReader();
+		let buffer = '';
+
+		const appendResponseFromSseLine = (line: string) => {
+			const trimmedLine = line.trim();
+			if (!trimmedLine.startsWith('data: ') || trimmedLine.includes('[DONE]')) return;
+			try {
+				const data = JSON.parse(trimmedLine.slice(6)) as { response?: string };
+				if (data.response) fullResponse += data.response;
+			} catch {
+				// Ignore malformed or incomplete SSE lines until they can be completed
+			}
+		};
+
 		try {
 			while (true) {
 				const { done, value } = await reader.read();
 				if (done) break;
 				await writer.write(value);
 				// Collect tokens from SSE lines to form the complete response
-				const text = decoder.decode(value, { stream: true });
-				for (const line of text.split('\n')) {
-					if (line.startsWith('data: ') && !line.includes('[DONE]')) {
-						try {
-							const data = JSON.parse(line.slice(6)) as { response?: string };
-							if (data.response) fullResponse += data.response;
-						} catch {
-							// Ignore malformed SSE lines
-						}
-					}
+				buffer += decoder.decode(value, { stream: true });
+				const lines = buffer.split('\n');
+				// Keep the last element in the buffer — it may be an incomplete line
+				// that will be completed by the next chunk.
+				buffer = lines.pop() ?? '';
+				for (const line of lines) {
+					appendResponseFromSseLine(line);
 				}
 			}
 		} catch (err) {
 			console.error(`[agent:${reqId}] stream read error:`, err);
 		} finally {
+			// Flush any remaining bytes held by the decoder
+			buffer += decoder.decode();
+			if (buffer) appendResponseFromSseLine(buffer);
+
 			reader.releaseLock();
+			// Close the writer immediately so the client sees the stream end
+			// before the (slower) DO persistence call below.
+			writer.close();
+
 			// ── 6. Persist both turns to the DO after stream completes ─────
 			if (fullResponse) {
 				try {
@@ -140,7 +172,6 @@ export const POST: APIRoute = async ({ request }) => {
 			console.log(
 				`[agent:${reqId}] done — ${fullResponse.length} chars in ${Date.now() - t0}ms`
 			);
-			writer.close();
 		}
 	})();
 

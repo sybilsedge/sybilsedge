@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { MAX_MESSAGE_LENGTH, isValidSessionId } from '../agent/types';
 
 const SESSION_KEY = 'sybil-twin-session-id';
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const MAX_LEN = 2000;
 
 interface Message {
 	id: string;
@@ -14,7 +13,7 @@ interface Message {
 
 function getOrCreateSession(): string {
 	let id = localStorage.getItem(SESSION_KEY);
-	if (!id || !UUID_RE.test(id)) {
+	if (!isValidSessionId(id)) {
 		id = crypto.randomUUID();
 		localStorage.setItem(SESSION_KEY, id);
 	}
@@ -42,7 +41,7 @@ export default function AgentChat() {
 	const sendMessage = useCallback(async () => {
 		const trimmed = input.trim();
 		if (!trimmed || isStreaming || !sessionId) return;
-		if (trimmed.length > MAX_LEN) return;
+		if (trimmed.length > MAX_MESSAGE_LENGTH) return;
 
 		const userId = crypto.randomUUID();
 		const assistantId = crypto.randomUUID();
@@ -159,7 +158,7 @@ export default function AgentChat() {
 			</div>
 
 			{/* ── Message list ─────────────────────────────────────────────── */}
-			<div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0">
+			<div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0" role="log" aria-live="polite" aria-label="Conversation">
 				{messages.length === 0 && (
 					<div className="text-center py-10">
 						<p className="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/35 mb-3">
@@ -222,7 +221,7 @@ export default function AgentChat() {
 						placeholder="Ask me anything…"
 						disabled={isStreaming || !sessionId}
 						rows={1}
-						maxLength={MAX_LEN}
+						maxLength={MAX_MESSAGE_LENGTH}
 						aria-label="Message input"
 						className="flex-1 resize-none bg-transparent font-tech text-sm text-slate-100 placeholder:text-cyan-300/25 outline-none py-2 overflow-y-auto disabled:opacity-50 leading-relaxed"
 					/>

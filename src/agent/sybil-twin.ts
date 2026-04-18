@@ -57,16 +57,18 @@ export class SybilTwinDO {
 	}
 
 	private async appendMessages(incoming: ChatMessage[]): Promise<void> {
-		const existing = await this.state.storage.get<ConversationRecord>('conversation');
-		const record: ConversationRecord = existing ?? {
-			messages: [],
-			createdAt: Date.now(),
-		};
-		const ts = Date.now();
-		const stamped: StoredMessage[] = incoming.map((m) => ({ ...m, ts }));
-		const all = [...record.messages, ...stamped];
-		// Trim oldest messages to stay within cap
-		record.messages = all.slice(-MAX_HISTORY_MESSAGES);
-		await this.state.storage.put<ConversationRecord>('conversation', record);
+		await this.state.blockConcurrencyWhile(async () => {
+			const existing = await this.state.storage.get<ConversationRecord>('conversation');
+			const record: ConversationRecord = existing ?? {
+				messages: [],
+				createdAt: Date.now(),
+			};
+			const ts = Date.now();
+			const stamped: StoredMessage[] = incoming.map((m) => ({ ...m, ts }));
+			const all = [...record.messages, ...stamped];
+			// Trim oldest messages to stay within cap
+			record.messages = all.slice(-MAX_HISTORY_MESSAGES);
+			await this.state.storage.put<ConversationRecord>('conversation', record);
+		});
 	}
 }
