@@ -126,20 +126,20 @@ npx wrangler r2 object put sybil-twin-kb/kb/cloud-architecture-philosophy.md \
 
 ## 7. Forcing a Cache Refresh
 
-The system prompt (including KB context) is cached per Worker isolate. A new
-deployment always starts a fresh isolate and picks up the latest bucket contents.
+The system prompt (including KB context) is cached **per Worker isolate**. A new
+deployment always starts a fresh isolate and picks up the latest bucket contents —
+a full redeploy is the only reliable way to immediately pick up new documents.
 
-If you upload new documents and need the running Worker to refresh **without a
-full redeploy**, upload a sentinel object that the loader ignores but forces a
-new list result to be observed on the next cold start:
+There is **no in-place refresh mechanism** for a running isolate: uploading new
+files or a sentinel object to the bucket will not affect the currently cached prompt.
+The new content will only be loaded when the current isolate is evicted and a new
+cold start occurs naturally (which can happen at any time under Cloudflare's
+scheduling policy).
 
-```bash
-npx wrangler r2 object put sybil-twin-kb/index/version.txt \
-  --body "$(date -u +%s)"
-```
-
-The next Worker cold start (or after the current isolate is evicted) will reload
-all KB documents.
+If you have uploaded new documents and want to guarantee the live Worker uses them,
+trigger a redeploy (e.g. via `wrangler deploy` or by pushing to main). A sentinel
+object is therefore not necessary for correctness — document uploads take effect on
+the next deploy regardless.
 
 ---
 

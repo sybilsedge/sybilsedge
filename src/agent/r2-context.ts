@@ -17,11 +17,18 @@
 export const MAX_KB_FILES = 20;
 
 /**
- * Maximum total characters contributed by R2 documents to the system prompt.
+ * Maximum total characters contributed by R2 documents to the system prompt
+ * (including the `---` dividers inserted between sections at join-time).
  * At ~4 chars/token this is roughly 3 000 tokens — generous but conservative
  * given the 128 k-token context window of Llama 3.3 70B.
  */
 export const MAX_KB_CHARS = 12_000;
+
+/** Separator inserted between sections at join-time. */
+const DIVIDER = '\n\n---\n\n';
+
+/** Max concurrent R2 get() calls per prompt build. */
+const FETCH_CONCURRENCY = 5;
 
 /**
  * Strips YAML front-matter from a markdown string.
@@ -46,14 +53,47 @@ function titleFromKey(key: string): string {
 		.join(' ');
 }
 
+type FetchSuccess = { key: string; raw: string };
+type FetchFailure = { key: string; error: unknown };
+type FetchResult = FetchSuccess | FetchFailure;
+
+/** Fetches a single R2 object and returns its text content. */
+async function fetchOne(bucket: R2Bucket, key: string): Promise<FetchSuccess> {
+	const item = await bucket.get(key);
+	if (!item) throw new Error('key not found in bucket');
+	const raw = await item.text();
+	return { key, raw };
+}
+
+/**
+ * Fetches multiple R2 objects in parallel, honouring FETCH_CONCURRENCY.
+ * Results are returned in the same order as the input keys so the prompt
+ * section order remains deterministic.
+ */
+async function fetchAll(bucket: R2Bucket, keys: string[]): Promise<FetchResult[]> {
+	const results: FetchResult[] = new Array(keys.length);
+	for (let batchStart = 0; batchStart < keys.length; batchStart += FETCH_CONCURRENCY) {
+		const batch = keys.slice(batchStart, batchStart + FETCH_CONCURRENCY);
+		const settled = await Promise.allSettled(batch.map((k) => fetchOne(bucket, k)));
+		for (let batchIndex = 0; batchIndex < settled.length; batchIndex++) {
+			const r = settled[batchIndex];
+			results[batchStart + batchIndex] =
+				r.status === 'fulfilled' ? r.value : { key: batch[batchIndex], error: r.reason };
+		}
+	}
+	return results;
+}
+
 /**
  * Loads markdown documents from the private R2 knowledge-base bucket and
  * returns them as a single, size-bounded plain-text string suitable for
  * inclusion in the SybilTwin system prompt.
  *
  * - Only objects under the `kb/` prefix with a `.md` extension are read.
+ * - Objects are fetched in parallel (up to FETCH_CONCURRENCY at a time).
  * - Errors on individual files are logged and skipped (non-fatal).
- * - Content is hard-truncated at MAX_KB_CHARS to guard the context budget.
+ * - Content is hard-truncated at MAX_KB_CHARS (including dividers) to guard
+ *   the context budget.
  *
  * @returns Plain-text sections joined by `---` dividers, or an empty string
  *          if the bucket is empty or all reads fail.
@@ -77,51 +117,46 @@ export async function loadKbContext(bucket: R2Bucket): Promise<string> {
 		return '';
 	}
 
+	const fetched = await fetchAll(bucket, mdKeys);
+
 	const sections: string[] = [];
+	// totalChars tracks the exact byte length of sections.join(DIVIDER) so
+	// that the MAX_KB_CHARS limit accurately reflects what ends up in the prompt.
 	let totalChars = 0;
 
-	for (const key of mdKeys) {
-		let item: R2ObjectBody | null;
-		try {
-			item = await bucket.get(key);
-		} catch (err) {
-			console.error(`[r2-context] bucket.get failed for "${key}":`, err);
-			continue;
-		}
-		if (!item) {
-			console.warn(`[r2-context] key not found in bucket: "${key}"`);
+	for (const result of fetched) {
+		if ('error' in result) {
+			console.error(`[r2-context] failed to fetch "${result.key}":`, result.error);
 			continue;
 		}
 
-		let raw: string;
-		try {
-			raw = await item.text();
-		} catch (err) {
-			console.error(`[r2-context] text() failed for "${key}":`, err);
-			continue;
-		}
-
-		const content = stripFrontmatter(raw);
+		const content = stripFrontmatter(result.raw);
 		if (!content) continue;
 
-		const title = titleFromKey(key);
-		const section = `### ${title}\n\n${content}`;
+		const section = `### ${titleFromKey(result.key)}\n\n${content}`;
+		// Each section after the first contributes an additional DIVIDER in the
+		// final join output, so we must include that overhead in the budget check.
+		const dividerCost = sections.length > 0 ? DIVIDER.length : 0;
+		const addCost = section.length + dividerCost;
 
-		if (totalChars + section.length > MAX_KB_CHARS) {
-			const remaining = MAX_KB_CHARS - totalChars;
+		if (totalChars + addCost > MAX_KB_CHARS) {
+			const remaining = MAX_KB_CHARS - totalChars - dividerCost;
 			if (remaining > 300) {
-				sections.push(section.slice(0, remaining));
-				console.log(`[r2-context] KB budget reached — truncated "${key}"`);
+				const truncated = section.slice(0, remaining);
+				sections.push(truncated);
+				totalChars += truncated.length + dividerCost;
+				console.log(`[r2-context] KB budget reached — truncated "${result.key}"`);
 			}
 			break;
 		}
 
 		sections.push(section);
-		totalChars += section.length;
+		totalChars += addCost;
 	}
 
 	console.log(
 		`[r2-context] loaded ${sections.length}/${mdKeys.length} files — ${totalChars} chars`
 	);
-	return sections.join('\n\n---\n\n');
+	return sections.join(DIVIDER);
 }
+
