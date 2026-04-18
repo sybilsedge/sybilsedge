@@ -52,7 +52,7 @@ if (!config.ai) {
 
 // ── Inject Durable Object binding for SybilTwinDO ────────────────────────
 const DO_BINDING = { name: 'SYBIL_TWIN', class_name: 'SybilTwinDO' };
-const DO_MIGRATION = { tag: 'v1', new_classes: ['SybilTwinDO'] };
+const DO_MIGRATION = { tag: 'v1', new_sqlite_classes: ['SybilTwinDO'] };
 
 if (!config.durable_objects) {
   config.durable_objects = { bindings: [DO_BINDING] };
@@ -69,7 +69,7 @@ if (!config.durable_objects) {
 if (!Array.isArray(config.migrations)) {
   config.migrations = [DO_MIGRATION];
   console.log('patch-wrangler: added SybilTwinDO migration v1');
-} else if (!config.migrations.some(m => Array.isArray(m.new_classes) && m.new_classes.includes('SybilTwinDO'))) {
+} else if (!config.migrations.some(m => Array.isArray(m.new_sqlite_classes) && m.new_sqlite_classes.includes('SybilTwinDO'))) {
   config.migrations.push(DO_MIGRATION);
   console.log('patch-wrangler: appended SybilTwinDO to migrations');
 }
