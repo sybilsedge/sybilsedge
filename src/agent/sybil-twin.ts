@@ -59,7 +59,7 @@ export class SybilTwinDO {
 	private async appendMessages(incoming: ChatMessage[]): Promise<void> {
 		const existing = await this.state.storage.get<ConversationRecord>('conversation');
 		const record: ConversationRecord = existing ?? {
-			messages: [] as StoredMessage[],
+			messages: [],
 			createdAt: Date.now(),
 		};
 		const ts = Date.now();

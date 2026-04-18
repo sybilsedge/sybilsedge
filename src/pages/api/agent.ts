@@ -79,7 +79,7 @@ export const POST: APIRoute = async ({ request }) => {
 		const result = await env.AI.run(MODEL, {
 			messages,
 			stream: true,
-			max_tokens: 512,
+			max_tokens: 1024,
 		});
 		aiStream = result as ReadableStream<Uint8Array>;
 	} catch (err) {

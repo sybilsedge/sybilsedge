@@ -49,8 +49,8 @@ function durableObjectsPlugin() {
 			// Compile the DO class with esbuild (synchronous, no I/O wait)
 			let iifeCode;
 			try {
-				const _require = createRequire(import.meta.url);
-				const { buildSync } = _require('esbuild');
+				const nodeRequire = createRequire(import.meta.url);
+				const { buildSync } = nodeRequire('esbuild');
 				const result = buildSync({
 					entryPoints: [entry],
 					bundle: true,

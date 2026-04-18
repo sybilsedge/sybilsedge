@@ -63,11 +63,17 @@ export default function AgentChat() {
 			});
 
 			if (!res.ok || !res.body) {
-				const errData = await res.json().catch(() => ({ error: 'Request failed.' })) as { error?: string };
+				let errorMsg = 'An error occurred. Please try again.';
+				try {
+					const errData = await res.json() as { error?: string };
+					if (errData.error) errorMsg = errData.error;
+				} catch {
+					// JSON parse failed — use default message
+				}
 				setMessages((prev) =>
 					prev.map((m) =>
 						m.id === assistantId
-							? { ...m, content: errData.error ?? 'An error occurred. Please try again.', streaming: false, error: true }
+							? { ...m, content: errorMsg, streaming: false, error: true }
 							: m
 					)
 				);

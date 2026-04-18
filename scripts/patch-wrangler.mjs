@@ -51,30 +51,26 @@ if (!config.ai) {
 }
 
 // ── Inject Durable Object binding for SybilTwinDO ────────────────────────
+const DO_BINDING = { name: 'SYBIL_TWIN', class_name: 'SybilTwinDO' };
+const DO_MIGRATION = { tag: 'v1', new_classes: ['SybilTwinDO'] };
+
 if (!config.durable_objects) {
-  config.durable_objects = {
-    bindings: [{ name: 'SYBIL_TWIN', class_name: 'SybilTwinDO' }],
-  };
+  config.durable_objects = { bindings: [DO_BINDING] };
   console.log('patch-wrangler: added SYBIL_TWIN DO binding');
 } else if (!Array.isArray(config.durable_objects.bindings)) {
-  config.durable_objects.bindings = [
-    { name: 'SYBIL_TWIN', class_name: 'SybilTwinDO' },
-  ];
+  config.durable_objects.bindings = [DO_BINDING];
   console.log('patch-wrangler: added SYBIL_TWIN DO binding (created bindings array)');
 } else if (!config.durable_objects.bindings.some(b => b.name === 'SYBIL_TWIN')) {
-  config.durable_objects.bindings.push({
-    name: 'SYBIL_TWIN',
-    class_name: 'SybilTwinDO',
-  });
+  config.durable_objects.bindings.push(DO_BINDING);
   console.log('patch-wrangler: added SYBIL_TWIN to existing DO bindings');
 }
 
 // ── Inject DO migration for SybilTwinDO ──────────────────────────────────
 if (!Array.isArray(config.migrations)) {
-  config.migrations = [{ tag: 'v1', new_classes: ['SybilTwinDO'] }];
+  config.migrations = [DO_MIGRATION];
   console.log('patch-wrangler: added SybilTwinDO migration v1');
 } else if (!config.migrations.some(m => Array.isArray(m.new_classes) && m.new_classes.includes('SybilTwinDO'))) {
-  config.migrations.push({ tag: 'v1', new_classes: ['SybilTwinDO'] });
+  config.migrations.push(DO_MIGRATION);
   console.log('patch-wrangler: appended SybilTwinDO to migrations');
 }
 
