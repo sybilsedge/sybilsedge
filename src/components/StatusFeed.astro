@@ -7,6 +7,7 @@ const GITHUB_REPOS = [
 	'sybilsedge/sybilsedge',
 ];
 const COMMITS_PER_REPO = 3;
+const COMMIT_CACHE_TTL_SECONDS = 60 * 10;
 
 // ─── RUNTIME ENV ──────────────────────────────────────────────────────────
 // Read GITHUB_TOKEN from the Cloudflare Workers runtime env (set via wrangler secret).
@@ -25,43 +26,132 @@ type Commit = {
 	url: string;
 };
 
+type GithubCommitItem = {
+	sha?: string;
+	html_url?: string;
+	commit?: {
+		message?: string;
+		author?: {
+			date?: string;
+			name?: string;
+		};
+	};
+};
+
+type ValidGithubCommit = GithubCommitItem & {
+	sha: string;
+	html_url: string;
+	commit: {
+		message: string;
+		author: {
+			date: string;
+			name?: string;
+		};
+	};
+};
+
+function isValidGithubCommit(commit: GithubCommitItem): commit is ValidGithubCommit {
+	if (typeof commit !== 'object' || commit === null) return false;
+	if (typeof commit.sha !== 'string' || typeof commit.html_url !== 'string') return false;
+	if (typeof commit.commit !== 'object' || commit.commit === null) return false;
+	if (typeof commit.commit.message !== 'string') return false;
+	if (typeof commit.commit.author !== 'object' || commit.commit.author === null) return false;
+	if (typeof commit.commit.author.date !== 'string') return false;
+	return typeof commit.commit.author.name === 'undefined' || typeof commit.commit.author.name === 'string';
+}
+
+function parseGithubCommitItems(payload: unknown): GithubCommitItem[] {
+	if (!Array.isArray(payload)) return [];
+	return payload.filter((item): item is GithubCommitItem => typeof item === 'object' && item !== null);
+}
+
 const allCommits: Commit[] = [];
 let commitFetchError: string | null = null;
+const commitCache = typeof caches !== 'undefined' ? caches.default : null;
 
 for (const repo of GITHUB_REPOS) {
 	try {
-		const headers: Record<string, string> = {
-			Accept: 'application/vnd.github+json',
-			'User-Agent': 'sybilsedge/1.0',
-			'X-GitHub-Api-Version': '2022-11-28',
-		};
-		if (githubToken) {
-			headers['Authorization'] = `Bearer ${githubToken}`;
-		}
-		const res = await fetch(
-			`https://api.github.com/repos/${repo}/commits?per_page=${COMMITS_PER_REPO}`,
-			{ headers }
-		);
-		if (res.ok) {
-			const data = await res.json();
-			for (const c of data) {
-				const commitDate = new Date(c.commit.author.date as string);
-				allCommits.push({
-					repo,
-					sha: (c.sha as string).slice(0, 7),
-					message: (c.commit.message as string).split('\n')[0].slice(0, 72),
-					author: c.commit.author.name as string,
-					sortKey: commitDate.getTime(),
-					dateDisplay: commitDate.toLocaleDateString('en-US', {
-						month: 'short', day: 'numeric', year: 'numeric',
-					}),
-					url: c.html_url as string,
-				});
+		const commitsUrl = `https://api.github.com/repos/${repo}/commits?per_page=${COMMITS_PER_REPO}`;
+		const cacheKey = new Request(commitsUrl);
+		let repoCommits: GithubCommitItem[] | null = null;
+
+		// Option A (Cloudflare Cache API): short-lived edge cache keeps homepage SSR
+		// fast on repeat requests and reduces direct GitHub API traffic.
+		if (commitCache) {
+			const cached = await commitCache.match(cacheKey);
+			if (cached) {
+				try {
+					repoCommits = parseGithubCommitItems(await cached.json());
+				} catch (err) {
+					console.error(
+						`[StatusFeed] Cache parse failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`
+					);
+				}
 			}
-		} else {
-			const msg = `GitHub API ${res.status} for ${repo}. ${githubToken ? 'Check token permissions.' : 'No token configured — using unauthenticated access.'}`;
-			console.error(`[StatusFeed] ${msg}`);
-			commitFetchError = msg;
+		}
+
+		if (!repoCommits) {
+			const headers: Record<string, string> = {
+				Accept: 'application/vnd.github+json',
+				'User-Agent': 'sybilsedge/1.0',
+				'X-GitHub-Api-Version': '2022-11-28',
+			};
+			if (githubToken) {
+				headers['Authorization'] = `Bearer ${githubToken}`;
+			}
+			const res = await fetch(commitsUrl, { headers });
+			if (!res.ok) {
+				const msg = `GitHub API ${res.status} for ${repo}. ${githubToken ? 'Check token permissions.' : 'No token configured — using unauthenticated access.'}`;
+				console.error(`[StatusFeed] ${msg}`);
+				commitFetchError = msg;
+				continue;
+			}
+
+			try {
+				repoCommits = parseGithubCommitItems(await res.json());
+			} catch (err) {
+				const msg = `GitHub response parse failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`;
+				console.error(`[StatusFeed] ${msg}`);
+				commitFetchError = msg;
+				continue;
+			}
+			if (commitCache) {
+				try {
+					await commitCache.put(
+						cacheKey,
+						new Response(JSON.stringify(repoCommits), {
+							headers: {
+								'Content-Type': 'application/json',
+								'Cache-Control': `public, max-age=${COMMIT_CACHE_TTL_SECONDS}`,
+							},
+						})
+					);
+				} catch (err) {
+					console.error(
+						`[StatusFeed] Cache write failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`
+					);
+				}
+			}
+		}
+
+		if (!repoCommits) continue;
+		for (const c of repoCommits) {
+			if (!isValidGithubCommit(c)) continue;
+			const commitAuthor = c.commit.author;
+			const commitDate = new Date(commitAuthor.date);
+			const commitTime = commitDate.getTime();
+			if (!Number.isFinite(commitTime)) continue;
+			allCommits.push({
+				repo,
+				sha: c.sha.slice(0, 7),
+				message: c.commit.message.split('\n')[0].slice(0, 72),
+				author: commitAuthor.name ?? 'unknown',
+				sortKey: commitTime,
+				dateDisplay: commitDate.toLocaleDateString('en-US', {
+					month: 'short', day: 'numeric', year: 'numeric',
+				}),
+				url: c.html_url,
+			});
 		}
 	} catch (err) {
 		const msg = `Fetch failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`;
