@@ -26,6 +26,39 @@ type Commit = {
 	url: string;
 };
 
+type GithubCommitItem = {
+	sha?: string;
+	html_url?: string;
+	commit?: {
+		message?: string;
+		author?: {
+			date?: string;
+			name?: string;
+		};
+	};
+};
+
+type ValidGithubCommit = GithubCommitItem & {
+	sha: string;
+	html_url: string;
+	commit: {
+		message: string;
+		author: {
+			date: string;
+			name?: string;
+		};
+	};
+};
+
+function isValidGithubCommit(commit: GithubCommitItem): commit is ValidGithubCommit {
+	return Boolean(commit?.commit?.author?.date && commit?.sha && commit?.commit?.message && commit?.html_url);
+}
+
+function parseGithubCommitItems(payload: unknown): GithubCommitItem[] {
+	if (!Array.isArray(payload)) return [];
+	return payload.filter((item): item is GithubCommitItem => typeof item === 'object' && item !== null);
+}
+
 const allCommits: Commit[] = [];
 let commitFetchError: string | null = null;
 const commitCache = typeof caches !== 'undefined' ? caches.default : null;
@@ -34,18 +67,24 @@ for (const repo of GITHUB_REPOS) {
 	try {
 		const commitsUrl = `https://api.github.com/repos/${repo}/commits?per_page=${COMMITS_PER_REPO}`;
 		const cacheKey = new Request(commitsUrl);
-		let data: any[] | null = null;
+		let repoCommits: GithubCommitItem[] | null = null;
 
 		// Option A (Cloudflare Cache API): short-lived edge cache keeps homepage SSR
 		// fast on repeat requests and reduces direct GitHub API traffic.
 		if (commitCache) {
 			const cached = await commitCache.match(cacheKey);
 			if (cached) {
-				data = await cached.json<any[]>();
+				try {
+					repoCommits = parseGithubCommitItems(await cached.json());
+				} catch (err) {
+					console.error(
+						`[StatusFeed] Cache parse failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`
+					);
+				}
 			}
 		}
 
-		if (!data) {
+		if (!repoCommits) {
 			const headers: Record<string, string> = {
 				Accept: 'application/vnd.github+json',
 				'User-Agent': 'sybilsedge/1.0',
@@ -62,32 +101,48 @@ for (const repo of GITHUB_REPOS) {
 				continue;
 			}
 
-			data = await res.json<any[]>();
+			try {
+				repoCommits = parseGithubCommitItems(await res.json());
+			} catch (err) {
+				const msg = `GitHub response parse failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`;
+				console.error(`[StatusFeed] ${msg}`);
+				commitFetchError = msg;
+				continue;
+			}
 			if (commitCache) {
-				await commitCache.put(
-					cacheKey,
-					new Response(JSON.stringify(data), {
-						headers: {
-							'Content-Type': 'application/json',
-							'Cache-Control': `public, max-age=${COMMIT_CACHE_TTL_SECONDS}`,
-						},
-					})
-				);
+				try {
+					await commitCache.put(
+						cacheKey,
+						new Response(JSON.stringify(repoCommits), {
+							headers: {
+								'Content-Type': 'application/json',
+								'Cache-Control': `public, max-age=${COMMIT_CACHE_TTL_SECONDS}`,
+							},
+						})
+					);
+				} catch (err) {
+					console.error(
+						`[StatusFeed] Cache write failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`
+					);
+				}
 			}
 		}
 
-		for (const c of data) {
-			const commitDate = new Date(c.commit.author.date as string);
+		if (!repoCommits) continue;
+		for (const c of repoCommits) {
+			if (!isValidGithubCommit(c)) continue;
+			const commitAuthor = c.commit.author;
+			const commitDate = new Date(commitAuthor.date);
 			allCommits.push({
 				repo,
-				sha: (c.sha as string).slice(0, 7),
-				message: (c.commit.message as string).split('\n')[0].slice(0, 72),
-				author: c.commit.author.name as string,
+				sha: c.sha.slice(0, 7),
+				message: c.commit.message.split('\n')[0].slice(0, 72),
+				author: commitAuthor.name ?? 'unknown',
 				sortKey: commitDate.getTime(),
 				dateDisplay: commitDate.toLocaleDateString('en-US', {
 					month: 'short', day: 'numeric', year: 'numeric',
 				}),
-				url: c.html_url as string,
+				url: c.html_url,
 			});
 		}
 	} catch (err) {
