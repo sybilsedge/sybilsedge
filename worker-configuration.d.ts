@@ -111,6 +111,8 @@ interface Ai {
 // ── Env interface (all Worker bindings + secrets) ────────────────────────────
 
 interface Env {
+	/** Runtime environment marker used to guard preview-only behavior (e.g. disable Digital Twin DO access). */
+	ENVIRONMENT?: 'preview' | 'production';
 	/** GitHub fine-grained PAT — read-only, public repos. Set via: npx wrangler secret put GITHUB_TOKEN */
 	GITHUB_TOKEN?: string;
 	/** Workers AI binding — provides access to Cloudflare's AI models. */
