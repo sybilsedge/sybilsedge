@@ -2,10 +2,29 @@
 	"name": "sybilsedge",
 	"compatibility_date": "2026-04-06",
 	"compatibility_flags": ["nodejs_compat"],
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "DIGITAL_TWIN",
+				"class_name": "DigitalTwin"
+			}
+		]
+	},
 	"assets": {
 		"directory": "./dist"
 	},
 	"observability": {
 		"enabled": true
+	},
+	// NOTE: The Digital Twin Durable Object binding is intentionally omitted from
+	// the preview environment. Cloudflare does not generate preview URLs for Workers
+	// with DO bindings declared. The Digital Twin page is not required in preview.
+	// See: https://developers.cloudflare.com/workers/configuration/previews/
+	"env": {
+		"preview": {
+			"vars": {
+				"ENVIRONMENT": "preview"
+			}
+		}
 	}
 }
