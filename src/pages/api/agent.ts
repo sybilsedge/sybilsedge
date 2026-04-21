@@ -47,9 +47,10 @@ function getSystemPrompt(): Promise<string> {
 
 export const POST: APIRoute = async ({ request }) => {
 	if (env.ENVIRONMENT === 'preview') {
-		return new Response('Digital twin unavailable in preview environments.', {
-			status: 503,
-		});
+		return Response.json(
+			{ error: 'Digital twin unavailable in preview environments.' },
+			{ status: 503 }
+		);
 	}
 
 	const reqId = crypto.randomUUID().slice(0, 8);
