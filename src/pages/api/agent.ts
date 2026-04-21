@@ -49,6 +49,14 @@ export const POST: APIRoute = async ({ request }) => {
 	const reqId = crypto.randomUUID().slice(0, 8);
 	const t0 = Date.now();
 
+	// ── 0. Preview guard — DO binding is absent in preview deployments ─────
+	if (env.ENVIRONMENT === 'preview') {
+		return Response.json(
+			{ error: 'Digital Twin is not available in preview deployments.' },
+			{ status: 503 }
+		);
+	}
+
 	// ── 1. Parse & validate input ──────────────────────────────────────────
 	let body: unknown;
 	try {

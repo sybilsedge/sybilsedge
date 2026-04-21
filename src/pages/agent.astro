@@ -1,6 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AgentChat from '../components/AgentChat';
+import { env } from 'cloudflare:workers';
+
+const isPreview = env.ENVIRONMENT === 'preview';
 ---
 
 <Layout
@@ -22,8 +25,17 @@ import AgentChat from '../components/AgentChat';
 			</p>
 		</header>
 
-		<!-- Chat island -->
-		<AgentChat client:load />
+		<!-- Chat island (hidden in preview — no Durable Object binding) -->
+		{isPreview ? (
+			<div class="rounded-md blueprint-border bg-black/35 p-6 text-center">
+				<p class="font-tech text-xs uppercase tracking-[0.18em] text-cyan-300/70 mb-2">Preview Environment</p>
+				<p class="text-slate-300/80 text-sm">
+					The Digital Twin is not available in preview deployments.
+				</p>
+			</div>
+		) : (
+			<AgentChat client:load />
+		)}
 
 	</div>
 </Layout>
