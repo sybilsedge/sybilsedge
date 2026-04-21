@@ -7,5 +7,16 @@
 	},
 	"observability": {
 		"enabled": true
+	},
+	// NOTE: The Digital Twin Durable Object binding is intentionally omitted from
+	// the preview environment. Cloudflare does not generate preview URLs for Workers
+	// with DO bindings declared. The Digital Twin page is not required in preview.
+	// See: https://developers.cloudflare.com/workers/configuration/previews/
+	"env": {
+		"preview": {
+			"vars": {
+				"ENVIRONMENT": "preview"
+			}
+		}
 	}
 }
