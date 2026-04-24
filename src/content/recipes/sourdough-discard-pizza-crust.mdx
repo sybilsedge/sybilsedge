@@ -30,13 +30,13 @@ image:
   src: "../../assets/images/recipes/sourdough-pizza-crust--baked.jpg"
   alt: "Baked cast-iron sourdough pizza crust"
 images:
-  - src: "../../assets/images/recipes/sourdough-pizza-crust--dough--01.jpg"
+  - src: "../../assets/images/recipes/sourdough-pizza-crust--rise--01.jpg"
     alt: "Dough pre-rise"
     caption: "After mixing, before rise."
     metadata:
       Tool: "Kitchen Aid mixer"
       Flour: "King Arthur Bread Flour"
-  - src: "../../assets/images/recipes/sourdough-pizza-crust--dough--02.jpg"
+  - src: "../../assets/images/recipes/sourdough-pizza-crust--rise--02.jpg"
     alt: "Dough post-rise"
     caption: "After rise, before rolling."
     metadata:
@@ -74,7 +74,7 @@ import BlueprintGallery from '../../components/BlueprintGallery.tsx';
 2. Combine the lesser amount of water, the flour, salt, and yeast with the sourdough starter.
 3. Mix to combine, adding the remaining water 1 tablespoon at a time if the dough looks dry.
 4. Knead for about 7 minutes using a stand mixer with its dough hook, until the dough cleans the sides of the bowl.
-<BlueprintGallery items={props.galleryItems.filter(item => item.src.includes('dough'))} label="Hydration & Mixing" client:visible />
+<BlueprintGallery items={props.galleryItems.filter(item => item.src.includes('rise'))} label="The Rise" client:visible />
 5. Place the dough in a lightly greased container, cover, and let rise until almost doubled in bulk — 2–4 hours depending on starter vitality.
 6. Preheat oven to 475°F. Place an oiled cast iron skillet in the oven to heat up with it.
 7. Roll out the dough at least 2 inches wider than the pan. If it snaps back, give it a 15-minute rest and try again.
