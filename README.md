@@ -92,6 +92,13 @@ All content lives in `src/content/` as Markdown files. Schemas are defined in `s
 
 To feature a project in the Maker Gallery, set `featured: true` and optionally add a `progress` value (0–100) in the frontmatter.
 
+## Developer Docs
+
+| Document | Description |
+| :------- | :---------- |
+| [Image Naming Conventions](docs/image-naming-conventions.md) | Directory layout, file naming patterns, format rules, OG images, and alt text guidelines |
+| [R2 KB Runbook](docs/r2-kb-runbook.md) | Authoring, uploading, and managing documents in the SybilTwin knowledge-base R2 bucket |
+
 ## Open Issues
 
 - **#61** — Investigate Cloudflare Cache/KV caching for the GitHub commit feed
