@@ -32,7 +32,7 @@ dist/client/og/         # ← build output only, never committed
 **Rules:**
 
 - All content images live under `src/assets/images/{collection}/`.
-- Astro's `image()` schema helper validates and optimises these paths at build time.
+- Astro's `image()` schema helper validatesthese paths and provides image metadata at build time; optimisation happens when images are rendered through Astro's image pipeline.
 - `public/` is for static files that bypass the image pipeline (favicons, `robots.txt`).
 - `dist/` is build output — it is git-ignored and must not be committed.
 
