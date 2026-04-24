@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
+import ContentHero from '../../components/ContentHero.astro';
 
 export const prerender = true;
 
@@ -49,6 +50,13 @@ const formattedDate = entry.data.date.toLocaleDateString('en-US', {
 						<span class="rounded font-tech text-[10px] uppercase tracking-[0.1em] px-2 py-0.5 bg-black/40 border border-cyan-300/10 text-cyan-300/45">{tag}</span>
 					))}
 				</div>
+			)}
+			{entry.data.heroImage && (
+				<ContentHero
+					src={entry.data.heroImage.src}
+					alt={entry.data.heroImage.alt}
+					class="mt-6"
+				/>
 			)}
 		</header>
 
