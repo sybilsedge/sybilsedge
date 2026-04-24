@@ -87,7 +87,7 @@ dist/client/og/         # ← build output only, never committed
 |---|---|---|
 | Photos | **JPG** | Use for any photographic content |
 | Screenshots / diagrams with transparency | **PNG** | Preserves sharp edges and alpha |
-| Site-level illustrations | **SVG** | Used in `src/assets/` directly; rendered via `set:html` in `.astro` files |
+| Site-level illustrations | **SVG** | Store as SVG assets under `src/assets/` when needed. In `.astro` files, `set:html` is only for trusted, locally authored static inline SVG strings (for example, icon maps), not imported SVG asset files. |
 
 Do not commit WebP or AVIF source files — Astro's image pipeline generates these
 automatically at build time.
