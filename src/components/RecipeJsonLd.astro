@@ -63,6 +63,15 @@ if (instructions && instructions.length > 0) {
 		text,
 	}));
 }
+
+// Safely serialize JSON for inline embedding in a <script> tag.
+// Replacing < > & prevents </script> or <!-- sequences in string values from
+// breaking out of the script element — matching what Next.js and other
+// frameworks do for embedded JSON-LD.
+const ldJson = JSON.stringify(ld)
+	.replace(/</g, '\\u003c')
+	.replace(/>/g, '\\u003e')
+	.replace(/&/g, '\\u0026');
 ---
 
-<script type="application/ld+json" set:html={JSON.stringify(ld)} />
+<script type="application/ld+json" set:html={ldJson} />
