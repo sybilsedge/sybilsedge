@@ -32,7 +32,7 @@ dist/client/og/         # ← build output only, never committed
 **Rules:**
 
 - All content images live under `src/assets/images/{collection}/`.
-- Astro's `image()` schema helper validates and optimises these paths at build time.
+- Astro's `image()` schema helper validatesthese paths and provides image metadata at build time; optimisation happens when images are rendered through Astro's image pipeline.
 - `public/` is for static files that bypass the image pipeline (favicons, `robots.txt`).
 - `dist/` is build output — it is git-ignored and must not be committed.
 
@@ -87,7 +87,7 @@ dist/client/og/         # ← build output only, never committed
 |---|---|---|
 | Photos | **JPG** | Use for any photographic content |
 | Screenshots / diagrams with transparency | **PNG** | Preserves sharp edges and alpha |
-| Site-level illustrations | **SVG** | Used in `src/assets/` directly; rendered via `set:html` in `.astro` files |
+| Site-level illustrations | **SVG** | Store as SVG assets under `src/assets/` when needed. In `.astro` files, `set:html` is only for trusted, locally authored static inline SVG strings (for example, icon maps), not imported SVG asset files. |
 
 Do not commit WebP or AVIF source files — Astro's image pipeline generates these
 automatically at build time.
