@@ -1,6 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import RecipeJsonLd from '../../components/RecipeJsonLd.astro';
 import { getCollection, render } from 'astro:content';
+import { getImage } from 'astro:assets';
 import { buildGalleryItems } from '../../utils/gallery.ts';
 import type { BlueprintImage } from '../../components/BlueprintGallery.tsx';
 
@@ -21,6 +23,13 @@ const { Content } = await render(entry);
 // plain serialisable strings — no Astro APIs leak into the client bundle.
 const galleryItems: BlueprintImage[] = await buildGalleryItems(entry.data.images);
 
+// Resolve the hero image URL for JSON-LD structured data (optional).
+let heroImageUrl: string | undefined;
+if (entry.data.image) {
+	const optimised = await getImage({ src: entry.data.image.src, width: 1200, format: 'webp' });
+	heroImageUrl = new URL(optimised.src, Astro.site ?? 'https://sybilsedge.com').toString();
+}
+
 const categoryConfig: Record<string, { label: string; color: string }> = {
 	baking:       { label: 'Baking',       color: 'text-amber-400/80 border-amber-400/30 bg-amber-400/5' },
 	cooking:      { label: 'Cooking',      color: 'text-[#39ff14]/80 border-[#39ff14]/30 bg-[#39ff14]/5' },
@@ -38,6 +47,20 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 	title={`${entry.data.title} | Kitchen | Sybilsedge`}
 	description={entry.data.description}
 >
+	<RecipeJsonLd
+		slot="head"
+		name={entry.data.title}
+		description={entry.data.description}
+		category={entry.data.category}
+		date={entry.data.date}
+		prepTime={entry.data.prepTime}
+		cookTime={entry.data.cookTime}
+		servings={entry.data.servings}
+		cuisine={entry.data.cuisine}
+		ingredients={entry.data.ingredients}
+		instructions={entry.data.instructions}
+		imageUrl={heroImageUrl}
+	/>
 	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
 
 		<!-- Back link -->

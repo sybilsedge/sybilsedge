@@ -53,6 +53,9 @@ const ogImageURL = new URL(ogImage, Astro.site ?? 'https://sybilsedge.com').toSt
 		<!-- Font preconnect — reduces render-blocking by establishing connections early -->
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+		<!-- Page-specific head content (e.g. JSON-LD structured data) -->
+		<slot name="head" />
 	</head>
 	<body class="min-h-screen bg-grid text-slate-100">
 		<!-- Skip to content -->

@@ -1,0 +1,77 @@
+---
+/**
+ * RecipeJsonLd.astro
+ *
+ * Injects a schema.org/Recipe JSON-LD <script> into the page <head> via the
+ * Layout named "head" slot.  All values come from locally-authored frontmatter
+ * so set:html is safe here — there is no user-supplied input involved.
+ */
+
+interface Props {
+	name: string;
+	description: string;
+	category: string;
+	date: Date;
+	prepTime?: string;
+	cookTime?: string;
+	servings?: number;
+	cuisine?: string;
+	ingredients?: string[];
+	instructions?: string[];
+	imageUrl?: string;
+}
+
+const {
+	name,
+	description,
+	category,
+	date,
+	prepTime,
+	cookTime,
+	servings,
+	cuisine,
+	ingredients,
+	instructions,
+	imageUrl,
+} = Astro.props;
+
+// Build the JSON-LD object, omitting keys whose values are absent so that
+// Google's Rich Results Test does not flag empty/null fields.
+const ld: Record<string, unknown> = {
+	'@context': 'https://schema.org',
+	'@type': 'Recipe',
+	name,
+	description,
+	author: { '@type': 'Person', name: 'Sybil Melton' },
+	datePublished: date.toISOString().slice(0, 10),
+	recipeCategory: category,
+};
+
+if (imageUrl) ld.image = [imageUrl];
+// prepTime / cookTime are passed through as authored in frontmatter (e.g. "20 min").
+// schema.org prefers ISO 8601 duration strings (e.g. "PT20M"), but Google also
+// accepts human-readable values. Update individual recipe entries to ISO 8601 if
+// full Rich Results compliance is required.
+if (prepTime) ld.prepTime = prepTime;
+if (cookTime) ld.cookTime = cookTime;
+if (servings) ld.recipeYield = `${servings} servings`;
+if (cuisine) ld.recipeCuisine = cuisine;
+if (ingredients && ingredients.length > 0) ld.recipeIngredient = ingredients;
+if (instructions && instructions.length > 0) {
+	ld.recipeInstructions = instructions.map((text) => ({
+		'@type': 'HowToStep',
+		text,
+	}));
+}
+
+// Safely serialize JSON for inline embedding in a <script> tag.
+// Replacing < > & prevents </script> or <!-- sequences in string values from
+// breaking out of the script element — matching what Next.js and other
+// frameworks do for embedded JSON-LD.
+const ldJson = JSON.stringify(ld)
+	.replace(/</g, '\\u003c')
+	.replace(/>/g, '\\u003e')
+	.replace(/&/g, '\\u0026');
+---
+
+<script type="application/ld+json" set:html={ldJson} />
