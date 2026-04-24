@@ -62,6 +62,10 @@ const recipes = defineCollection({
 		prepTime: z.string().optional(),
 		cookTime: z.string().optional(),
 		servings: z.number().optional(),
+		// Structured data fields for JSON-LD (schema.org/Recipe)
+		cuisine: z.string().optional(),
+		ingredients: z.array(z.string()).optional(),
+		instructions: z.array(z.string()).optional(),
 		// Use Astro's image() helper so images are validated and optimised at
 		// build time via getImage() — must be a local path relative to the entry.
 		image: z.object({
