@@ -250,7 +250,7 @@ export default function StepGallery({ items, label }: Props) {
 							</p>
 							{/* Optional label */}
 							{current.label && (
-								<p className="font-orbitron mt-1 text-sm uppercase tracking-[0.08em] text-cyan-100">
+								<p className="mt-1 font-orbitron text-sm uppercase tracking-[0.08em] text-cyan-100">
 									{current.label}
 								</p>
 							)}

@@ -2,7 +2,7 @@
 /**
  * StepGalleryIsland — Astro server-side wrapper for the StepGallery React island.
  *
- * Optimises each step image at build time via getImage(), then passes plain,
+ * Optimises each step image at build time via buildStepItems(), then passes plain,
  * serialisable StepItem objects to the StepGallery React island. No Astro APIs
  * leak into the client bundle.
  *
@@ -16,10 +16,9 @@
  * Usage in an Astro page:
  *   <StepGalleryIsland steps={entry.data.steps} label="Build Phases" />
  */
-import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import StepGallery from './StepGallery.tsx';
-import type { StepItem } from './StepGallery.tsx';
+import { buildStepItems } from '../utils/gallery.ts';
 
 interface StepEntry {
 	src: ImageMetadata;
@@ -34,24 +33,7 @@ interface Props {
 
 const { steps, label } = Astro.props;
 
-const items: StepItem[] = steps && steps.length > 0
-	? await Promise.all(
-		steps.map(async (step) => {
-			const [thumb, full] = await Promise.all([
-				getImage({ src: step.src, width: 400, format: 'webp' }),
-				getImage({ src: step.src, width: 1200, format: 'webp' }),
-			]);
-			return {
-				src: full.src,
-				thumbSrc: thumb.src,
-				alt: step.alt,
-				label: step.label,
-				width: full.attributes.width ? Number(full.attributes.width) : undefined,
-				height: full.attributes.height ? Number(full.attributes.height) : undefined,
-			} satisfies StepItem;
-		}),
-	)
-	: [];
+const items = await buildStepItems(steps);
 ---
 
 {items.length > 0 && (
