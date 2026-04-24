@@ -1,8 +1,8 @@
 ---
 title: "Sourdough Discard Pizza Crust"
 category: "baking"
-description: "A crisp, chewy cast iron pizza crust made with sourdough discard. Minimal yeast, maximum flavor — the starter does the heavy lifting overnight if you let it."
-tags: ["sourdough", "discard", "pizza", "cast iron", "yeast"]
+description: "A crisp, chewy cast iron pizza crust made with sourdough discard. Minimal yeast, maximum flavor."
+tags: ["sourdough", "discard", "pizza", "cast iron", "yeast", "dinner"]
 prepTime: "20 min + 2–4 hr rise"
 cookTime: "10–15 min"
 servings: 2
@@ -25,8 +25,34 @@ instructions:
   - "Add sauce and toppings."
   - "Bake 10–15 minutes until the crust is golden and the toppings are cooked through."
 date: 2026-04-10
-featured: false
+featured: true
+image:
+  src: "../../assets/images/recipes/sourdough-pizza-crust--baked.jpg"
+  alt: "complete"
+images:
+  - src: "../../assets/images/recipes/sourdough-pizza-crust--dough--01.jpg"
+    alt: "Dough pre-rise"
+    caption: "After mixing, before rise."
+    metadata:
+      Tool: "Kitchen Aid mixer"
+  - src: "../../assets/images/recipes/sourdough-pizza-crust--dough--02.jpg"
+    alt: "Dough post-rise"
+    caption: "After rise, before rolling."
+    metadata:
+      Tool: "kitchen Aid Mixer"
+  - src: "../../assets/images/recipes/sourdough-pizza-crust--slice--01.jpg"
+    alt: "Slice 1"
+    caption: "slice from one pizza."
+    metadata:
+      Tool: "Oven"
+  - src: "../../assets/images/recipes/sourdough-pizza-crust--slice--02.jpg"
+    alt: "Slice 2"
+    caption: "slice from another pizza."
+    metadata:
+      Tool: "Oven"
 ---
+
+import BlueprintGallery from '../../components/BlueprintGallery.tsx';
 
 ## Ingredients
 
@@ -42,12 +68,23 @@ featured: false
 2. Combine the lesser amount of water, the flour, salt, and yeast with the sourdough starter.
 3. Mix to combine, adding the remaining water 1 tablespoon at a time if the dough looks dry.
 4. Knead for about 7 minutes using a stand mixer with its dough hook, until the dough cleans the sides of the bowl.
+<BlueprintGallery 
+  items={props.galleryItems.filter(item => item.src.includes('dough'))} 
+  label="Dough Logic" 
+  client:visible 
+/>
 5. Place the dough in a lightly greased container, cover, and let rise until almost doubled in bulk — 2–4 hours depending on starter vitality.
 6. Preheat oven to 475°F. Place an oiled cast iron skillet in the oven to heat up with it.
 7. Roll out the dough at least 2 inches wider than the pan. If it snaps back, give it a 15-minute rest and try again.
 8. When the oven is up to temperature, carefully remove the cast iron. Place the dough inside and position it up the sides.
 9. Add sauce and toppings.
 10. Bake 10–15 minutes until the crust is golden and the toppings are cooked through.
+
+<BlueprintGallery 
+  items={props.galleryItems.filter(item => item.src.includes('slice') || item.src.includes('baked'))} 
+  label="Final Bakes" 
+  client:visible 
+/>
 
 ## Notes
 
