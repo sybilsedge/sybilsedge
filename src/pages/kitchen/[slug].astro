@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
-import { getImage } from 'astro:assets';
+import { buildGalleryItems } from '../../utils/gallery.ts';
 import type { BlueprintImage } from '../../components/BlueprintGallery.tsx';
 
 export const prerender = true;
@@ -19,26 +19,7 @@ const { Content } = await render(entry);
 
 // Pre-optimise the `images` array so the BlueprintGallery island receives
 // plain serialisable strings — no Astro APIs leak into the client bundle.
-let galleryItems: BlueprintImage[] = [];
-if (entry.data.images && entry.data.images.length > 0) {
-	galleryItems = await Promise.all(
-		entry.data.images.map(async (img) => {
-			const [thumb, full] = await Promise.all([
-				getImage({ src: img.src, width: 400, format: 'webp' }),
-				getImage({ src: img.src, width: 1200, format: 'webp' }),
-			]);
-			return {
-				src: full.src,
-				thumbSrc: thumb.src,
-				alt: img.alt,
-				width: full.attributes.width ? Number(full.attributes.width) : undefined,
-				height: full.attributes.height ? Number(full.attributes.height) : undefined,
-				caption: img.caption,
-				metadata: img.metadata,
-			} satisfies BlueprintImage;
-		}),
-	);
-}
+const galleryItems: BlueprintImage[] = await buildGalleryItems(entry.data.images);
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
 	baking:       { label: 'Baking',       color: 'text-amber-400/80 border-amber-400/30 bg-amber-400/5' },

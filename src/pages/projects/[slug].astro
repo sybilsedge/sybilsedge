@@ -1,7 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
-import { Image, getImage } from 'astro:assets';
+import ContentHero from '../../components/ContentHero.astro';
+import { buildGalleryItems } from '../../utils/gallery.ts';
 import type { BlueprintImage } from '../../components/BlueprintGallery.tsx';
 
 export const prerender = true;
@@ -19,26 +20,7 @@ const { Content } = await render(entry);
 
 // Pre-optimise the `images` array so the BlueprintGallery island receives
 // plain serialisable strings — no Astro APIs leak into the client bundle.
-let galleryItems: BlueprintImage[] = [];
-if (entry.data.images && entry.data.images.length > 0) {
-	galleryItems = await Promise.all(
-		entry.data.images.map(async (img) => {
-			const [thumb, full] = await Promise.all([
-				getImage({ src: img.src, width: 400, format: 'webp' }),
-				getImage({ src: img.src, width: 1200, format: 'webp' }),
-			]);
-			return {
-				src: full.src,
-				thumbSrc: thumb.src,
-				alt: img.alt,
-				width: full.attributes.width ? Number(full.attributes.width) : undefined,
-				height: full.attributes.height ? Number(full.attributes.height) : undefined,
-				caption: img.caption,
-				metadata: img.metadata,
-			} satisfies BlueprintImage;
-		}),
-	);
-}
+const galleryItems: BlueprintImage[] = await buildGalleryItems(entry.data.images);
 
 const statusConfig: Record<string, { label: string; classes: string }> = {
 	active:   { label: 'ACTIVE',   classes: 'border-[#39ff14]/40 text-[#39ff14]/80 bg-[#39ff14]/5' },
@@ -98,12 +80,10 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 			)}
 			<!-- Project hero image in the page header -->
 			{entry.data.image && (
-				<Image
+				<ContentHero
 					src={entry.data.image.src}
 					alt={entry.data.image.alt}
-					width={800}
-					height={450}
-					class="w-full rounded-t-lg"
+					class="mt-5"
 				/>
 			)}
 			<!-- GitHub link -->
