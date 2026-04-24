@@ -35,24 +35,33 @@ images:
     caption: "After mixing, before rise."
     metadata:
       Tool: "Kitchen Aid mixer"
+      Flour: "King Arthur Bread Flour"
   - src: "../../assets/images/recipes/sourdough-pizza-crust--dough--02.jpg"
     alt: "Dough post-rise"
     caption: "After rise, before rolling."
     metadata:
       Tool: "kitchen Aid Mixer"
+      Flour: "King Arthur Bread Flour"
   - src: "../../assets/images/recipes/sourdough-pizza-crust--slice--01.jpg"
     alt: "Slice 1"
     caption: "slice from one pizza."
     metadata:
       Tool: "Oven"
+      Flour: "King Arthur Bread Flour"
+      Temp: "475°F"
   - src: "../../assets/images/recipes/sourdough-pizza-crust--slice--02.jpg"
     alt: "Slice 2"
     caption: "slice from another pizza."
     metadata:
       Tool: "Oven"
+      Flour: "King Arthur Bread Flour"
+      Temp: "475°F"
 ---
 
 import BlueprintGallery from '../../components/BlueprintGallery.tsx';
+
+export const doughItems = props.galleryItems.filter(item => item.src.includes('dough'));
+export const sliceItems = props.galleryItems.filter(item => item.src.includes('slice') || item.src.includes('baked'));
 
 ## Ingredients
 
@@ -68,11 +77,7 @@ import BlueprintGallery from '../../components/BlueprintGallery.tsx';
 2. Combine the lesser amount of water, the flour, salt, and yeast with the sourdough starter.
 3. Mix to combine, adding the remaining water 1 tablespoon at a time if the dough looks dry.
 4. Knead for about 7 minutes using a stand mixer with its dough hook, until the dough cleans the sides of the bowl.
-<BlueprintGallery 
-  items={props.galleryItems.filter(item => item.src.includes('dough'))} 
-  label="Dough Logic" 
-  client:visible 
-/>
+<BlueprintGallery items={doughItems} label="Hydration & Mixing" client:visible />
 5. Place the dough in a lightly greased container, cover, and let rise until almost doubled in bulk — 2–4 hours depending on starter vitality.
 6. Preheat oven to 475°F. Place an oiled cast iron skillet in the oven to heat up with it.
 7. Roll out the dough at least 2 inches wider than the pan. If it snaps back, give it a 15-minute rest and try again.
@@ -80,11 +85,7 @@ import BlueprintGallery from '../../components/BlueprintGallery.tsx';
 9. Add sauce and toppings.
 10. Bake 10–15 minutes until the crust is golden and the toppings are cooked through.
 
-<BlueprintGallery 
-  items={props.galleryItems.filter(item => item.src.includes('slice') || item.src.includes('baked'))} 
-  label="Final Bakes" 
-  client:visible 
-/>
+<BlueprintGallery items={sliceItems} label="Thermal Results" client:visible />
 
 ## Notes
 
