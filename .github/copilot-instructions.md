@@ -82,5 +82,4 @@ All four content collections accept `.mdx` files, which execute JavaScript at bu
 All new URL fields in content schemas must use `z.string().url()` (not bare `z.string()`). This blocks malformed values and `javascript:` URIs. See `githubUrl` in `src/content.config.ts` as the reference pattern.
 
 ## What to skip reviewing
-- `README.md` — this is the unmodified Astro starter template and is not kept up to date
 - `package-lock.json` diffs — no review needed unless a specific dependency concern is raised
