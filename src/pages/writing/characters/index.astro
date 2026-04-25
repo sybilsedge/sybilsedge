@@ -93,18 +93,28 @@ const personSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18
 		const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
 		const wrappers = document.querySelectorAll<HTMLElement>('.char-card-wrapper');
 
+		function applyFilter(filter: string) {
+			buttons.forEach((b) => {
+				const active = b.dataset.filter === filter;
+				b.classList.toggle('is-active', active);
+				b.setAttribute('aria-pressed', active ? 'true' : 'false');
+			});
+			wrappers.forEach((w) => {
+				w.classList.toggle('is-hidden', filter !== 'all' && w.dataset.universe !== filter);
+			});
+		}
+
 		buttons.forEach((btn) => {
 			btn.addEventListener('click', () => {
-				const filter = btn.dataset.filter ?? 'all';
-				buttons.forEach((b) => {
-					const active = b.dataset.filter === filter;
-					b.classList.toggle('is-active', active);
-					b.setAttribute('aria-pressed', active ? 'true' : 'false');
-				});
-				wrappers.forEach((w) => {
-					w.classList.toggle('is-hidden', filter !== 'all' && w.dataset.universe !== filter);
-				});
+				applyFilter(btn.dataset.filter ?? 'all');
 			});
 		});
+
+		// Apply initial filter from URL ?universe= param
+		const initialUniverse = new URLSearchParams(location.search).get('universe');
+		if (initialUniverse) {
+			const match = [...buttons].find((b) => b.dataset.filter === initialUniverse);
+			if (match) applyFilter(initialUniverse);
+		}
 	</script>
 </Layout>

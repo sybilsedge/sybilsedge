@@ -9,6 +9,9 @@ const allNovels = await getCollection('novels');
 
 // Sort by readingOrder (undefined entries last), then title
 const sorted = allNovels.sort((a, b) => {
+	if (a.data.readingOrder === undefined && b.data.readingOrder === undefined) {
+		return a.data.title.localeCompare(b.data.title);
+	}
 	if (a.data.readingOrder === undefined) return 1;
 	if (b.data.readingOrder === undefined) return -1;
 	if (a.data.readingOrder !== b.data.readingOrder) return a.data.readingOrder - b.data.readingOrder;

@@ -29,14 +29,20 @@ const [allCharacters, allNovels, allStories, allLore, allTimeline] = await Promi
 	getCollection('timeline',   (e) => e.data.universe === uid),
 ]);
 
-// Sort novels and stories by readingOrder (undefined entries last)
+// Sort novels and stories by readingOrder (undefined entries last), then title
 const sortedNovels = allNovels.sort((a, b) => {
+	if (a.data.readingOrder === undefined && b.data.readingOrder === undefined) {
+		return a.data.title.localeCompare(b.data.title);
+	}
 	if (a.data.readingOrder === undefined) return 1;
 	if (b.data.readingOrder === undefined) return -1;
 	return a.data.readingOrder - b.data.readingOrder;
 });
 
 const sortedStories = allStories.sort((a, b) => {
+	if (a.data.readingOrder === undefined && b.data.readingOrder === undefined) {
+		return a.data.title.localeCompare(b.data.title);
+	}
 	if (a.data.readingOrder === undefined) return 1;
 	if (b.data.readingOrder === undefined) return -1;
 	return a.data.readingOrder - b.data.readingOrder;
@@ -45,8 +51,15 @@ const sortedStories = allStories.sort((a, b) => {
 // Featured novel = first by readingOrder
 const featuredNovel = sortedNovels[0];
 
-// Timeline preview = first 5 events
-const timelinePreview = allTimeline.slice(0, 5);
+// Timeline preview = first 5 events, sorted by inUniverseDate (undefined last)
+const timelinePreview = allTimeline
+	.sort((a, b) => {
+		if (!a.data.inUniverseDate && !b.data.inUniverseDate) return 0;
+		if (!a.data.inUniverseDate) return 1;
+		if (!b.data.inUniverseDate) return -1;
+		return a.data.inUniverseDate.localeCompare(b.data.inUniverseDate);
+	})
+	.slice(0, 5);
 
 const totalStories = allNovels.length + allStories.length;
 

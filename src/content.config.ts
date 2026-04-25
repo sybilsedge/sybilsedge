@@ -202,4 +202,31 @@ const posts = defineCollection({
 	}),
 });
 
-export const collections = { universes, characters, novels, shortStories, lore, timeline, projects, recipes, posts };
+// Backward-compatibility collection kept while remaining call sites still use
+// getCollection('writing'). This should be removed once all consumers have
+// been migrated to the newer fiction collections.
+const writing = defineCollection({
+	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/writing' }),
+	schema: ({ image }) => z.object({
+		title: z.string(),
+		description: z.string().optional(),
+		date: z.coerce.date().optional(),
+		updatedDate: z.coerce.date().optional(),
+		draft: z.boolean().default(false),
+		featured: z.boolean().default(false),
+		tags: z.array(z.string()).default([]),
+		status: z.string().optional(),
+		category: z.string().optional(),
+		universe: z.string().optional(),
+		coverImage: z.object({
+			src: image(),
+			alt: z.string(),
+		}).optional(),
+		heroImage: z.object({
+			src: image(),
+			alt: z.string(),
+		}).optional(),
+	}).passthrough(),
+});
+
+export const collections = { universes, characters, novels, shortStories, lore, timeline, projects, recipes, posts, writing };
