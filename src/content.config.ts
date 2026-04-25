@@ -1,112 +1,28 @@
 import { defineCollection, z } from 'astro:content';
-import type { CollectionEntry } from 'astro:content';
 import { glob } from 'astro/loaders';
 
-// ─── Writing Universe System ──────────────────────────────────────────────────
-// Six inter-linked collections that power the multi-universe fiction system.
-// Design principles (see #96):
-//   - `universe` is required on every collection except `universes` itself
-//   - Cross-collection relations use slug arrays resolved at build time
-//   - `readingOrder` is a number (supports fractional insertion, e.g. 2.5)
-//   - `lore.category` is an enum for consistent filtering
-
-const universes = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/universes' }),
-	schema: ({ image }) => z.object({
-		name: z.string(),
-		tagline: z.string(),
-		description: z.string(),
-		coverImage: z.object({
-			src: image(),
-			alt: z.string(),
-		}).optional(),
-		status: z.enum(['active', 'planned', 'archived']),
-	}),
-});
-
-const characters = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/characters' }),
-	schema: ({ image }) => z.object({
-		name: z.string(),
-		aliases: z.array(z.string()).optional(),
-		universe: z.string(),
-		role: z.string(),
-		affiliation: z.array(z.string()).optional(),
-		appearance: z.string().optional(),
-		profileImage: z.object({
-			src: image(),
-			alt: z.string(),
-		}).optional(),
-		relatedCharacters: z.array(z.string()).default([]),
-	}),
-});
-
-const novels = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/novels' }),
+// Writing portfolio — fiction, essays, WIP novels
+const writing = defineCollection({
+	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/writing' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
-		universe: z.string(),
-		status: z.enum(['draft', 'in-progress', 'complete', 'published']),
+		genre: z.string(),
+		status: z.enum(['draft', 'querying', 'published']),
 		synopsis: z.string(),
+		excerpt: z.string().optional(),
+		// Use Astro's image() helper so cover images are validated and optimised
+		// at build time — must be a local path relative to the entry.
 		coverImage: z.object({
 			src: image(),
 			alt: z.string(),
 		}).optional(),
-		readingOrder: z.number().optional(),
-		relatedCharacters: z.array(z.string()).default([]),
+		date: z.coerce.date(),
+		featured: z.boolean().default(false),
+		// Progress tracking fields — update in frontmatter to reflect current state
+		wordCount: z.number().optional(),
+		chapterStatus: z.string().optional(),
 	}),
 });
-
-const shortStories = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/shortStories' }),
-	schema: () => z.object({
-		title: z.string(),
-		universe: z.string(),
-		synopsis: z.string(),
-		wordcount: z.number().optional(),
-		readingOrder: z.number().optional(),
-		relatedCharacters: z.array(z.string()).default([]),
-		relatedStories: z.array(z.string()).default([]),
-		tags: z.array(z.string()).default([]),
-	}),
-});
-
-const lore = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/lore' }),
-	schema: ({ image }) => z.object({
-		title: z.string(),
-		universe: z.string(),
-		category: z.enum(['location', 'faction', 'technology', 'history', 'culture', 'other']),
-		relatedCharacters: z.array(z.string()).default([]),
-		relatedStories: z.array(z.string()).default([]),
-		coverImage: z.object({
-			src: image(),
-			alt: z.string(),
-		}).optional(),
-	}),
-});
-
-const timeline = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/timeline' }),
-	schema: () => z.object({
-		title: z.string(),
-		universe: z.string(),
-		era: z.string().optional(),
-		inUniverseDate: z.string().optional(),
-		summary: z.string(),
-		relatedCharacters: z.array(z.string()).default([]),
-		relatedStories: z.array(z.string()).default([]),
-		relatedLore: z.array(z.string()).default([]),
-	}),
-});
-
-// ─── Shared TypeScript types ──────────────────────────────────────────────────
-export type Universe = CollectionEntry<'universes'>;
-export type Character = CollectionEntry<'characters'>;
-export type Novel = CollectionEntry<'novels'>;
-export type ShortStory = CollectionEntry<'shortStories'>;
-export type Lore = CollectionEntry<'lore'>;
-export type Timeline = CollectionEntry<'timeline'>;
 
 // Tech, home, and garden projects
 const projects = defineCollection({
@@ -202,4 +118,4 @@ const posts = defineCollection({
 	}),
 });
 
-export const collections = { universes, characters, novels, shortStories, lore, timeline, projects, recipes, posts };
+export const collections = { writing, projects, recipes, posts };
