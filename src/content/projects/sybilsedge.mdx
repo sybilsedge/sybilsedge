@@ -2,7 +2,7 @@
 title: "Sybilsedge"
 category: "tech"
 status: "active"
-description: "Personal portfolio site built with Astro, deployed on Cloudflare Pages — covering tech projects, home projects, creative writing, and a recipe collection."
+description: "Personal portfolio site built with Astro and deployed as a Cloudflare Worker via Wrangler — covering tech projects, home projects, creative writing, and a recipe collection."
 githubUrl: "https://github.com/sybilsedge/sybilsedge"
 date: 2026-04-06
 featured: true
@@ -11,9 +11,9 @@ tags: ["Astro", "Cloudflare", "TypeScript", "MDX"]
 
 ## Overview
 
-Sybilsedge is my personal portfolio and digital home — a statically generated
-site built with [Astro](https://astro.build) and deployed on Cloudflare Pages
-via a GitHub Actions CI/CD pipeline.
+Sybilsedge is my personal portfolio and digital home — a server-side rendered
+site built with [Astro](https://astro.build) and deployed as a Cloudflare Worker
+using Wrangler.
 
 The goal was a fast, maintainable site that could hold genuinely different kinds
 of content — tech work, home and garden projects, fiction writing, and recipes —
@@ -22,8 +22,7 @@ without any of them feeling like an afterthought.
 ## Tech Stack
 
 - **Framework** — [Astro](https://astro.build) with MDX for rich content
-- **Deployment** — Cloudflare Pages, deployed on push to `main`
-- **CI/CD** — GitHub Actions
+- **Deployment** — Cloudflare Workers, deployed via Wrangler
 - **Content** — Astro content collections with Zod schemas
 - **Language** — TypeScript throughout
 
@@ -44,8 +43,8 @@ the edge and out of the static build entirely.
 - **Writing** — fiction portfolio with novel excerpts and status tracking
 - **Kitchen** — recipe collection with structured ingredients and step-by-step photos
 - **Digital Twin** — AI assistant powered by a Cloudflare Worker and a curated context document
-- **Dark/light mode** — system preference detection with persistent manual toggle
-- **Giscus comments** — GitHub Discussions-backed comments on posts and recipes
+- **Dark theme** — terminal-inspired dark aesthetic throughout
+- **Giscus comments** — GitHub Discussions-backed comments on posts
 
 ## Status
 
