@@ -10,7 +10,7 @@
  *
  * Usage in MDX:
  *   import StepGallery from '../../components/StepGallery.tsx';
- *   <StepGallery items={props.stepItems} label="Build Phases" />
+ *   <StepGallery client:visible items={props.stepItems} label="Build Phases" />
  *
  * Mount with client:visible so JavaScript only loads when the gallery
  * scrolls into view.
@@ -156,7 +156,7 @@ export default function StepGallery({ items, label }: Props) {
 						role="listitem"
 						onClick={() => open(idx)}
 						className="group relative aspect-video overflow-hidden rounded-md border border-cyan-300/35 bg-black/40"
-						aria-label={`Open step ${idx + 1}${item.label ? `: ${item.label}` : ''} in lightbox`}
+						aria-label={`Open step ${idx + 1}: ${item.alt}${item.label ? ` (${item.label})` : ''} in lightbox`}
 					>
 						<img
 							src={item.thumbSrc ?? item.src}
@@ -202,7 +202,7 @@ export default function StepGallery({ items, label }: Props) {
 					ref={dialogRef}
 					role="dialog"
 					aria-modal="true"
-					aria-label={current.label ?? `Step ${(activeIndex ?? 0) + 1}`}
+					aria-label={`${current.label ?? current.alt} — Step ${(activeIndex ?? 0) + 1}`}
 					className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
 					onClick={(e) => {
 						if (e.target === e.currentTarget) close();
