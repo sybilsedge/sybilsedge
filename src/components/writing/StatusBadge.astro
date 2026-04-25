@@ -1,0 +1,30 @@
+---
+/**
+ * StatusBadge — colour-coded label for novel/story status.
+ *
+ * Status → colour mapping:
+ *   draft       → neon-green muted
+ *   in-progress → cyan
+ *   complete    → white/70
+ *   published   → white full
+ */
+
+interface Props {
+	status: 'draft' | 'in-progress' | 'complete' | 'published';
+}
+
+const { status } = Astro.props;
+
+const config: Record<string, { label: string; classes: string }> = {
+	'draft':       { label: 'DRAFT',       classes: 'border-[#39ff14]/40 text-[#39ff14]/80 bg-[#39ff14]/5' },
+	'in-progress': { label: 'IN PROGRESS', classes: 'border-[#00ffff]/40 text-[#00ffff]/80 bg-[#00ffff]/5' },
+	'complete':    { label: 'COMPLETE',    classes: 'border-white/25 text-white/60 bg-white/5' },
+	'published':   { label: 'PUBLISHED',   classes: 'border-white/40 text-white/80 bg-white/5' },
+};
+
+const { label, classes } = config[status] ?? { label: status.toUpperCase(), classes: 'border-cyan-300/20 text-cyan-300/50 bg-transparent' };
+---
+
+<span class={`rounded border font-tech text-[10px] uppercase tracking-[0.14em] px-2 py-0.5 ${classes}`}>
+	{label}
+</span>

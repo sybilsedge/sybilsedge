@@ -1,0 +1,114 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import ReadingOrderItem from '../../../components/writing/ReadingOrderItem.astro';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+	const universes = await getCollection('universes');
+	return universes.map((entry) => ({
+		params: { universe: entry.id },
+		props: { universe: entry },
+	}));
+}
+
+const { universe } = Astro.props;
+const uid = universe.id;
+
+// Fetch novels and short stories for this universe in parallel
+const [novels, stories] = await Promise.all([
+	getCollection('novels',       (e) => e.data.universe === uid),
+	getCollection('shortStories', (e) => e.data.universe === uid),
+]);
+
+// Merge into a unified list with type metadata
+type OrderItem = {
+	id: string;
+	title: string;
+	type: 'novel' | 'short-story';
+	href: string;
+	readingOrder: number | undefined;
+	synopsis: string;
+};
+
+const items: OrderItem[] = [
+	...novels.map((n) => ({
+		id: n.id,
+		title: n.data.title,
+		type: 'novel' as const,
+		href: `/writing/novels/${n.id}`,
+		readingOrder: n.data.readingOrder,
+		synopsis: n.data.synopsis.split('\n')[0],
+	})),
+	...stories.map((s) => ({
+		id: s.id,
+		title: s.data.title,
+		type: 'short-story' as const,
+		href: `/writing/stories/${s.id}`,
+		readingOrder: s.data.readingOrder,
+		synopsis: s.data.synopsis,
+	})),
+];
+
+// Sort: entries with readingOrder ascending (supports fractional), undefined last then alphabetical
+const sorted = items.sort((a, b) => {
+	if (a.readingOrder === undefined && b.readingOrder === undefined) {
+		return a.title.localeCompare(b.title);
+	}
+	if (a.readingOrder === undefined) return 1;
+	if (b.readingOrder === undefined) return -1;
+	return a.readingOrder - b.readingOrder;
+});
+
+const backSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`;
+---
+
+<Layout
+	title={`Reading Order | ${universe.data.name} | Writing | Sybilsedge`}
+	description={`Recommended reading order for ${universe.data.name}`}
+	ogImage="/og/writing.png"
+>
+	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
+
+		<!-- Breadcrumb -->
+		<nav class="mb-6 flex items-center gap-1.5 font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/40" aria-label="Breadcrumb">
+			<a href="/writing/" class="hover:text-cyan-300 transition-colors">Writing</a>
+			<span aria-hidden="true">›</span>
+			<a href={`/writing/${uid}/`} class="hover:text-cyan-300 transition-colors">{universe.data.name}</a>
+			<span aria-hidden="true">›</span>
+			<span class="text-cyan-300/70">Reading Order</span>
+		</nav>
+
+		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-5 md:p-8">
+			<p class="font-tech text-[11px] uppercase tracking-[0.22em] text-cyan-300/75">{universe.data.name}</p>
+			<h1 class="font-orbitron mt-2 text-2xl uppercase tracking-[0.12em] text-cyan-100 md:text-3xl">Reading Order</h1>
+			<p class="mt-3 text-base leading-relaxed text-slate-300/80">
+				Recommended sequence for experiencing {universe.data.name}.
+				{sorted.length > 0 && <span class="font-tech text-[11px] text-cyan-300/40"> — {sorted.length} {sorted.length === 1 ? 'entry' : 'entries'}</span>}
+			</p>
+		</header>
+
+		{sorted.length === 0 ? (
+			<div class="blueprint-border rounded-md bg-black/35 p-12 text-center">
+				<p class="font-orbitron text-sm uppercase tracking-[0.16em] text-cyan-300/50">No entries yet</p>
+				<p class="mt-2 font-tech text-[11px] text-slate-400/60">
+					Novels and short stories will appear here once added to the collection.
+				</p>
+			</div>
+		) : (
+			<ol class="space-y-3" role="list">
+				{sorted.map((item) => (
+					<ReadingOrderItem
+						title={item.title}
+						type={item.type}
+						href={item.href}
+						readingOrder={item.readingOrder}
+						synopsis={item.synopsis}
+					/>
+				))}
+			</ol>
+		)}
+
+	</div>
+</Layout>
