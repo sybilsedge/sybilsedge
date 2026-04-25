@@ -2,8 +2,9 @@
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
 import ContentHero from '../../components/ContentHero.astro';
-import { buildGalleryItems } from '../../utils/gallery.ts';
+import { buildGalleryItems, buildStepItems } from '../../utils/gallery.ts';
 import type { BlueprintImage } from '../../components/BlueprintGallery.tsx';
+import type { StepItem } from '../../components/StepGallery.tsx';
 
 export const prerender = true;
 
@@ -21,6 +22,9 @@ const { Content } = await render(entry);
 // Pre-optimise the `images` array so the BlueprintGallery island receives
 // plain serialisable strings — no Astro APIs leak into the client bundle.
 const galleryItems: BlueprintImage[] = await buildGalleryItems(entry.data.images);
+
+// Pre-optimise the `steps` array for the StepGallery island.
+const stepItems: StepItem[] = await buildStepItems(entry.data.steps);
 
 const statusConfig: Record<string, { label: string; classes: string }> = {
 	active:   { label: 'ACTIVE',   classes: 'border-[#39ff14]/40 text-[#39ff14]/80 bg-[#39ff14]/5' },
@@ -102,7 +106,7 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 
 		<!-- Markdown content -->
 		<div class="blueprint-border rounded-md bg-black/35 p-6 md:p-8 prose-project">
-			<Content galleryItems={galleryItems} />
+			<Content galleryItems={galleryItems} stepItems={stepItems} />
 		</div>
 
 	</div>

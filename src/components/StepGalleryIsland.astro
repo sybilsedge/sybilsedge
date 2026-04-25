@@ -1,0 +1,41 @@
+---
+/**
+ * StepGalleryIsland — Astro server-side wrapper for the StepGallery React island.
+ *
+ * Optimises each step image at build time via buildStepItems(), then passes plain,
+ * serialisable StepItem objects to the StepGallery React island. No Astro APIs
+ * leak into the client bundle.
+ *
+ * The island hydrates with `client:visible` so no JavaScript is shipped until
+ * the component scrolls into the viewport.
+ *
+ * Props:
+ *   steps  — array of step image entries (src, alt, optional label)
+ *   label  — optional section heading rendered above the grid
+ *
+ * Usage in an Astro page:
+ *   <StepGalleryIsland steps={entry.data.steps} label="Build Phases" />
+ */
+import type { ImageMetadata } from 'astro';
+import StepGallery from './StepGallery.tsx';
+import { buildStepItems } from '../utils/gallery.ts';
+
+interface StepEntry {
+	src: ImageMetadata;
+	alt: string;
+	label?: string;
+}
+
+interface Props {
+	steps?: StepEntry[];
+	label?: string;
+}
+
+const { steps, label } = Astro.props;
+
+const items = await buildStepItems(steps);
+---
+
+{items.length > 0 && (
+	<StepGallery items={items} label={label} client:visible />
+)}
