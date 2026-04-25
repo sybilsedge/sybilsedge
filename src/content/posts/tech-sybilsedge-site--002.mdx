@@ -1,0 +1,89 @@
+---
+title: "Cloudflare Preview URLs, Durable Objects, and the tradeoff I discovered too late"
+date: 2026-04-25
+description: "I ran into a Cloudflare platform limitation after deploying a Durable Object-backed Digital Twin: preview URLs stopped working. I tried a few workarounds, but in the end I learned that previewability needs to be treated as an architectural requirement."
+tags: ["Cloudflare", "Durable Objects", "Workers", "Astro", "Deployment"]
+featured: false
+draft: false
+relatedProjects: ["sybilsedge"]
+---
+
+## Overview
+
+I ran into a Cloudflare limitation after deploying my site: once a Worker implements a Durable Object, preview URLs are not generated for it. That meant my normal preview workflow stopped working at the exact moment I wanted it most — when checking responsiveness, trying alternate page layouts, and confirming that new features rendered correctly before merging.
+
+At first, I tried to work around the issue with environment-based guards. In hindsight, that made sense as a safety measure, but it did not restore the preview workflow I was depending on. The deeper lesson was that previewability was not just a convenience for me; it was part of how I designed and validated the site.
+
+## Why preview mattered
+
+I use preview deployments for more than just final QA. They are where I check whether a page actually feels right at different widths, whether content flows the way I intended, and whether a new component behaves well in context.
+
+That matters even more on a personal site where the content mix is broad. I am not just publishing one type of page. I am balancing project write-ups, blog posts, writing pages, and other content that all need to sit comfortably in the same system.
+
+Without preview URLs, I lost the easiest way to answer questions like:
+
+- Does this layout still work on mobile?
+- Is the spacing balanced on a wider screen?
+- Did the new component break the page rhythm?
+- Does the feature feel right before I commit to it?
+
+## What caused the problem
+
+The root cause was simple: I added a Durable Object-backed Digital Twin to the Worker, and Cloudflare documents that preview URLs are not generated for Workers that implement a Durable Object. That is a platform constraint, not a bug in my configuration.
+
+The problem was not obvious until after deployment because the app itself still worked. The cost showed up in the development workflow. I could still run the site, but I no longer had the preview environment I used to validate changes quickly.
+
+## The first workaround
+
+My first attempt was to introduce an explicit environment guard so preview traffic would fail fast without touching the Durable Object binding.
+
+The idea was:
+
+- mark the preview environment with an `ENVIRONMENT=preview` variable,
+- short-circuit requests in the Worker when that variable was present,
+- return a graceful 503 response instead of allowing the Durable Object path to run.
+
+That looked roughly like this:
+
+```ts
+if (env.ENVIRONMENT === 'preview') {
+  return new Response('Digital twin unavailable in preview environments.', {
+    status: 503,
+  });
+}
+```
+
+I also documented the variable in the runtime config and updated the Worker env type so the new flag was typed properly. That solved the safety problem, but it did not solve the preview problem. I still did not get preview URLs in the first place.
+
+## The second workaround
+
+The next idea was to omit the Durable Object binding entirely from the preview environment block.
+
+That approach was closer to the real issue because it removed the binding that triggered the limitation. The Digital Twin page itself was not needed in preview, so it felt reasonable to let the preview deployment exist without that feature attached.
+
+I kept the environment guard as a safety net, but the larger lesson was already clear: I had built a feature boundary that made the whole Worker less preview-friendly, and the preview limitation was not something I could fully paper over with configuration.
+
+## What I learned
+
+The biggest takeaway was that preview workflows are not optional if they are central to how you build. I had gotten used to using preview URLs as part of the creative process, especially for layout decisions and feature checks.
+
+If I were starting over, I would think harder about separating the preview-sensitive parts of the site from the Durable Object-backed feature. I might keep the site previewable by default and isolate the stateful functionality more aggressively, even if that meant more upfront architecture work.
+
+In other words: I would treat previewability as a first-class requirement, not a side effect.
+
+## What I would do differently
+
+If I were rebuilding this from scratch, I would ask a few questions earlier:
+
+- Does this feature really need to live in the same Worker as the rest of the site?
+- Will this choice block preview environments or other deployment modes I care about?
+- Is there a way to keep the layout/content site previewable while moving the stateful feature elsewhere?
+- Am I optimizing for the simplest implementation, or for the workflow I know I will use every week?
+
+That last question matters. The cheapest architecture is not always the best one if it takes away a workflow you rely on.
+
+## Closing thought
+
+I still like having the Digital Twin, but this was a useful reminder that platform limitations can shape the design of the whole system in ways you do not feel until after deployment.
+
+For me, the preview workflow was worth protecting because it helped me make better layout and content decisions. If I had to do it again, I would preserve that workflow first and fit the Durable Object feature around it instead of the other way around.
