@@ -1,0 +1,52 @@
+---
+title: "Sybilsedge"
+category: "tech"
+status: "active"
+description: "Personal portfolio site built with Astro and deployed as a Cloudflare Worker via Wrangler — covering tech projects, home projects, creative writing, and a recipe collection."
+githubUrl: "https://github.com/sybilsedge/sybilsedge"
+date: 2026-04-06
+featured: true
+tags: ["Astro", "Cloudflare", "TypeScript", "MDX"]
+---
+
+## Overview
+
+Sybilsedge is my personal portfolio and digital home — a server-side rendered
+site built with [Astro](https://astro.build) and deployed as a Cloudflare Worker
+using Wrangler.
+
+The goal was a fast, maintainable site that could hold genuinely different kinds
+of content — tech work, home and garden projects, fiction writing, and recipes —
+without any of them feeling like an afterthought.
+
+## Tech Stack
+
+- **Framework** — [Astro](https://astro.build) with MDX for rich content
+- **Deployment** — Cloudflare Workers, deployed via Wrangler
+- **Content** — Astro content collections with Zod schemas
+- **Language** — TypeScript throughout
+
+## Architecture
+
+Content lives in typed Astro content collections — `projects`, `posts`,
+`recipes`, and `writing`. Each collection has a Zod schema enforced at build
+time, so malformed frontmatter fails the build rather than silently rendering
+broken pages.
+
+The Digital Twin feature runs as a Cloudflare Worker, keeping AI inference at
+the edge and out of the static build entirely.
+
+## Features
+
+- **Projects** — tech, home, and garden projects with photo galleries and progress tracking
+- **Blog** — long-form posts with cross-links to related projects
+- **Writing** — fiction portfolio with novel excerpts and status tracking
+- **Kitchen** — recipe collection with structured ingredients and step-by-step photos
+- **Digital Twin** — AI assistant powered by a Cloudflare Worker and a curated context document
+- **Dark theme** — terminal-inspired dark aesthetic throughout
+- **Giscus comments** — GitHub Discussions-backed comments on posts
+
+## Status
+
+Actively developed. Ongoing work tracked in the
+[GitHub issues](https://github.com/sybilsedge/sybilsedge/issues).
