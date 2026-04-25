@@ -6,6 +6,11 @@ const navLinks = [
 		svg: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>`,
 	},
 	{
+		href: '/writing',
+		label: 'Writing',
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
+	},
+	{
 		href: '/blog',
 		label: 'Blog',
 		svg: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a4 4 0 0 1-4 4z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="10" x2="16" y1="13" y2="13"/><line x1="10" x2="14" y1="17" y2="17"/></svg>`,
@@ -37,20 +42,7 @@ const navLinks = [
 	},
 ];
 
-// Writing section: top-level link + sub-sections shown in a dropdown
-const writingSubLinks = [
-	{ href: '/writing/',            label: 'Universes' },
-	{ href: '/writing/novels/',     label: 'Novels' },
-	{ href: '/writing/stories/',    label: 'Stories' },
-	{ href: '/writing/characters/', label: 'Characters' },
-	{ href: '/writing/lore/',       label: 'Lore' },
-];
-
-const writingSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
-const chevronSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg>`;
-
 const currentPath = Astro.url.pathname;
-const isWritingActive = currentPath.startsWith('/writing');
 ---
 
 <nav class="blueprint-border-bottom sticky top-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-sm" aria-label="Main navigation">
@@ -68,76 +60,10 @@ const isWritingActive = currentPath.startsWith('/writing');
 		<!-- Desktop nav links -->
 		<ul class="hidden items-center gap-1 md:flex" role="list">
 			{
-				navLinks.slice(0, 1).map(({ href, label, svg }) => {
-					const isActive = currentPath === '/';
-					return (
-						<li>
-							<a
-								href={href}
-								class={`flex items-center gap-1.5 rounded px-3 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors duration-150 ${
-									isActive
-										? 'text-[#39ff14] neon-border bg-[#39ff14]/5'
-										: 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
-								}`}
-								aria-current={isActive ? 'page' : undefined}
-							>
-								<span set:html={svg} />
-								{label}
-							</a>
-						</li>
-					);
-				})
-			}
-
-			<!-- Writing dropdown -->
-			<li class="relative writing-dropdown">
-				<a
-					href="/writing/"
-					class={`flex items-center gap-1.5 rounded px-3 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors duration-150 ${
-						isWritingActive
-							? 'text-[#39ff14] neon-border bg-[#39ff14]/5'
-							: 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
-					}`}
-					aria-current={isWritingActive ? 'page' : undefined}
-					aria-haspopup="true"
-				>
-					<span set:html={writingSvg} />
-					Writing
-					<span set:html={chevronSvg} class="writing-chevron transition-transform duration-150" />
-				</a>
-				<!-- Sub-menu (shown on hover via CSS) -->
-				<ul
-					class="writing-submenu absolute left-0 top-full mt-1 w-44 flex-col gap-0.5 rounded-md bg-[#0a0a0a] p-2 blueprint-border hidden"
-					role="list"
-				>
-					{writingSubLinks.map(({ href, label }) => {
-						// For the Universes link (/writing/), only mark active on exact match
-						// to avoid it highlighting when a sub-section (novels, stories, etc.) is active.
-						const isSubActive = href === '/writing/'
-							? currentPath === '/writing/'
-							: currentPath.startsWith(href);
-						return (
-							<li>
-								<a
-									href={href}
-									class={`flex items-center rounded px-3 py-1.5 font-tech text-[11px] uppercase tracking-[0.14em] transition-colors ${
-										isSubActive
-											? 'text-[#39ff14] bg-[#39ff14]/5'
-											: 'text-cyan-300/60 hover:text-cyan-100 hover:bg-white/5'
-									}`}
-									aria-current={isSubActive ? 'page' : undefined}
-								>
-									{label}
-								</a>
-							</li>
-						);
-					})}
-				</ul>
-			</li>
-
-			{
-				navLinks.slice(1).map(({ href, label, svg }) => {
-					const isActive = currentPath.startsWith(href);
+				navLinks.map(({ href, label, svg }) => {
+					const isActive = href === '/'
+						? currentPath === '/'
+						: currentPath.startsWith(href);
 					return (
 						<li>
 							<a
@@ -172,74 +98,29 @@ const isWritingActive = currentPath.startsWith('/writing');
 				class="absolute right-0 top-10 hidden w-52 flex-col gap-1 rounded-md bg-[#0a0a0a] p-2 blueprint-border peer-checked:flex"
 				role="list"
 			>
-				{/* Dashboard */}
-				{navLinks.slice(0, 1).map(({ href, label, svg }) => {
-					const isActive = currentPath === '/';
-					return (
-						<li>
-							<a
-								href={href}
-								class={`flex items-center gap-2 rounded px-3 py-2 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors ${
-									isActive ? 'text-[#39ff14] bg-[#39ff14]/5' : 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
-								}`}
-								aria-current={isActive ? 'page' : undefined}
-							>
-								<span set:html={svg} />
-								{label}
-							</a>
-						</li>
-					);
-				})}
-
-				{/* Writing — top link */}
-				<li>
-					<a
-						href="/writing/"
-						class={`flex items-center gap-2 rounded px-3 py-2 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors ${
-							isWritingActive ? 'text-[#39ff14] bg-[#39ff14]/5' : 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
-						}`}
-						aria-current={isWritingActive ? 'page' : undefined}
-					>
-						<span set:html={writingSvg} />
-						Writing
-					</a>
-				</li>
-				{/* Writing sub-links */}
-				{writingSubLinks.slice(1).map(({ href, label }) => {
-					const isSubActive = currentPath.startsWith(href);
-					return (
-						<li>
-							<a
-								href={href}
-								class={`flex items-center rounded pl-8 pr-3 py-1.5 font-tech text-[10px] uppercase tracking-[0.14em] transition-colors ${
-									isSubActive ? 'text-[#39ff14]/80 bg-[#39ff14]/5' : 'text-cyan-300/50 hover:text-cyan-100 hover:bg-white/5'
-								}`}
-								aria-current={isSubActive ? 'page' : undefined}
-							>
-								↳ {label}
-							</a>
-						</li>
-					);
-				})}
-
-				{/* Remaining nav links */}
-				{navLinks.slice(1).map(({ href, label, svg }) => {
-					const isActive = currentPath.startsWith(href);
-					return (
-						<li>
-							<a
-								href={href}
-								class={`flex items-center gap-2 rounded px-3 py-2 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors ${
-									isActive ? 'text-[#39ff14] bg-[#39ff14]/5' : 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
-								}`}
-								aria-current={isActive ? 'page' : undefined}
-							>
-								<span set:html={svg} />
-								{label}
-							</a>
-						</li>
-					);
-				})}
+				{
+					navLinks.map(({ href, label, svg }) => {
+						const isActive = href === '/'
+							? currentPath === '/'
+							: currentPath.startsWith(href);
+						return (
+							<li>
+								<a
+									href={href}
+									class={`flex items-center gap-2 rounded px-3 py-2 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors ${
+										isActive
+											? 'text-[#39ff14] bg-[#39ff14]/5'
+											: 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
+									}`}
+									aria-current={isActive ? 'page' : undefined}
+								>
+									<span set:html={svg} />
+									{label}
+								</a>
+							</li>
+						);
+					})
+				}
 			</ul>
 		</div>
 	</div>
@@ -249,16 +130,6 @@ const isWritingActive = currentPath.startsWith('/writing');
 	.blueprint-border-bottom {
 		border-bottom: 1px solid rgba(0, 255, 255, 0.25);
 		box-shadow: 0 1px 16px rgba(0, 255, 255, 0.06);
-	}
-
-	/* Writing dropdown — show on hover (desktop only) */
-	.writing-dropdown:hover .writing-submenu,
-	.writing-dropdown:focus-within .writing-submenu {
-		display: flex;
-	}
-	.writing-dropdown:hover .writing-chevron,
-	.writing-dropdown:focus-within .writing-chevron {
-		transform: rotate(180deg);
 	}
 
 	/* Hamburger animation: bars morph into × when checkbox is checked */
