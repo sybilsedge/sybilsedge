@@ -58,7 +58,7 @@ images:
       Temp: "475°F"
 ---
 
-import BlueprintGallery from '../../components/BlueprintGallery.tsx';
+import StepGallery from '../../components/StepGallery.tsx';
 
 ## Ingredients
 
@@ -70,11 +70,11 @@ import BlueprintGallery from '../../components/BlueprintGallery.tsx';
 
 ## Instructions
 
+<StepGallery items={props.stepItems.filter(item => item.src.includes('rise'))} label="The Rise" client:visible />
 1. Stir any liquid on top of your refrigerated starter back into it before measuring 1 cup (227 g) into a large mixing bowl.
 2. Combine the lesser amount of water, the flour, salt, and yeast with the sourdough starter.
 3. Mix to combine, adding the remaining water 1 tablespoon at a time if the dough looks dry.
 4. Knead for about 7 minutes using a stand mixer with its dough hook, until the dough cleans the sides of the bowl.
-<BlueprintGallery items={props.galleryItems.filter(item => item.src.includes('rise'))} label="The Rise" client:visible />
 5. Place the dough in a lightly greased container, cover, and let rise until almost doubled in bulk — 2–4 hours depending on starter vitality.
 6. Preheat oven to 475°F. Place an oiled cast iron skillet in the oven to heat up with it.
 7. Roll out the dough at least 2 inches wider than the pan. If it snaps back, give it a 15-minute rest and try again.
@@ -82,7 +82,7 @@ import BlueprintGallery from '../../components/BlueprintGallery.tsx';
 9. Add sauce and toppings.
 10. Bake 10–15 minutes until the crust is golden and the toppings are cooked through.
 
-<BlueprintGallery items={props.galleryItems.filter(item => item.src.includes('slice') || item.src.includes('baked'))} label="Thermal Results" client:visible />
+<<StepGallery items={props.stepItemsItems.filter(item => item.src.includes('rise'))} label="The Rise" client:visible /> items={props.galleryItems.filter(item => item.src.includes('slice') || item.src.includes('baked'))} label="Thermal Results" client:visible />
 
 ## Notes
 
