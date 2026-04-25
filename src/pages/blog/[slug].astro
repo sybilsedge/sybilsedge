@@ -2,6 +2,8 @@
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
 import ContentHero from '../../components/ContentHero.astro';
+import Giscus from '../../components/Giscus.astro';
+import { getReadingTime } from '../../utils/readingTime.ts';
 
 export const prerender = true;
 
@@ -16,14 +18,33 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
+// Reading time computed from raw body before render
+const readingTime = getReadingTime(entry.body ?? '');
+
+// Resolve related project entries when the post references any
+const relatedProjects = entry.data.relatedProjects?.length
+	? await getCollection('projects', ({ id }) => entry.data.relatedProjects!.includes(id))
+	: [];
+
 const icons: Record<string, string> = {
 	arrow: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`,
+	link:  `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
+	clock: `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
 };
+
 const formattedDate = entry.data.date.toLocaleDateString('en-US', {
 	year: 'numeric',
 	month: 'long',
 	day: 'numeric',
 });
+
+const formattedUpdatedDate = entry.data.updatedDate
+	? entry.data.updatedDate.toLocaleDateString('en-US', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+	})
+	: null;
 ---
 
 <Layout
@@ -33,15 +54,29 @@ const formattedDate = entry.data.date.toLocaleDateString('en-US', {
 >
 	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
 		<a
-			href="/"
+			href="/blog"
 			class="mb-6 inline-flex items-center gap-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/50 hover:text-cyan-300 transition-colors"
 		>
 			<span set:html={icons.arrow} />
-			Back to Dashboard
+			All Posts
 		</a>
 
 		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-6 md:p-8">
-			<p class="font-tech text-[11px] text-cyan-300/35">{formattedDate}</p>
+			<!-- Date · reading time -->
+			<div class="flex flex-wrap items-center gap-x-2 gap-y-1 font-tech text-[11px] text-cyan-300/35">
+				<time datetime={entry.data.date.toISOString()}>{formattedDate}</time>
+				<span aria-hidden="true">·</span>
+				<span class="flex items-center gap-1">
+					<span set:html={icons.clock} />
+					{readingTime}
+				</span>
+				{formattedUpdatedDate && (
+					<>
+						<span aria-hidden="true">·</span>
+						<span>Updated <time datetime={entry.data.updatedDate!.toISOString()}>{formattedUpdatedDate}</time></span>
+					</>
+				)}
+			</div>
 			<h1 class="font-orbitron mt-2 text-2xl uppercase tracking-[0.1em] text-cyan-100 md:text-3xl">{entry.data.title}</h1>
 			<p class="mt-4 text-base leading-relaxed text-slate-300/85">{entry.data.description}</p>
 			{entry.data.tags.length > 0 && (
@@ -63,6 +98,29 @@ const formattedDate = entry.data.date.toLocaleDateString('en-US', {
 		<div class="blueprint-border rounded-md bg-black/35 p-6 md:p-8 prose-post">
 			<Content />
 		</div>
+
+		<!-- Related projects callout -->
+		{relatedProjects.length > 0 && (
+			<aside class="mt-8 blueprint-border rounded-md bg-black/35 p-6 md:p-8">
+				<p class="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/50 mb-4">// Related Projects</p>
+				<ul class="space-y-2" role="list">
+					{relatedProjects.map((project) => (
+						<li>
+							<a
+								href={`/projects/${project.id}`}
+								class="group flex items-center gap-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/60 hover:text-cyan-100 transition-colors"
+							>
+								<span set:html={icons.link} class="shrink-0" />
+								{project.data.title}
+							</a>
+						</li>
+					))}
+				</ul>
+			</aside>
+		)}
+
+		<!-- Giscus comments -->
+		<Giscus />
 	</div>
 
 	<style>

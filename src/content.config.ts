@@ -99,10 +99,16 @@ const posts = defineCollection({
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		date: z.coerce.date(),
+		// Optional updated date — displayed in post header when present
+		updatedDate: z.coerce.date().optional(),
 		description: z.string(),
 		tags: z.array(z.string()).default([]),
 		draft: z.boolean().default(false),
 		featured: z.boolean().default(false),
+		// Slug references to entries in the `projects` collection.
+		// Used to render a "Related projects" callout on the post detail page
+		// and a "Related posts" section on the referenced project detail pages.
+		relatedProjects: z.array(z.string()).optional(),
 		// Use Astro's image() helper so hero images are validated and optimised
 		// at build time — must be a local path relative to the entry.
 		heroImage: z.object({

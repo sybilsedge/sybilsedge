@@ -1,0 +1,51 @@
+---
+/**
+ * Giscus comments component.
+ *
+ * Renders a Giscus comment widget backed by GitHub Discussions.
+ *
+ * Required environment variables (must be available at build time — set in .env or as Vite/CI env vars):
+ *   PUBLIC_GISCUS_REPO_ID      — repo ID from giscus.app
+ *   PUBLIC_GISCUS_CATEGORY     — Discussion category name (e.g. "Comments")
+ *   PUBLIC_GISCUS_CATEGORY_ID  — Discussion category ID from giscus.app
+ *
+ * If any required variable is absent the component renders nothing, so it is
+ * safe to include in pages even before Giscus is fully configured.
+ *
+ * How to get the values:
+ *   1. Enable Discussions on the sybilsedge/sybilsedge GitHub repository.
+ *   2. Visit https://giscus.app, select the repo, choose a category, and copy
+ *      the generated data-repo-id / data-category / data-category-id values.
+ *   3. Set them as PUBLIC_GISCUS_* environment variables.
+ */
+
+const repoId = import.meta.env.PUBLIC_GISCUS_REPO_ID ?? '';
+const category = import.meta.env.PUBLIC_GISCUS_CATEGORY ?? '';
+const categoryId = import.meta.env.PUBLIC_GISCUS_CATEGORY_ID ?? '';
+
+const enabled = Boolean(repoId && category && categoryId);
+---
+
+{enabled && (
+	<div class="mt-10 blueprint-border rounded-md bg-black/35 p-6 md:p-8">
+		<p class="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/50 mb-4">// Comments</p>
+		<script
+			is:inline
+			src="https://giscus.app/client.js"
+			data-repo="sybilsedge/sybilsedge"
+			data-repo-id={repoId}
+			data-category={category}
+			data-category-id={categoryId}
+			data-mapping="pathname"
+			data-strict="0"
+			data-reactions-enabled="1"
+			data-emit-metadata="0"
+			data-input-position="bottom"
+			data-theme="dark_dimmed"
+			data-lang="en"
+			data-loading="lazy"
+			crossorigin="anonymous"
+			async
+		></script>
+	</div>
+)}
