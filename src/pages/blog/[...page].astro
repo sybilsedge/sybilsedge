@@ -21,9 +21,8 @@ import { getReadingTime } from '../../utils/readingTime.ts';
 
 export const prerender = true;
 
-const PAGE_SIZE = 9;
-
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+	const PAGE_SIZE = 9;
 	const allPosts = await getCollection('posts', ({ data }) => !data.draft);
 	const sorted = allPosts.sort(
 		(a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
