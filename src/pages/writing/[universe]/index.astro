@@ -1,0 +1,244 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import ContentHero from '../../../components/ContentHero.astro';
+import StatsBar from '../../../components/writing/StatsBar.astro';
+import CharacterCard from '../../../components/writing/CharacterCard.astro';
+import NovelCard from '../../../components/writing/NovelCard.astro';
+import StoryCard from '../../../components/writing/StoryCard.astro';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+	const universes = await getCollection('universes');
+	return universes.map((entry) => ({
+		params: { universe: entry.id },
+		props: { universe: entry },
+	}));
+}
+
+const { universe } = Astro.props;
+const uid = universe.id;
+
+// Fetch all collections filtered to this universe in parallel
+const [allCharacters, allNovels, allStories, allLore, allTimeline] = await Promise.all([
+	getCollection('characters', (e) => e.data.universe === uid),
+	getCollection('novels',     (e) => e.data.universe === uid),
+	getCollection('shortStories', (e) => e.data.universe === uid),
+	getCollection('lore',       (e) => e.data.universe === uid),
+	getCollection('timeline',   (e) => e.data.universe === uid),
+]);
+
+// Sort novels and stories by readingOrder (undefined entries last), then title
+const sortedNovels = allNovels.sort((a, b) => {
+	if (a.data.readingOrder === undefined && b.data.readingOrder === undefined) {
+		return a.data.title.localeCompare(b.data.title);
+	}
+	if (a.data.readingOrder === undefined) return 1;
+	if (b.data.readingOrder === undefined) return -1;
+	return a.data.readingOrder - b.data.readingOrder;
+});
+
+const sortedStories = allStories.sort((a, b) => {
+	if (a.data.readingOrder === undefined && b.data.readingOrder === undefined) {
+		return a.data.title.localeCompare(b.data.title);
+	}
+	if (a.data.readingOrder === undefined) return 1;
+	if (b.data.readingOrder === undefined) return -1;
+	return a.data.readingOrder - b.data.readingOrder;
+});
+
+// Featured novel = first by readingOrder
+const featuredNovel = sortedNovels[0];
+
+// Timeline preview = first 5 events, sorted by inUniverseDate (undefined last)
+const timelinePreview = allTimeline
+	.sort((a, b) => {
+		if (!a.data.inUniverseDate && !b.data.inUniverseDate) return 0;
+		if (!a.data.inUniverseDate) return 1;
+		if (!b.data.inUniverseDate) return -1;
+		return a.data.inUniverseDate.localeCompare(b.data.inUniverseDate);
+	})
+	.slice(0, 5);
+
+const totalStories = allNovels.length + allStories.length;
+
+const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
+const backSvg  = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`;
+const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+---
+
+<Layout
+	title={`${universe.data.name} | Writing | Sybilsedge`}
+	description={universe.data.tagline}
+	ogImage="/og/writing.png"
+>
+	<div class="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-8 md:py-10">
+
+		<!-- Back link -->
+		<a
+			href="/writing/"
+			class="mb-6 inline-flex items-center gap-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/50 hover:text-cyan-300 transition-colors"
+		>
+			<span set:html={backSvg} />
+			All Universes
+		</a>
+
+		<!-- Universe hero -->
+		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-6 md:p-8">
+			<p class="font-tech text-[11px] uppercase tracking-[0.22em] text-cyan-300/75">Universe</p>
+			<h1 class="font-orbitron mt-2 text-2xl uppercase tracking-[0.12em] text-cyan-100 md:text-4xl">
+				{universe.data.name}
+			</h1>
+			<p class="mt-2 font-tech text-sm italic text-[#39ff14]/70">{universe.data.tagline}</p>
+			<p class="mt-4 max-w-2xl text-base leading-relaxed text-slate-300/85">
+				{universe.data.description}
+			</p>
+
+			{universe.data.coverImage && (
+				<ContentHero
+					src={universe.data.coverImage.src}
+					alt={universe.data.coverImage.alt}
+					class="mt-6"
+				/>
+			)}
+
+			<!-- Sub-page links -->
+			<div class="mt-6 flex flex-wrap gap-2">
+				{allTimeline.length > 0 && (
+					<a
+						href={`/writing/${uid}/timeline/`}
+						class="rounded blueprint-border px-4 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/60 hover:text-cyan-100 hover:bg-white/5 transition-colors inline-flex items-center gap-1.5"
+					>
+						Timeline
+						<span set:html={arrowSvg} />
+					</a>
+				)}
+				{totalStories > 0 && (
+					<a
+						href={`/writing/${uid}/reading-order/`}
+						class="rounded blueprint-border px-4 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/60 hover:text-cyan-100 hover:bg-white/5 transition-colors inline-flex items-center gap-1.5"
+					>
+						Reading Order
+						<span set:html={arrowSvg} />
+					</a>
+				)}
+			</div>
+		</header>
+
+		<!-- Stats bar -->
+		<StatsBar stories={totalStories} characters={allCharacters.length} lore={allLore.length} />
+
+		<!-- Featured novel excerpt -->
+		{featuredNovel && (
+			<section class="mt-8" aria-labelledby="featured-heading">
+				<div class="mb-4 flex items-center justify-between">
+					<h2 id="featured-heading" class="font-orbitron text-sm uppercase tracking-[0.16em] text-cyan-300/70">
+						// Featured
+					</h2>
+					<a
+						href="/writing/novels/"
+						class="font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/40 hover:text-cyan-300 transition-colors inline-flex items-center gap-1"
+					>
+						All Novels <span set:html={arrowSvg} />
+					</a>
+				</div>
+				<div class="blueprint-border rounded-md bg-black/35 p-6 md:p-8">
+					<div class="flex flex-wrap items-center gap-3 mb-4">
+						<p class="font-tech text-[10px] uppercase tracking-[0.2em] text-cyan-300/50">Novel</p>
+						{featuredNovel.data.readingOrder !== undefined && (
+							<span class="font-tech text-[10px] text-cyan-300/30">#{featuredNovel.data.readingOrder}</span>
+						)}
+					</div>
+					<h3 class="font-orbitron text-lg uppercase tracking-[0.1em] text-cyan-100 mb-3">
+						{featuredNovel.data.title}
+					</h3>
+					<p class="text-sm leading-relaxed text-slate-300/80 max-w-2xl mb-5">
+						{featuredNovel.data.synopsis.split('\n')[0]}
+					</p>
+					<a
+						href={`/writing/novels/${featuredNovel.id}`}
+						class="inline-flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-[#39ff14]/60 hover:text-[#39ff14] transition-colors"
+					>
+						Read Excerpt <span set:html={arrowSvg} />
+					</a>
+				</div>
+			</section>
+		)}
+
+		<!-- Character roster -->
+		{allCharacters.length > 0 && (
+			<section class="mt-8" aria-labelledby="characters-heading">
+				<div class="mb-4 flex items-center justify-between">
+					<h2 id="characters-heading" class="font-orbitron text-sm uppercase tracking-[0.16em] text-cyan-300/70">
+						// Characters
+					</h2>
+					<a
+						href={`/writing/characters/?universe=${uid}`}
+						class="font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/40 hover:text-cyan-300 transition-colors inline-flex items-center gap-1"
+					>
+						All Characters <span set:html={arrowSvg} />
+					</a>
+				</div>
+				<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+					{allCharacters.map((char) => (
+						<CharacterCard character={char} />
+					))}
+				</div>
+			</section>
+		)}
+
+		<!-- Timeline preview -->
+		{timelinePreview.length > 0 && (
+			<section class="mt-8" aria-labelledby="timeline-heading">
+				<div class="mb-4 flex items-center justify-between">
+					<h2 id="timeline-heading" class="font-orbitron text-sm uppercase tracking-[0.16em] text-cyan-300/70">
+						// Timeline
+					</h2>
+					<a
+						href={`/writing/${uid}/timeline/`}
+						class="font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/40 hover:text-cyan-300 transition-colors inline-flex items-center gap-1"
+					>
+						Full Timeline <span set:html={arrowSvg} />
+					</a>
+				</div>
+				<ul class="space-y-3" role="list">
+					{timelinePreview.map((event) => (
+						<li class="blueprint-border rounded-md bg-black/35 px-5 py-3 flex flex-col gap-1">
+							<div class="flex items-center justify-between gap-3">
+								<span class="font-orbitron text-xs uppercase tracking-[0.1em] text-cyan-100">{event.data.title}</span>
+								{event.data.inUniverseDate && (
+									<span class="font-tech text-[10px] text-cyan-300/35 shrink-0">{event.data.inUniverseDate}</span>
+								)}
+							</div>
+							<p class="font-tech text-[11px] text-slate-400/60 line-clamp-1">{event.data.summary}</p>
+						</li>
+					))}
+				</ul>
+			</section>
+		)}
+
+		<!-- Short stories -->
+		{sortedStories.length > 0 && (
+			<section class="mt-8" aria-labelledby="stories-heading">
+				<div class="mb-4 flex items-center justify-between">
+					<h2 id="stories-heading" class="font-orbitron text-sm uppercase tracking-[0.16em] text-cyan-300/70">
+						// Short Stories
+					</h2>
+					<a
+						href="/writing/stories/"
+						class="font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/40 hover:text-cyan-300 transition-colors inline-flex items-center gap-1"
+					>
+						All Stories <span set:html={arrowSvg} />
+					</a>
+				</div>
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+					{sortedStories.map((story) => (
+						<StoryCard story={story} />
+					))}
+				</div>
+			</section>
+		)}
+
+	</div>
+</Layout>

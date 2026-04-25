@@ -1,0 +1,51 @@
+---
+/**
+ * ReadingOrderItem — single row in the /writing/[universe]/reading-order/ list.
+ */
+
+interface Props {
+	title: string;
+	type: 'novel' | 'short-story';
+	href: string;
+	readingOrder?: number;
+	synopsis: string;
+}
+
+const { title, type, href, readingOrder, synopsis } = Astro.props;
+
+const typeBadgeClasses = type === 'novel'
+	? 'border-[#39ff14]/35 text-[#39ff14]/70 bg-[#39ff14]/5'
+	: 'border-[#00ffff]/35 text-[#00ffff]/70 bg-[#00ffff]/5';
+
+const typeLabel = type === 'novel' ? 'Novel' : 'Short Story';
+
+const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
+---
+
+<li>
+	<a
+		href={href}
+		class="group flex items-start gap-4 blueprint-border rounded-md bg-black/35 px-5 py-4 transition-shadow duration-200 hover:shadow-[0_0_20px_rgba(0,255,255,0.07)] hover:bg-black/50"
+	>
+		<!-- Reading order number -->
+		{readingOrder !== undefined && (
+			<span class="shrink-0 font-orbitron text-lg text-[#39ff14]/40 group-hover:text-[#39ff14]/70 transition-colors w-8 text-right">
+				{readingOrder}
+			</span>
+		)}
+
+		<div class="flex flex-col gap-1.5 flex-1 min-w-0">
+			<div class="flex flex-wrap items-center gap-2">
+				<span class={`shrink-0 rounded border font-tech text-[10px] uppercase tracking-[0.12em] px-1.5 py-0.5 ${typeBadgeClasses}`}>
+					{typeLabel}
+				</span>
+				<span class="font-orbitron text-sm uppercase tracking-[0.1em] text-cyan-100 group-hover:text-cyan-300 transition-colors truncate">
+					{title}
+				</span>
+			</div>
+			<p class="font-tech text-[11px] text-slate-400/60 line-clamp-1">{synopsis}</p>
+		</div>
+
+		<span set:html={arrowSvg} class="shrink-0 self-center text-cyan-300/25 group-hover:text-[#39ff14]/60 transition-colors" />
+	</a>
+</li>

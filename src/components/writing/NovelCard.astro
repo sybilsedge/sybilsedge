@@ -1,0 +1,50 @@
+---
+/**
+ * NovelCard — card for the /writing/novels/ index.
+ */
+import type { Novel } from '../../content.config.ts';
+import StatusBadge from './StatusBadge.astro';
+
+interface Props {
+	novel: Novel;
+}
+
+const { novel } = Astro.props;
+
+const bookSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>`;
+const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
+---
+
+<a
+	href={`/writing/novels/${novel.id}`}
+	class="group blueprint-border rounded-md bg-black/35 p-6 flex flex-col gap-4 transition-shadow duration-200 hover:shadow-[0_0_24px_rgba(0,255,255,0.07)] hover:bg-black/50"
+>
+	<div class="flex items-start justify-between gap-3">
+		<div class="flex items-center gap-2.5">
+			<span set:html={bookSvg} class="shrink-0 text-[#39ff14]/70 group-hover:text-[#39ff14] transition-colors" />
+			<h2 class="font-orbitron text-base uppercase tracking-[0.1em] text-cyan-100 leading-tight group-hover:text-cyan-300 transition-colors">
+				{novel.data.title}
+			</h2>
+		</div>
+		<StatusBadge status={novel.data.status} />
+	</div>
+
+	<div class="flex items-center gap-2">
+		<span class="font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/50">{novel.data.universe}</span>
+		{novel.data.readingOrder !== undefined && (
+			<>
+				<span class="text-cyan-300/20" aria-hidden="true">·</span>
+				<span class="font-tech text-[10px] text-cyan-300/35">#{novel.data.readingOrder}</span>
+			</>
+		)}
+	</div>
+
+	<p class="text-sm leading-relaxed text-slate-300/75 flex-1 line-clamp-3">
+		{novel.data.synopsis}
+	</p>
+
+	<div class="mt-auto flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/40 group-hover:text-[#39ff14]/70 transition-colors">
+		Read More
+		<span set:html={arrowSvg} />
+	</div>
+</a>

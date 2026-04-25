@@ -4,7 +4,7 @@ import { skills, experience, certs } from '../data/resume';
 
 /**
  * Builds the system prompt for Sybil's digital twin by combining static data
- * (about, resume) with dynamic content collection entries (writing, projects,
+ * (about, resume) with dynamic content collection entries (novels, projects,
  * recent posts), and optionally the private R2 knowledge-base corpus.
  *
  * @param kbContext - Optional pre-loaded KB text from the R2 bucket. When
@@ -12,8 +12,8 @@ import { skills, experience, certs } from '../data/resume';
  *   Thinking" section so the model has richer first-person context.
  */
 export async function buildSystemPrompt(kbContext?: string): Promise<string> {
-	const [writingEntries, projectEntries, postEntries] = await Promise.all([
-		getCollection('writing'),
+	const [novelEntries, projectEntries, postEntries] = await Promise.all([
+		getCollection('novels'),
 		getCollection('projects'),
 		getCollection('posts'),
 	]);
@@ -54,12 +54,11 @@ export async function buildSystemPrompt(kbContext?: string): Promise<string> {
 		.join('\n');
 	sections.push(`## Certifications\n${certLines}`);
 
-	if (writingEntries.length > 0) {
-		const writingLines = writingEntries
-			.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-			.map(({ data: { title, genre, status, synopsis, wordCount } }) => {
-				const wc = wordCount ? ` | ${wordCount.toLocaleString()} words` : '';
-				return `- **${title}** (${genre} — ${status}${wc}): ${synopsis}`;
+	if (novelEntries.length > 0) {
+		const writingLines = novelEntries
+			.sort((a, b) => a.data.title.localeCompare(b.data.title))
+			.map(({ data: { title, universe, status, synopsis } }) => {
+				return `- **${title}** (${universe} — ${status}): ${synopsis.split('\n')[0]}`;
 			})
 			.join('\n');
 		sections.push(`## Writing Projects\n${writingLines}`);

@@ -1,0 +1,145 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+import CharacterCard from '../../../components/writing/CharacterCard.astro';
+import StoryCard from '../../../components/writing/StoryCard.astro';
+import { getReadingTime } from '../../../utils/readingTime.ts';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+	const stories = await getCollection('shortStories');
+	return stories.map((entry) => ({
+		params: { slug: entry.id },
+		props: { entry },
+	}));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const readingTime = getReadingTime(entry.body ?? '');
+
+// Resolve related characters and related stories
+const [relatedCharacters, relatedStories] = await Promise.all([
+	entry.data.relatedCharacters.length
+		? getCollection('characters', (e) => entry.data.relatedCharacters.includes(e.id))
+		: Promise.resolve([]),
+	entry.data.relatedStories.length
+		? getCollection('shortStories', (e) => entry.data.relatedStories.includes(e.id))
+		: Promise.resolve([]),
+]);
+
+const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+---
+
+<Layout
+	title={`${entry.data.title} | Stories | Sybilsedge`}
+	description={entry.data.synopsis}
+	ogImage="/og/writing.png"
+>
+	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
+
+		<!-- Breadcrumb -->
+		<nav class="mb-6 flex items-center gap-1.5 font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/40" aria-label="Breadcrumb">
+			<a href="/writing/" class="hover:text-cyan-300 transition-colors">Writing</a>
+			<span aria-hidden="true">›</span>
+			<a href={`/writing/${entry.data.universe}/`} class="hover:text-cyan-300 transition-colors">{entry.data.universe}</a>
+			<span aria-hidden="true">›</span>
+			<a href="/writing/stories/" class="hover:text-cyan-300 transition-colors">Stories</a>
+			<span aria-hidden="true">›</span>
+			<span class="text-cyan-300/70 truncate">{entry.data.title}</span>
+		</nav>
+
+		<!-- Header -->
+		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-6 md:p-8">
+			<div class="flex flex-wrap items-center gap-2 mb-3 font-tech text-[10px] text-cyan-300/40">
+				<span class="uppercase tracking-[0.18em]">{entry.data.universe}</span>
+				<span aria-hidden="true">·</span>
+				<span class="flex items-center gap-1">
+					<span set:html={clockSvg} />
+					{readingTime}
+				</span>
+				{entry.data.wordcount && (
+					<>
+						<span aria-hidden="true">·</span>
+						<span>{entry.data.wordcount.toLocaleString()} words</span>
+					</>
+				)}
+			</div>
+
+			<h1 class="font-orbitron text-2xl uppercase tracking-[0.1em] text-cyan-100 md:text-3xl">
+				{entry.data.title}
+			</h1>
+			<p class="mt-4 text-base leading-relaxed text-slate-300/85">{entry.data.synopsis}</p>
+
+			{entry.data.tags.length > 0 && (
+				<div class="mt-4 flex flex-wrap gap-1.5">
+					{entry.data.tags.map((tag: string) => (
+						<span class="rounded font-tech text-[10px] uppercase tracking-[0.1em] px-2 py-0.5 bg-black/40 border border-cyan-300/10 text-cyan-300/45">
+							{tag}
+						</span>
+					))}
+				</div>
+			)}
+		</header>
+
+		<!-- Story body -->
+		{entry.body && (
+			<div class="blueprint-border rounded-md bg-black/35 p-6 md:p-10 prose-story mb-8">
+				<Content />
+			</div>
+		)}
+
+		<!-- Related Characters -->
+		{relatedCharacters.length > 0 && (
+			<aside class="mb-6 blueprint-border rounded-md bg-black/35 p-6">
+				<p class="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/50 mb-4">// Characters</p>
+				<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+					{relatedCharacters.map((char) => (
+						<CharacterCard character={char} />
+					))}
+				</div>
+			</aside>
+		)}
+
+		<!-- Related Stories -->
+		{relatedStories.length > 0 && (
+			<aside class="mt-8 blueprint-border rounded-md bg-black/35 p-6">
+				<p class="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/50 mb-4">// Related Stories</p>
+				<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+					{relatedStories.map((story) => (
+						<StoryCard story={story} />
+					))}
+				</div>
+			</aside>
+		)}
+
+	</div>
+
+	<style>
+		.prose-story :global(p) {
+			font-size: 1rem;
+			line-height: 1.9;
+			color: rgb(148 163 184 / 0.88);
+			margin-bottom: 1.4rem;
+			max-width: 70ch;
+		}
+		.prose-story :global(h2) {
+			font-family: var(--font-display);
+			font-size: 0.875rem;
+			text-transform: uppercase;
+			letter-spacing: 0.12em;
+			color: rgb(207 250 254 / 0.85);
+			margin-top: 2rem;
+			margin-bottom: 0.75rem;
+		}
+		.prose-story :global(strong) {
+			color: rgb(207 250 254 / 0.9);
+			font-weight: 600;
+		}
+		.prose-story :global(em) {
+			color: rgb(57 255 20 / 0.7);
+		}
+	</style>
+</Layout>
