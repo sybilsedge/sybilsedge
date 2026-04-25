@@ -115,6 +115,33 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 			<Content galleryItems={galleryItems} stepItems={stepItems} />
 		</div>
 
+		<!-- Related blog posts -->
+		{relatedPosts.length > 0 && (
+			<aside class="mt-8 blueprint-border rounded-md bg-black/35 p-6 md:p-8">
+				<p class="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/50 mb-4">// Related Posts</p>
+				<ul class="space-y-2" role="list">
+					{relatedPosts.map((post) => {
+						const formattedDate = post.data.date.toLocaleDateString('en-US', {
+							year: 'numeric',
+							month: 'short',
+							day: 'numeric',
+						});
+						return (
+							<li>
+								<a
+									href={`/blog/${post.id}`}
+									class="group flex items-center justify-between gap-4 rounded blueprint-border bg-black/40 px-4 py-2.5 transition-colors hover:bg-cyan-300/5"
+								>
+									<span class="font-orbitron text-[11px] uppercase tracking-[0.08em] text-cyan-100 group-hover:text-cyan-300 transition-colors truncate">{post.data.title}</span>
+									<span class="shrink-0 font-tech text-[10px] text-cyan-300/40">{formattedDate}</span>
+								</a>
+							</li>
+						);
+					})}
+				</ul>
+			</aside>
+		)}
+
 	</div>
 
 	<style>

@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import { getReadingTime } from '../utils/readingTime.ts';
 
 const allRecipes = await getCollection('recipes');
 const sorted = allRecipes.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -105,6 +106,10 @@ const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" v
 								{entry.data.servings && (
 									<span class="font-tech text-[10px] text-cyan-300/35">Serves {entry.data.servings}</span>
 								)}
+								<span class="flex items-center gap-1 font-tech text-[10px] text-cyan-300/35">
+									<span set:html={clockSvg} />
+									{getReadingTime(entry.body ?? '')}
+								</span>
 							</div>
 
 							<!-- Description -->
