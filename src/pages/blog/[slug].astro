@@ -73,7 +73,7 @@ const formattedUpdatedDate = entry.data.updatedDate
 				{formattedUpdatedDate && (
 					<>
 						<span aria-hidden="true">·</span>
-						<span>Updated {formattedUpdatedDate}</span>
+						<span>Updated <time datetime={entry.data.updatedDate!.toISOString()}>{formattedUpdatedDate}</time></span>
 					</>
 				)}
 			</div>

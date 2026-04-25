@@ -20,10 +20,10 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 
 // Find blog posts that reference this project via relatedProjects frontmatter
-const relatedPosts = await getCollection(
+const relatedPosts = (await getCollection(
 	'posts',
 	(post) => !post.data.draft && (post.data.relatedProjects?.includes(entry.id) ?? false),
-);
+)).sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 
 // Pre-optimise the `images` array so the BlueprintGallery island receives
 // plain serialisable strings — no Astro APIs leak into the client bundle.
