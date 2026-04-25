@@ -56,8 +56,8 @@ export async function buildSystemPrompt(kbContext?: string): Promise<string> {
 
 	if (novelEntries.length > 0) {
 		const writingLines = novelEntries
-			.sort((a: { data: { title: string; universe: string; status: string; synopsis: string } }, b: { data: { title: string; universe: string; status: string; synopsis: string } }) => a.data.title.localeCompare(b.data.title))
-			.map(({ data: { title, universe, status, synopsis } }: { data: { title: string; universe: string; status: string; synopsis: string } }) => {
+			.sort((a, b) => a.data.title.localeCompare(b.data.title))
+			.map(({ data: { title, universe, status, synopsis } }) => {
 				return `- **${title}** (${universe} — ${status}): ${synopsis.split('\n')[0]}`;
 			})
 			.join('\n');

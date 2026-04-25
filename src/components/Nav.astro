@@ -111,7 +111,11 @@ const isWritingActive = currentPath.startsWith('/writing');
 					role="list"
 				>
 					{writingSubLinks.map(({ href, label }) => {
-						const isSubActive = currentPath.startsWith(href) && (href !== '/writing/' || currentPath === '/writing/' || (href === '/writing/' && !currentPath.startsWith('/writing/novels') && !currentPath.startsWith('/writing/stories') && !currentPath.startsWith('/writing/characters') && !currentPath.startsWith('/writing/lore')));
+						// For the Universes link (/writing/), only mark active on exact match
+						// to avoid it highlighting when a sub-section (novels, stories, etc.) is active.
+						const isSubActive = href === '/writing/'
+							? currentPath === '/writing/'
+							: currentPath.startsWith(href);
 						return (
 							<li>
 								<a
