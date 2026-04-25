@@ -54,8 +54,4 @@ const categoryIcons: Record<string, string> = {
 			))
 		)}
 	</div>
-
-	{/* Photo gallery — reuses the already-fetched `featured` list to avoid a
-	    second getCollection() call inside GalleryIsland */}
-	<GalleryIsland type="projects" entries={featured} />
 </section>
