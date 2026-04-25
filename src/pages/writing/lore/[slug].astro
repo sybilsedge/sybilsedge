@@ -1,0 +1,145 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+import ContentHero from '../../../components/ContentHero.astro';
+import CategoryBadge from '../../../components/writing/CategoryBadge.astro';
+import CharacterCard from '../../../components/writing/CharacterCard.astro';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+	const loreEntries = await getCollection('lore');
+	return loreEntries.map((entry) => ({
+		params: { slug: entry.id },
+		props: { entry },
+	}));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+// Resolve related characters and stories that reference this lore entry
+const [relatedCharacters, relatedStories] = await Promise.all([
+	entry.data.relatedCharacters.length
+		? getCollection('characters', (e) => entry.data.relatedCharacters.includes(e.id))
+		: Promise.resolve([]),
+	entry.data.relatedStories.length
+		? getCollection('shortStories', (e) => entry.data.relatedStories.includes(e.id))
+		: Promise.resolve([]),
+]);
+
+const backSvg  = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`;
+const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
+---
+
+<Layout
+	title={`${entry.data.title} | Lore | Sybilsedge`}
+	description={`Lore: ${entry.data.title} — ${entry.data.category} entry from the ${entry.data.universe} universe`}
+	ogImage="/og/writing.png"
+>
+	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
+
+		<!-- Breadcrumb -->
+		<nav class="mb-6 flex items-center gap-1.5 font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/40" aria-label="Breadcrumb">
+			<a href="/writing/" class="hover:text-cyan-300 transition-colors">Writing</a>
+			<span aria-hidden="true">›</span>
+			<a href={`/writing/${entry.data.universe}/`} class="hover:text-cyan-300 transition-colors">{entry.data.universe}</a>
+			<span aria-hidden="true">›</span>
+			<a href="/writing/lore/" class="hover:text-cyan-300 transition-colors">Lore</a>
+			<span aria-hidden="true">›</span>
+			<span class="text-cyan-300/70 truncate">{entry.data.title}</span>
+		</nav>
+
+		<!-- Header -->
+		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-6 md:p-8">
+			<div class="mb-3 flex flex-wrap items-center gap-2">
+				<span class="font-tech text-[10px] uppercase tracking-[0.18em] text-cyan-300/55">{entry.data.universe}</span>
+				<span class="text-cyan-300/20" aria-hidden="true">·</span>
+				<CategoryBadge category={entry.data.category} />
+			</div>
+			<h1 class="font-orbitron text-2xl uppercase tracking-[0.1em] text-cyan-100 md:text-3xl">
+				{entry.data.title}
+			</h1>
+			{entry.data.coverImage && (
+				<ContentHero
+					src={entry.data.coverImage.src}
+					alt={entry.data.coverImage.alt}
+					class="mt-6"
+				/>
+			)}
+		</header>
+
+		<!-- Lore article body -->
+		{entry.body && (
+			<div class="blueprint-border rounded-md bg-black/35 p-6 md:p-8 prose-lore mb-8">
+				<Content />
+			</div>
+		)}
+
+		<!-- Related Characters -->
+		{relatedCharacters.length > 0 && (
+			<aside class="mb-6 blueprint-border rounded-md bg-black/35 p-6">
+				<p class="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/50 mb-4">// Related Characters</p>
+				<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+					{relatedCharacters.map((char) => (
+						<CharacterCard character={char} />
+					))}
+				</div>
+			</aside>
+		)}
+
+		<!-- Related Stories -->
+		{relatedStories.length > 0 && (
+			<aside class="blueprint-border rounded-md bg-black/35 p-6">
+				<p class="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/50 mb-4">// Related Stories</p>
+				<ul class="space-y-2" role="list">
+					{relatedStories.map((story) => (
+						<li>
+							<a
+								href={`/writing/stories/${story.id}`}
+								class="group flex items-center justify-between gap-4 rounded blueprint-border bg-black/40 px-4 py-2.5 transition-colors hover:bg-cyan-300/5"
+							>
+								<span class="font-orbitron text-[11px] uppercase tracking-[0.08em] text-cyan-100 group-hover:text-cyan-300 transition-colors truncate">{story.data.title}</span>
+								<span set:html={arrowSvg} class="shrink-0 text-cyan-300/30 group-hover:text-[#39ff14]/60" />
+							</a>
+						</li>
+					))}
+				</ul>
+			</aside>
+		)}
+
+	</div>
+
+	<style>
+		.prose-lore :global(p) {
+			font-size: 0.925rem;
+			line-height: 1.8;
+			color: rgb(148 163 184 / 0.85);
+			margin-bottom: 1rem;
+		}
+		.prose-lore :global(h2) {
+			font-family: var(--font-display);
+			font-size: 0.875rem;
+			text-transform: uppercase;
+			letter-spacing: 0.12em;
+			color: rgb(207 250 254 / 0.85);
+			margin-top: 1.75rem;
+			margin-bottom: 0.75rem;
+			padding-bottom: 0.35rem;
+			border-bottom: 1px solid rgb(0 255 255 / 0.1);
+		}
+		.prose-lore :global(strong) {
+			color: rgb(207 250 254 / 0.9);
+			font-weight: 600;
+		}
+		.prose-lore :global(ul), .prose-lore :global(ol) {
+			margin: 0.75rem 0 1rem 1.25rem;
+		}
+		.prose-lore :global(li) {
+			font-size: 0.925rem;
+			line-height: 1.7;
+			color: rgb(148 163 184 / 0.8);
+			margin-bottom: 0.35rem;
+		}
+	</style>
+</Layout>

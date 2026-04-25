@@ -1,0 +1,9 @@
+---
+name: Shadow Docket
+tagline: "Precision-engineered limbs. Remote-detonated deaths."
+description: |
+  In 2070, ICPO Counter-Terrorism analyst Yasutake Masanori investigates a wave of coordinated
+  bombings triggered through prosthetic limbs — all manufactured by XAoC Cybernetics.
+  The trail leads into the Orlova dynasty's shadow war and the corporation they built on secrets.
+status: active
+---
