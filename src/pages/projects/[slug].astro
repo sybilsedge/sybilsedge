@@ -19,6 +19,12 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
+// Find blog posts that reference this project via relatedProjects frontmatter
+const relatedPosts = await getCollection(
+	'posts',
+	(post) => !post.data.draft && (post.data.relatedProjects?.includes(entry.id) ?? false),
+);
+
 // Pre-optimise the `images` array so the BlueprintGallery island receives
 // plain serialisable strings — no Astro APIs leak into the client bundle.
 const galleryItems: BlueprintImage[] = await buildGalleryItems(entry.data.images);
