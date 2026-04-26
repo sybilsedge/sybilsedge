@@ -44,6 +44,7 @@ jobs:
   trivy:
     name: Trivy
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v6
 
@@ -51,7 +52,6 @@ jobs:
         run: npm ci
 
       - name: Trivy scan (PR — vuln + secret)
-        if: github.event_name == 'pull_request'
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
