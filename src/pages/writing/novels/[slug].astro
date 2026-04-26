@@ -1,7 +1,6 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
-import { getImage } from 'astro:assets';
 import ContentHero from '../../../components/ContentHero.astro';
 import StatusBadge from '../../../components/writing/StatusBadge.astro';
 import CharacterCard from '../../../components/writing/CharacterCard.astro';
@@ -29,13 +28,6 @@ const relatedCharacters = entry.data.relatedCharacters.length
 const novelDescription = truncateToSentence(entry.data.synopsis);
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsedge.com').toString();
 
-// Resolve the cover image URL for JSON-LD structured data (optional).
-let coverImageUrl: string | undefined;
-if (entry.data.coverImage) {
-	const optimised = await getImage({ src: entry.data.coverImage.src, width: 1200, format: 'webp' });
-	coverImageUrl = new URL(optimised.src, Astro.site ?? 'https://sybilsedge.com').toString();
-}
-
 ---
 
 <Layout
@@ -50,7 +42,6 @@ if (entry.data.coverImage) {
 		description={novelDescription}
 		canonicalURL={canonicalURL}
 		universe={entry.data.universe}
-		imageUrl={coverImageUrl}
 	/>
 	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
 

@@ -32,6 +32,7 @@ const [relatedCharacters, relatedStories] = await Promise.all([
 ]);
 
 const loreDescription = truncateToSentence(
+	entry.data.description ??
 	`Lore: ${entry.data.title} — ${entry.data.category} entry from the ${entry.data.universe} universe`,
 );
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsedge.com').toString();

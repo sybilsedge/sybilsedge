@@ -4,17 +4,17 @@
  *
  * Injects a schema.org JSON-LD <script> into the page <head> via the
  * Layout named "head" slot.  Covers four writing content types:
- *   - Book        → novels
- *   - ShortStory  → short stories
- *   - Article     → lore entries
- *   - Person      → character profiles
+ *   - Book             → novels
+ *   - ShortStory       → short stories
+ *   - Article          → lore entries
+ *   - FictionalCharacter → character profiles
  *
  * All values come from locally-authored frontmatter so set:html is safe
  * here — there is no user-supplied input involved.
  */
 
 interface Props {
-	type: 'Book' | 'ShortStory' | 'Article' | 'Person';
+	type: 'Book' | 'ShortStory' | 'Article' | 'FictionalCharacter';
 	title: string;
 	description: string;
 	canonicalURL: string;
@@ -81,10 +81,10 @@ if (type === 'Book') {
 	if (articleSection) ld.articleSection = articleSection;
 	if (imageUrl) ld.image = [imageUrl];
 } else {
-	// Person (character profile)
+	// FictionalCharacter (character profile)
 	ld = {
 		'@context': 'https://schema.org',
-		'@type': 'Person',
+		'@type': 'FictionalCharacter',
 		name: characterName ?? title,
 		description,
 		url: canonicalURL,

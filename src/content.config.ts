@@ -31,6 +31,7 @@ const characters = defineCollection({
 		aliases: z.array(z.string()).optional(),
 		universe: z.string(),
 		role: z.string(),
+		description: z.string().optional(),
 		affiliation: z.array(z.string()).optional(),
 		appearance: z.string().optional(),
 		profileImage: z.object({
@@ -78,6 +79,7 @@ const lore = defineCollection({
 		title: z.string(),
 		universe: z.string(),
 		category: z.enum(['location', 'faction', 'technology', 'history', 'culture', 'other']),
+		description: z.string().optional(),
 		relatedCharacters: z.array(z.string()).default([]),
 		relatedStories: z.array(z.string()).default([]),
 		coverImage: z.object({

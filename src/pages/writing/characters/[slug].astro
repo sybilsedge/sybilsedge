@@ -32,7 +32,9 @@ const relatedCharacters = entry.data.relatedCharacters.length
 	? await getCollection('characters', (e) => entry.data.relatedCharacters.includes(e.id))
 	: [];
 
-const characterDescription = truncateToSentence(`Character profile: ${entry.data.name} — ${entry.data.role}`);
+const characterDescription = truncateToSentence(
+	entry.data.description ?? `Character profile: ${entry.data.name} — ${entry.data.role}`,
+);
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsedge.com').toString();
 
 ---
@@ -44,7 +46,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsed
 >
 	<WritingJsonLd
 		slot="head"
-		type="Person"
+		type="FictionalCharacter"
 		title={entry.data.name}
 		description={characterDescription}
 		canonicalURL={canonicalURL}
