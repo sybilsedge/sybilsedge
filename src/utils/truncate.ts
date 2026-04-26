@@ -18,10 +18,12 @@ export function truncateToSentence(text: string, maxLen = 155): string {
 
 	// Search backward from maxLen for the nearest sentence boundary.
 	const window = normalised.slice(0, maxLen);
+	const terminalBoundary = /[.!?]$/.test(window) ? window.length - 1 : -1;
 	const lastSentence = Math.max(
 		window.lastIndexOf('. '),
 		window.lastIndexOf('! '),
 		window.lastIndexOf('? '),
+		terminalBoundary,
 	);
 
 	if (lastSentence !== -1) {
