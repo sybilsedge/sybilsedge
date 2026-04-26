@@ -1,0 +1,106 @@
+---
+/**
+ * WritingJsonLd.astro
+ *
+ * Injects a schema.org JSON-LD <script> into the page <head> via the
+ * Layout named "head" slot.  Covers four writing content types:
+ *   - Book        → novels
+ *   - ShortStory  → short stories
+ *   - Article     → lore entries
+ *   - Person      → character profiles
+ *
+ * All values come from locally-authored frontmatter so set:html is safe
+ * here — there is no user-supplied input involved.
+ */
+
+interface Props {
+	type: 'Book' | 'ShortStory' | 'Article' | 'Person';
+	title: string;
+	description: string;
+	canonicalURL: string;
+	universe?: string;
+	imageUrl?: string;
+	// ShortStory extras
+	wordCount?: number;
+	// Article (lore) extras
+	articleSection?: string;
+	// Person (character) extras
+	characterName?: string;
+	role?: string;
+}
+
+const {
+	type,
+	title,
+	description,
+	canonicalURL,
+	universe,
+	imageUrl,
+	wordCount,
+	articleSection,
+	characterName,
+	role,
+} = Astro.props;
+
+const author = { '@type': 'Person', name: 'Sybil Melton' };
+
+let ld: Record<string, unknown>;
+
+if (type === 'Book') {
+	ld = {
+		'@context': 'https://schema.org',
+		'@type': 'Book',
+		name: title,
+		description,
+		author,
+		url: canonicalURL,
+	};
+	if (universe) ld.isPartOf = { '@type': 'BookSeries', name: universe };
+	if (imageUrl) ld.image = [imageUrl];
+} else if (type === 'ShortStory') {
+	ld = {
+		'@context': 'https://schema.org',
+		'@type': 'ShortStory',
+		name: title,
+		description,
+		author,
+		url: canonicalURL,
+	};
+	if (universe) ld.isPartOf = { '@type': 'BookSeries', name: universe };
+	if (wordCount !== undefined) ld.wordCount = wordCount;
+	if (imageUrl) ld.image = [imageUrl];
+} else if (type === 'Article') {
+	ld = {
+		'@context': 'https://schema.org',
+		'@type': 'Article',
+		headline: title,
+		description,
+		author,
+		url: canonicalURL,
+	};
+	if (articleSection) ld.articleSection = articleSection;
+	if (imageUrl) ld.image = [imageUrl];
+} else {
+	// Person (character profile)
+	ld = {
+		'@context': 'https://schema.org',
+		'@type': 'Person',
+		name: characterName ?? title,
+		description,
+		url: canonicalURL,
+	};
+	if (role) ld.jobTitle = role;
+	if (universe) ld.memberOf = { '@type': 'Organization', name: universe };
+}
+
+// Safely serialize JSON for inline embedding in a <script> tag.
+// Replacing < > & prevents </script> or <!-- sequences in string values from
+// breaking out of the script element — matching what Next.js and other
+// frameworks do for embedded JSON-LD.
+const ldJson = JSON.stringify(ld)
+	.replace(/</g, '\\u003c')
+	.replace(/>/g, '\\u003e')
+	.replace(/&/g, '\\u0026');
+---
+
+<script type="application/ld+json" set:html={ldJson} />
