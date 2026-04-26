@@ -65,7 +65,7 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 			<span class="text-cyan-300/70 truncate">{entry.data.title}</span>
 		</nav>
 
-		<!-- Header -->
+		<!-- Header — stays full blueprint -->
 		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-6 md:p-8">
 			<div class="flex flex-wrap items-center gap-2 mb-3 font-tech text-[10px] text-cyan-300/40">
 				<span class="uppercase tracking-[0.18em]">{entry.data.universe}</span>
@@ -98,10 +98,12 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 			)}
 		</header>
 
-		<!-- Story body -->
+		<!-- Story body — reading mode, always on -->
 		{entry.body && (
-			<div class="blueprint-border rounded-md bg-black/35 p-6 md:p-10 prose-story mb-8">
-				<Content />
+			<div class="story-body rounded-md mb-8">
+				<div class="prose-story">
+					<Content />
+				</div>
 			</div>
 		)}
 
@@ -132,28 +134,86 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 	</div>
 
 	<style>
+		/* Reading surface */
+		.story-body {
+			background: #1a1916;
+			border: 1px solid rgba(200, 169, 126, 0.2);
+			box-shadow: 0 0 32px rgba(200, 169, 126, 0.04);
+			padding: 2.5rem 3rem;
+		}
+		@media (max-width: 640px) {
+			.story-body { padding: 1.5rem 1.25rem; }
+		}
+
+		/* Prose base */
 		.prose-story :global(p) {
-			font-size: 1rem;
-			line-height: 1.9;
-			color: rgb(148 163 184 / 0.88);
-			margin-bottom: 1.4rem;
-			max-width: 70ch;
+			font-family: 'Lora', 'Georgia', serif;
+			font-size: 1.0625rem;
+			line-height: 1.95;
+			color: #d4cfc7;
+			max-width: 66ch;
+			margin-bottom: 0;
+			text-indent: 1.75em;
 		}
+
+		/* No indent: first paragraph, and any paragraph immediately after a heading */
+		.prose-story :global(p:first-of-type),
+		.prose-story :global(h2 + p),
+		.prose-story :global(h3 + p) {
+			text-indent: 0;
+		}
+
+		/* Drop cap on first paragraph */
+		.prose-story :global(p:first-of-type::first-letter) {
+			font-family: 'Lora', 'Georgia', serif;
+			font-size: 3.5rem;
+			font-weight: 500;
+			line-height: 0.8;
+			float: left;
+			margin-right: 0.08em;
+			margin-top: 0.06em;
+			color: #c8a97e;
+		}
+
+		/* Section breaks */
 		.prose-story :global(h2) {
-			font-family: var(--font-display);
-			font-size: 0.875rem;
+			font-family: 'Lora', 'Georgia', serif;
+			font-size: 0.7rem;
+			font-weight: 500;
 			text-transform: uppercase;
-			letter-spacing: 0.12em;
-			color: rgb(207 250 254 / 0.85);
-			margin-top: 2rem;
-			margin-bottom: 0.75rem;
+			letter-spacing: 0.22em;
+			color: #7a7670;
+			margin: 3rem 0 1.25rem;
+			text-align: center;
 		}
+		.prose-story :global(h2::before),
+		.prose-story :global(h2::after) {
+			content: '— ';
+			color: #c8a97e;
+			opacity: 0.5;
+		}
+
+		/* Inline styles */
 		.prose-story :global(strong) {
-			color: rgb(207 250 254 / 0.9);
+			color: #e8e0d5;
 			font-weight: 600;
 		}
 		.prose-story :global(em) {
-			color: rgb(57 255 20 / 0.7);
+			color: #b8a898;
+			font-style: italic;
+		}
+
+		/* Block quote — for epigraphs or pulled lines */
+		.prose-story :global(blockquote) {
+			margin: 2rem 0 2rem 2rem;
+			padding-left: 1.25rem;
+			border-left: 2px solid rgba(200, 169, 126, 0.35);
+			font-style: italic;
+			color: #9a9390;
+		}
+		.prose-story :global(blockquote p) {
+			text-indent: 0;
+			font-size: 1rem;
 		}
 	</style>
 </Layout>
