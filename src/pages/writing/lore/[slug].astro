@@ -1,9 +1,12 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
+import { getImage } from 'astro:assets';
 import ContentHero from '../../../components/ContentHero.astro';
 import CategoryBadge from '../../../components/writing/CategoryBadge.astro';
 import CharacterCard from '../../../components/writing/CharacterCard.astro';
+import WritingJsonLd from '../../../components/writing/WritingJsonLd.astro';
+import { truncateToSentence } from '../../../utils/truncate.ts';
 
 export const prerender = true;
 
@@ -28,14 +31,37 @@ const [relatedCharacters, relatedStories] = await Promise.all([
 		: Promise.resolve([]),
 ]);
 
+const loreDescription = truncateToSentence(
+	entry.data.description ??
+	`Lore: ${entry.data.title} — ${entry.data.category} entry from the ${entry.data.universe} universe`,
+);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsedge.com').toString();
+
+// Resolve the cover image URL for JSON-LD structured data (optional).
+let coverImageUrl: string | undefined;
+if (entry.data.coverImage) {
+	const optimised = await getImage({ src: entry.data.coverImage.src, width: 1200, format: 'webp' });
+	coverImageUrl = new URL(optimised.src, Astro.site ?? 'https://sybilsedge.com').toString();
+}
+
 const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
 ---
 
 <Layout
 	title={`${entry.data.title} | Lore | Sybilsedge`}
-	description={`Lore: ${entry.data.title} — ${entry.data.category} entry from the ${entry.data.universe} universe`}
+	description={loreDescription}
 	ogImage="/og/writing.png"
 >
+	<WritingJsonLd
+		slot="head"
+		type="Article"
+		title={entry.data.title}
+		description={loreDescription}
+		canonicalURL={canonicalURL}
+		universe={entry.data.universe}
+		articleSection={entry.data.category}
+		imageUrl={coverImageUrl}
+	/>
 	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
 
 		<!-- Breadcrumb -->

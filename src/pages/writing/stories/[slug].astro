@@ -3,7 +3,9 @@ import Layout from '../../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
 import CharacterCard from '../../../components/writing/CharacterCard.astro';
 import StoryCard from '../../../components/writing/StoryCard.astro';
+import WritingJsonLd from '../../../components/writing/WritingJsonLd.astro';
 import { getReadingTime } from '../../../utils/readingTime.ts';
+import { truncateToSentence } from '../../../utils/truncate.ts';
 
 export const prerender = true;
 
@@ -30,14 +32,26 @@ const [relatedCharacters, relatedStories] = await Promise.all([
 		: Promise.resolve([]),
 ]);
 
+const storyDescription = truncateToSentence(entry.data.synopsis);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsedge.com').toString();
+
 const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
 ---
 
 <Layout
 	title={`${entry.data.title} | Stories | Sybilsedge`}
-	description={entry.data.synopsis}
+	description={storyDescription}
 	ogImage="/og/writing.png"
 >
+	<WritingJsonLd
+		slot="head"
+		type="ShortStory"
+		title={entry.data.title}
+		description={storyDescription}
+		canonicalURL={canonicalURL}
+		universe={entry.data.universe}
+		wordCount={entry.data.wordcount}
+	/>
 	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
 
 		<!-- Breadcrumb -->

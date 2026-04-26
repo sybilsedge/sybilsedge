@@ -2,6 +2,8 @@
 import Layout from '../../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
 import CharacterCard from '../../../components/writing/CharacterCard.astro';
+import WritingJsonLd from '../../../components/writing/WritingJsonLd.astro';
+import { truncateToSentence } from '../../../utils/truncate.ts';
 
 export const prerender = true;
 
@@ -30,13 +32,28 @@ const relatedCharacters = entry.data.relatedCharacters.length
 	? await getCollection('characters', (e) => entry.data.relatedCharacters.includes(e.id))
 	: [];
 
+const characterDescription = truncateToSentence(
+	entry.data.description ?? `Character profile: ${entry.data.name} — ${entry.data.role}`,
+);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsedge.com').toString();
+
 ---
 
 <Layout
 	title={`${entry.data.name} | Characters | Sybilsedge`}
-	description={`Character profile: ${entry.data.name} — ${entry.data.role}`}
+	description={characterDescription}
 	ogImage="/og/writing.png"
 >
+	<WritingJsonLd
+		slot="head"
+		type="FictionalCharacter"
+		title={entry.data.name}
+		description={characterDescription}
+		canonicalURL={canonicalURL}
+		universe={entry.data.universe}
+		characterName={entry.data.name}
+		role={entry.data.role}
+	/>
 	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
 
 		<!-- Breadcrumb -->
