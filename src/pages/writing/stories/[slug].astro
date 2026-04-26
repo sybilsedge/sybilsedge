@@ -156,15 +156,15 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 			text-indent: 1.75em;
 		}
 
-		/* No indent: first paragraph, and any paragraph immediately after a heading */
-		.prose-story :global(p:first-of-type),
-		.prose-story :global(h2 + p),
-		.prose-story :global(h3 + p) {
+		/* No indent: first top-level paragraph, and any top-level paragraph immediately after a heading */
+		.prose-story > :global(p:first-of-type),
+		.prose-story > :global(h2 + p),
+		.prose-story > :global(h3 + p) {
 			text-indent: 0;
 		}
 
-		/* Drop cap on first paragraph */
-		.prose-story :global(p:first-of-type::first-letter) {
+		/* Drop cap on first top-level paragraph */
+		.prose-story > :global(p:first-of-type::first-letter) {
 			font-family: 'Lora', 'Georgia', serif;
 			font-size: 3.5rem;
 			font-weight: 500;
@@ -186,9 +186,13 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 			margin: 3rem 0 1.25rem;
 			text-align: center;
 		}
-		.prose-story :global(h2::before),
-		.prose-story :global(h2::after) {
+		.prose-story :global(h2::before) {
 			content: '— ';
+			color: #c8a97e;
+			opacity: 0.5;
+		}
+		.prose-story :global(h2::after) {
+			content: ' —';
 			color: #c8a97e;
 			opacity: 0.5;
 		}
