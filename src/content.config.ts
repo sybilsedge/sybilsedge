@@ -33,7 +33,7 @@ const characters = defineCollection({
 		role: z.string(),
 		description: z.string().optional(),
 		affiliation: z.array(z.string()).optional(),
-		appearance: z.string().optional(),
+		highlight: z.string().optional(),
 		profileImage: z.object({
 			src: image(),
 			alt: z.string(),
