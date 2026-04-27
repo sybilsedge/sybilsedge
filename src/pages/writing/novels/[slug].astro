@@ -29,7 +29,7 @@ const relatedCharacters = entry.data.relatedCharacters.length
 const novelDescription = truncateToSentence(entry.data.synopsis);
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsedge.com').toString();
 
-const readingTime = entry.body ? getReadingTime(entry.body) : null;
+const readingTime = entry.body?.trim().length ? getReadingTime(entry.body) : null;
 
 const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
 
