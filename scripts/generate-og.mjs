@@ -40,7 +40,7 @@ try {
 
 const fonts = [];
 if (orbitronFont) fonts.push({ name: 'Orbitron', data: orbitronFont, weight: 700, style: 'normal' });
-if (interFont)   fonts.push({ name: 'Inter',    data: interFont,    weight: 400, style: 'normal' });
+if (interFont) fonts.push({ name: 'Inter', data: interFont, weight: 400, style: 'normal' });
 
 if (fonts.length === 0) {
   console.error('og: ERROR — no fonts loaded. Check @fontsource/orbitron and @fontsource/inter are installed.');
@@ -50,13 +50,13 @@ if (fonts.length === 0) {
 console.log(`og: loaded ${fonts.map(f => f.name).join(', ')}`);
 
 // ── DESIGN TOKENS ────────────────────────────────────────────────────────────
-const BG       = '#080c10';
-const CYAN     = '#67e8f9';
+const BG = '#080c10';
+const CYAN = '#67e8f9';
 const CYAN_DIM = 'rgba(103,232,249,0.5)';
-const MUTED    = 'rgba(226,232,240,0.55)';
-const BORDER   = 'rgba(103,232,249,0.25)';
+const MUTED = 'rgba(226,232,240,0.55)';
+const BORDER = 'rgba(103,232,249,0.25)';
 const FONT_DISPLAY = orbitronFont ? 'Orbitron' : 'Inter';
-const FONT_BODY    = interFont    ? 'Inter'    : 'Orbitron';
+const FONT_BODY = interFont ? 'Inter' : 'Orbitron';
 
 // ── GRID PATTERN (inline SVG data URI) ───────────────────────────────────────
 const GRID_SVG = `data:image/svg+xml,${encodeURIComponent(
@@ -249,7 +249,7 @@ const PAGES = [
   {
     filename: 'writing',
     title: 'Writing',
-    description: 'Fiction portfolio — spy thrillers, works in progress, and anything else that escapes the terminal at night.',
+    description: 'Fiction portfolio — sci-fi thrillers, works in progress, and anything else that escapes the terminal at night.',
     label: 'Portfolio',
     section: 'Writing',
   },
