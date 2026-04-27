@@ -39,6 +39,7 @@ const characters = defineCollection({
 			alt: z.string(),
 		}).optional(),
 		spoilerLevel: z.enum(['none', 'light', 'moderate', 'major']).optional(),
+		order: z.number().optional(),
 		relatedCharacters: z.array(z.string()).default([]),
 	}),
 });

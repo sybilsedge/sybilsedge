@@ -5,7 +5,15 @@ import CharacterCard from '../../../components/writing/CharacterCard.astro';
 
 export const prerender = true;
 
-const allCharacters = await getCollection('characters');
+const characters = await getCollection('characters');
+const allCharacters = characters.sort((a, b) => {
+	if (a.data.order === undefined && b.data.order === undefined) {
+		return a.data.name.localeCompare(b.data.name);
+	}
+	if (a.data.order === undefined) return 1;
+	if (b.data.order === undefined) return -1;
+	return a.data.order - b.data.order;
+});
 
 // Build list of unique universes for client-side filtering
 const universes = [...new Set(allCharacters.map((c) => c.data.universe))].sort();
