@@ -54,6 +54,10 @@ const ogImageURL = new URL(ogImage, Astro.site ?? 'https://sybilsedge.com').toSt
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
+		<!-- RSS feed autodiscovery -->
+		<link rel="alternate" type="application/rss+xml" title="sybilsedge — Blog" href="/blog/rss.xml" />
+		<link rel="alternate" type="application/rss+xml" title="sybilsedge — Kitchen" href="/kitchen/rss.xml" />
+
 		<!-- Page-specific head content (e.g. JSON-LD structured data) -->
 		<slot name="head" />
 	</head>
