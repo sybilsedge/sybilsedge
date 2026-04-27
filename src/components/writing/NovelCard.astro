@@ -4,6 +4,7 @@
  */
 import type { Novel } from '../../content.config.ts';
 import StatusBadge from './StatusBadge.astro';
+import { getReadingTime } from '../../utils/readingTime.ts';
 
 interface Props {
 	novel: Novel;
@@ -11,8 +12,11 @@ interface Props {
 
 const { novel } = Astro.props;
 
+const readingTime = novel.body ? getReadingTime(novel.body) : null;
+
 const bookSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>`;
 const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
+const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
 ---
 
 <a
@@ -29,12 +33,21 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 		<StatusBadge status={novel.data.status} />
 	</div>
 
-	<div class="flex items-center gap-2">
-		<span class="font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/50">{novel.data.universe}</span>
+	<div class="flex flex-wrap items-center gap-2 font-tech text-[10px] text-cyan-300/40">
+		<span class="uppercase tracking-[0.16em] text-cyan-300/50">{novel.data.universe}</span>
 		{novel.data.readingOrder !== undefined && (
 			<>
-				<span class="text-cyan-300/20" aria-hidden="true">·</span>
-				<span class="font-tech text-[10px] text-cyan-300/35">#{novel.data.readingOrder}</span>
+				<span aria-hidden="true">·</span>
+				<span class="text-cyan-300/35">#{novel.data.readingOrder}</span>
+			</>
+		)}
+		{readingTime && (
+			<>
+				<span aria-hidden="true">·</span>
+				<span class="flex items-center gap-1">
+					<span set:html={clockSvg} />
+					{readingTime}
+				</span>
 			</>
 		)}
 	</div>
