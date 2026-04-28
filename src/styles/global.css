@@ -106,7 +106,7 @@ body {
 /* ——————————————————————————————————————————
    Light theme overrides — lighter terminal-green aesthetic
    Applied via [data-theme="light"] on <html>.
-   The anti-FOIC inline script in Layout.astro sets this attribute before
+   The anti-FOUC inline script in Layout.astro sets this attribute before
    first paint, reading from localStorage or prefers-color-scheme.
 —————————————————————————————————————————— */
 [data-theme="light"] {
@@ -145,13 +145,26 @@ body {
   box-shadow: 0 0 15px rgba(13, 148, 136, 0.3);
 }
 
-/* Option A: override hardcoded Tailwind hex bg classes used in Nav and dropdowns */
-[data-theme="light"] .bg-\[\#0a0a0a\] { background-color: #f0fdf4; }
-[data-theme="light"] .bg-\[\#111315\] { background-color: #dcfce7; }
+/* Option A: override hardcoded Tailwind hex bg classes — scoped to nav to
+   avoid unintentional changes to other elements (e.g. skip-link, page cards) */
+[data-theme="light"] nav .bg-\[\#0a0a0a\] { background-color: #f0fdf4; }
+[data-theme="light"] nav .bg-\[\#111315\] { background-color: #dcfce7; }
 
 /* Nav bar uses bg-[#0a0a0a]/90 (with Tailwind opacity modifier) */
-[data-theme="light"] .bg-\[\#0a0a0a\]\/90 { background-color: rgba(240, 253, 244, 0.9); }
+[data-theme="light"] nav .bg-\[\#0a0a0a\]\/90 { background-color: rgba(240, 253, 244, 0.9); }
 
-/* Near-white text becomes invisible on a light background */
+/* Slate text — light-mode equivalents */
 [data-theme="light"] .text-slate-100 { color: #0f172a; }
-[data-theme="light"] .text-cyan-100  { color: #134e4a; }
+[data-theme="light"] .text-slate-200 { color: #1e293b; }
+[data-theme="light"] .text-slate-300 { color: #334155; }
+[data-theme="light"] .text-slate-300\/85 { color: rgba(51, 65, 85, 0.85); }
+
+/* Cyan text — mapped to teal shades for the terminal-green light palette */
+[data-theme="light"] .text-cyan-100   { color: #134e4a; }
+[data-theme="light"] .text-cyan-100\/70 { color: rgba(19, 78, 74, 0.7); }
+[data-theme="light"] .text-cyan-200   { color: #115e59; }
+[data-theme="light"] .text-cyan-300   { color: #0f766e; }
+[data-theme="light"] .text-cyan-300\/50 { color: rgba(15, 118, 110, 0.5); }
+[data-theme="light"] .text-cyan-300\/60 { color: rgba(15, 118, 110, 0.6); }
+[data-theme="light"] .text-cyan-300\/70 { color: rgba(15, 118, 110, 0.7); }
+[data-theme="light"] .text-cyan-300\/80 { color: rgba(15, 118, 110, 0.8); }

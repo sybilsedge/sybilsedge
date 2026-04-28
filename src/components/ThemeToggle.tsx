@@ -9,17 +9,36 @@ export default function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
-    const applied = document.documentElement.getAttribute('data-theme') as Theme | null;
-    if (applied) {
-      setTheme(applied);
+    // Sync initial value from the DOM (already set by the anti-FOUC script).
+    const initial = document.documentElement.getAttribute('data-theme');
+    if (initial === 'dark' || initial === 'light') {
+      setTheme(initial);
     }
+
+    // Keep multiple toggle instances in sync via a MutationObserver so that
+    // toggling the desktop version updates the mobile version and vice versa.
+    const observer = new MutationObserver(() => {
+      const current = document.documentElement.getAttribute('data-theme');
+      if (current === 'dark' || current === 'light') {
+        setTheme(current);
+      }
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+    return () => observer.disconnect();
   }, []);
 
   function toggle() {
     const next: Theme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
+    // Setting the attribute triggers MutationObserver on all mounted instances.
     document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
+    try {
+      localStorage.setItem('theme', next);
+    } catch (_) {
+      // Ignore storage access failures (e.g. private browsing restrictions).
+    }
   }
 
   // Show Sun while in dark mode (click to go light); Moon while in light mode (click to go dark).
