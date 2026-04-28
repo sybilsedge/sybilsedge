@@ -145,13 +145,14 @@ body {
   box-shadow: 0 0 15px rgba(29, 78, 216, 0.3);
 }
 
-/* Option A: override hardcoded Tailwind hex bg classes — scoped to nav to
-   avoid unintentional changes to other elements (e.g. skip-link, page cards) */
-[data-theme="light"] nav .bg-\[\#0a0a0a\] { background-color: #f0f4ff; }
-[data-theme="light"] nav .bg-\[\#111315\] { background-color: #e0e8ff; }
+/* Nav intentionally stays dark in light mode — no overrides needed.
+   Cards use hardcoded black/alpha — remap to blue-tinted ice surfaces. */
+[data-theme="light"] .bg-black\/35  { background-color: rgba(219, 234, 254, 0.55); }
+[data-theme="light"] .bg-black\/40  { background-color: rgba(219, 234, 254, 0.65); }
+[data-theme="light"] .bg-black\/50  { background-color: rgba(191, 219, 254, 0.65); }
 
-/* Nav bar uses bg-[#0a0a0a]/90 (with Tailwind opacity modifier) */
-[data-theme="light"] nav .bg-\[\#0a0a0a\]\/90 { background-color: rgba(240, 244, 255, 0.9); }
+/* Writing submenu dropdown — keep it dark so it reads clearly against the nav */
+[data-theme="light"] .writing-submenu.bg-\[\#0a0a0a\] { background-color: #0a0a0a; }
 
 /* Slate text — light-mode equivalents */
 [data-theme="light"] .text-slate-100 { color: #0f172a; }
