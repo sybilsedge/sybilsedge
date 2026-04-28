@@ -154,18 +154,44 @@ body {
 /* Writing submenu dropdown — keep it dark so it reads clearly against the nav */
 [data-theme="light"] .writing-submenu.bg-\[\#0a0a0a\] { background-color: #0a0a0a; }
 
-/* Slate text — light-mode equivalents */
-[data-theme="light"] .text-slate-100 { color: #0f172a; }
-[data-theme="light"] .text-slate-200 { color: #1e293b; }
-[data-theme="light"] .text-slate-300 { color: #334155; }
-[data-theme="light"] .text-slate-300\/85 { color: rgba(51, 65, 85, 0.85); }
+/* Slate text — light-mode equivalents (dark slate on ice-blue bg) */
+[data-theme="light"] .text-slate-100    { color: #0f172a; }
+[data-theme="light"] .text-slate-200    { color: #1e293b; }
+[data-theme="light"] .text-slate-300    { color: #1e293b; }
+[data-theme="light"] .text-slate-300\/70 { color: rgba(15, 23, 42, 0.75); }
+[data-theme="light"] .text-slate-300\/75 { color: rgba(15, 23, 42, 0.80); }
+[data-theme="light"] .text-slate-300\/80 { color: rgba(15, 23, 42, 0.85); }
+[data-theme="light"] .text-slate-300\/85 { color: rgba(15, 23, 42, 0.88); }
+[data-theme="light"] .text-slate-300\/90 { color: rgba(15, 23, 42, 0.92); }
 
 /* Cyan text — mapped to blue shades for the ice-blue light palette */
-[data-theme="light"] .text-cyan-100   { color: #1e3a8a; }
-[data-theme="light"] .text-cyan-100\/70 { color: rgba(30, 58, 138, 0.7); }
-[data-theme="light"] .text-cyan-200   { color: #1e40af; }
-[data-theme="light"] .text-cyan-300   { color: #1d4ed8; }
-[data-theme="light"] .text-cyan-300\/50 { color: rgba(29, 78, 216, 0.5); }
-[data-theme="light"] .text-cyan-300\/60 { color: rgba(29, 78, 216, 0.6); }
-[data-theme="light"] .text-cyan-300\/70 { color: rgba(29, 78, 216, 0.7); }
-[data-theme="light"] .text-cyan-300\/80 { color: rgba(29, 78, 216, 0.8); }
+[data-theme="light"] .text-cyan-100     { color: #1e3a8a; }
+[data-theme="light"] .text-cyan-100\/70  { color: rgba(30, 58, 138, 0.7); }
+[data-theme="light"] .text-cyan-200     { color: #1e40af; }
+[data-theme="light"] .text-cyan-300     { color: #1d4ed8; }
+[data-theme="light"] .text-cyan-300\/20  { color: rgba(29, 78, 216, 0.35); }
+[data-theme="light"] .text-cyan-300\/30  { color: rgba(29, 78, 216, 0.45); }
+[data-theme="light"] .text-cyan-300\/35  { color: rgba(29, 78, 216, 0.55); }
+[data-theme="light"] .text-cyan-300\/40  { color: rgba(29, 78, 216, 0.65); }
+[data-theme="light"] .text-cyan-300\/45  { color: rgba(29, 78, 216, 0.68); }
+[data-theme="light"] .text-cyan-300\/50  { color: rgba(29, 78, 216, 0.70); }
+[data-theme="light"] .text-cyan-300\/55  { color: rgba(29, 78, 216, 0.72); }
+[data-theme="light"] .text-cyan-300\/60  { color: rgba(29, 78, 216, 0.75); }
+[data-theme="light"] .text-cyan-300\/70  { color: rgba(29, 78, 216, 0.82); }
+[data-theme="light"] .text-cyan-300\/75  { color: rgba(29, 78, 216, 0.85); }
+[data-theme="light"] .text-cyan-300\/80  { color: rgba(29, 78, 216, 0.90); }
+
+/* ── Nav: revert to raw dark-theme Tailwind colours ────────────────────
+   The global overrides above remap text-cyan-* to blue shades, which makes
+   the nav look wrong. These scoped rules restore original cyan values so
+   the nav bar is identical to dark mode in both themes.               */
+[data-theme="light"] nav .text-cyan-100    { color: #cffafe; }
+[data-theme="light"] nav .text-cyan-100\/70 { color: rgba(207, 250, 254, 0.7); }
+[data-theme="light"] nav .text-cyan-200    { color: #a5f3fc; }
+[data-theme="light"] nav .text-cyan-300    { color: #67e8f9; }
+[data-theme="light"] nav .text-cyan-300\/50 { color: rgba(103, 232, 249, 0.5); }
+[data-theme="light"] nav .text-cyan-300\/60 { color: rgba(103, 232, 249, 0.6); }
+[data-theme="light"] nav .text-cyan-300\/70 { color: rgba(103, 232, 249, 0.7); }
+[data-theme="light"] nav .text-cyan-300\/80 { color: rgba(103, 232, 249, 0.8); }
+/* neon-border active state — keep original green glow in nav */
+[data-theme="light"] nav .neon-border { border-color: rgba(57, 255, 20, 0.4); box-shadow: 0 0 16px rgba(57, 255, 20, 0.25); }
