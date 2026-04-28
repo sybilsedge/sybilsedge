@@ -1,223 +1,260 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
-import { getCollection, render } from 'astro:content';
-import CharacterCard from '../../../components/writing/CharacterCard.astro';
-import StoryCard from '../../../components/writing/StoryCard.astro';
-import WritingJsonLd from '../../../components/writing/WritingJsonLd.astro';
-import { getReadingTime } from '../../../utils/readingTime.ts';
-import { truncateToSentence } from '../../../utils/truncate.ts';
+import Layout from "../../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+import CharacterCard from "../../../components/writing/CharacterCard.astro";
+import StoryCard from "../../../components/writing/StoryCard.astro";
+import WritingJsonLd from "../../../components/writing/WritingJsonLd.astro";
+import { getReadingTime } from "../../../utils/readingTime.ts";
+import { truncateToSentence } from "../../../utils/truncate.ts";
 
 export const prerender = true;
 
 export async function getStaticPaths() {
-	const stories = await getCollection('shortStories');
-	return stories.map((entry) => ({
-		params: { slug: entry.id },
-		props: { entry },
-	}));
+  const stories = await getCollection("shortStories");
+  return stories.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
 }
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
-const readingTime = getReadingTime(entry.body ?? '');
+const readingTime = getReadingTime(entry.body ?? "");
 
 // Resolve related characters and related stories
 const [relatedCharacters, relatedStories] = await Promise.all([
-	entry.data.relatedCharacters.length
-		? getCollection('characters', (e) => entry.data.relatedCharacters.includes(e.id))
-		: Promise.resolve([]),
-	entry.data.relatedStories.length
-		? getCollection('shortStories', (e) => entry.data.relatedStories.includes(e.id))
-		: Promise.resolve([]),
+  entry.data.relatedCharacters.length
+    ? getCollection("characters", (e) =>
+        entry.data.relatedCharacters.includes(e.id),
+      )
+    : Promise.resolve([]),
+  entry.data.relatedStories.length
+    ? getCollection("shortStories", (e) =>
+        entry.data.relatedStories.includes(e.id),
+      )
+    : Promise.resolve([]),
 ]);
 
 const storyDescription = truncateToSentence(entry.data.synopsis);
-const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsedge.com').toString();
+const canonicalURL = new URL(
+  Astro.url.pathname,
+  Astro.site ?? "https://sybilsedge.com",
+).toString();
 
 const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
 ---
 
 <Layout
-	title={`${entry.data.title} | Stories | Sybilsedge`}
-	description={storyDescription}
-	ogImage="/og/writing.png"
+  title={`${entry.data.title} | Stories | Sybilsedge`}
+  description={storyDescription}
+  ogImage="/og/writing.png"
 >
-	<WritingJsonLd
-		slot="head"
-		type="ShortStory"
-		title={entry.data.title}
-		description={storyDescription}
-		canonicalURL={canonicalURL}
-		universe={entry.data.universe}
-		wordCount={entry.data.wordcount}
-	/>
-	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
+  <WritingJsonLd
+    slot="head"
+    type="ShortStory"
+    title={entry.data.title}
+    description={storyDescription}
+    canonicalURL={canonicalURL}
+    universe={entry.data.universe}
+    wordCount={entry.data.wordcount}
+  />
+  <div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
+    <!-- Breadcrumb -->
+    <nav
+      class="mb-6 flex items-center gap-1.5 font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/40"
+      aria-label="Breadcrumb"
+    >
+      <a href="/writing/" class="hover:text-cyan-300 transition-colors"
+        >Writing</a
+      >
+      <span aria-hidden="true">›</span>
+      <a
+        href={`/writing/${entry.data.universe}/`}
+        class="hover:text-cyan-300 transition-colors">{entry.data.universe}</a
+      >
+      <span aria-hidden="true">›</span>
+      <a href="/writing/stories/" class="hover:text-cyan-300 transition-colors"
+        >Stories</a
+      >
+      <span aria-hidden="true">›</span>
+      <span class="text-cyan-300/70 truncate">{entry.data.title}</span>
+    </nav>
 
-		<!-- Breadcrumb -->
-		<nav class="mb-6 flex items-center gap-1.5 font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/40" aria-label="Breadcrumb">
-			<a href="/writing/" class="hover:text-cyan-300 transition-colors">Writing</a>
-			<span aria-hidden="true">›</span>
-			<a href={`/writing/${entry.data.universe}/`} class="hover:text-cyan-300 transition-colors">{entry.data.universe}</a>
-			<span aria-hidden="true">›</span>
-			<a href="/writing/stories/" class="hover:text-cyan-300 transition-colors">Stories</a>
-			<span aria-hidden="true">›</span>
-			<span class="text-cyan-300/70 truncate">{entry.data.title}</span>
-		</nav>
+    <!-- Header — stays full blueprint -->
+    <header class="mb-8 rounded-md blueprint-border bg-black/35 p-6 md:p-8">
+      <div
+        class="flex flex-wrap items-center gap-2 mb-3 font-tech text-[10px] text-cyan-300/40"
+      >
+        <span class="uppercase tracking-[0.18em]">{entry.data.universe}</span>
+        <span aria-hidden="true">·</span>
+        <span class="flex items-center gap-1">
+          <span set:html={clockSvg} />
+          {readingTime}
+        </span>
+        {
+          entry.data.wordcount && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{entry.data.wordcount.toLocaleString()} words</span>
+            </>
+          )
+        }
+      </div>
 
-		<!-- Header — stays full blueprint -->
-		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-6 md:p-8">
-			<div class="flex flex-wrap items-center gap-2 mb-3 font-tech text-[10px] text-cyan-300/40">
-				<span class="uppercase tracking-[0.18em]">{entry.data.universe}</span>
-				<span aria-hidden="true">·</span>
-				<span class="flex items-center gap-1">
-					<span set:html={clockSvg} />
-					{readingTime}
-				</span>
-				{entry.data.wordcount && (
-					<>
-						<span aria-hidden="true">·</span>
-						<span>{entry.data.wordcount.toLocaleString()} words</span>
-					</>
-				)}
-			</div>
+      <h1
+        class="font-orbitron text-2xl uppercase tracking-[0.1em] text-cyan-100 md:text-3xl"
+      >
+        {entry.data.title}
+      </h1>
+      <p class="mt-4 text-base leading-relaxed text-slate-300/85">
+        {entry.data.synopsis}
+      </p>
 
-			<h1 class="font-orbitron text-2xl uppercase tracking-[0.1em] text-cyan-100 md:text-3xl">
-				{entry.data.title}
-			</h1>
-			<p class="mt-4 text-base leading-relaxed text-slate-300/85">{entry.data.synopsis}</p>
+      {
+        entry.data.tags.length > 0 && (
+          <div class="mt-4 flex flex-wrap gap-1.5">
+            {entry.data.tags.map((tag: string) => (
+              <span class="rounded font-tech text-[10px] uppercase tracking-[0.1em] px-2 py-0.5 bg-black/40 border border-cyan-300/10 text-cyan-300/45">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )
+      }
+    </header>
 
-			{entry.data.tags.length > 0 && (
-				<div class="mt-4 flex flex-wrap gap-1.5">
-					{entry.data.tags.map((tag: string) => (
-						<span class="rounded font-tech text-[10px] uppercase tracking-[0.1em] px-2 py-0.5 bg-black/40 border border-cyan-300/10 text-cyan-300/45">
-							{tag}
-						</span>
-					))}
-				</div>
-			)}
-		</header>
+    <!-- Story body — reading mode, always on -->
+    {
+      entry.body && (
+        <div class="story-body rounded-md mb-8">
+          <div class="prose-story">
+            <Content />
+          </div>
+        </div>
+      )
+    }
 
-		<!-- Story body — reading mode, always on -->
-		{entry.body && (
-			<div class="story-body rounded-md mb-8">
-				<div class="prose-story">
-					<Content />
-				</div>
-			</div>
-		)}
+    <!-- Related Characters -->
+    {
+      relatedCharacters.length > 0 && (
+        <aside class="mb-6 blueprint-border rounded-md bg-black/35 p-6">
+          <p class="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/50 mb-4">
+            // Characters
+          </p>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {relatedCharacters.map((char) => (
+              <CharacterCard character={char} />
+            ))}
+          </div>
+        </aside>
+      )
+    }
 
-		<!-- Related Characters -->
-		{relatedCharacters.length > 0 && (
-			<aside class="mb-6 blueprint-border rounded-md bg-black/35 p-6">
-				<p class="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/50 mb-4">// Characters</p>
-				<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-					{relatedCharacters.map((char) => (
-						<CharacterCard character={char} />
-					))}
-				</div>
-			</aside>
-		)}
+    <!-- Related Stories -->
+    {
+      relatedStories.length > 0 && (
+        <aside class="mt-8 blueprint-border rounded-md bg-black/35 p-6">
+          <p class="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/50 mb-4">
+            // Related Stories
+          </p>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {relatedStories.map((story) => (
+              <StoryCard story={story} />
+            ))}
+          </div>
+        </aside>
+      )
+    }
+  </div>
 
-		<!-- Related Stories -->
-		{relatedStories.length > 0 && (
-			<aside class="mt-8 blueprint-border rounded-md bg-black/35 p-6">
-				<p class="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/50 mb-4">// Related Stories</p>
-				<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-					{relatedStories.map((story) => (
-						<StoryCard story={story} />
-					))}
-				</div>
-			</aside>
-		)}
+  <style>
+    /* Reading surface */
+    .story-body {
+      background: #1a1916;
+      border: 1px solid rgba(200, 169, 126, 0.2);
+      box-shadow: 0 0 32px rgba(200, 169, 126, 0.04);
+      padding: 2.5rem 3rem;
+    }
+    @media (max-width: 640px) {
+      .story-body {
+        padding: 1.5rem 1.25rem;
+      }
+    }
 
-	</div>
+    /* Prose base */
+    .prose-story :global(p) {
+      font-family: "Lora", "Georgia", serif;
+      font-size: 1.0625rem;
+      line-height: 1.95;
+      color: #d4cfc7;
+      max-width: 66ch;
+      margin-bottom: 0;
+      text-indent: 1.75em;
+    }
 
-	<style>
-		/* Reading surface */
-		.story-body {
-			background: #1a1916;
-			border: 1px solid rgba(200, 169, 126, 0.2);
-			box-shadow: 0 0 32px rgba(200, 169, 126, 0.04);
-			padding: 2.5rem 3rem;
-		}
-		@media (max-width: 640px) {
-			.story-body { padding: 1.5rem 1.25rem; }
-		}
+    /* No indent: first top-level paragraph, and any top-level paragraph immediately after a heading */
+    .prose-story > :global(p:first-of-type),
+    .prose-story > :global(h2 + p),
+    .prose-story > :global(h3 + p) {
+      text-indent: 0;
+    }
 
-		/* Prose base */
-		.prose-story :global(p) {
-			font-family: 'Lora', 'Georgia', serif;
-			font-size: 1.0625rem;
-			line-height: 1.95;
-			color: #d4cfc7;
-			max-width: 66ch;
-			margin-bottom: 0;
-			text-indent: 1.75em;
-		}
+    /* Drop cap on first top-level paragraph */
+    .prose-story > :global(p:first-of-type::first-letter) {
+      font-family: "Lora", "Georgia", serif;
+      font-size: 3.5rem;
+      font-weight: 500;
+      line-height: 0.8;
+      float: left;
+      margin-right: 0.08em;
+      margin-top: 0.06em;
+      color: #c8a97e;
+    }
 
-		/* No indent: first top-level paragraph, and any top-level paragraph immediately after a heading */
-		.prose-story > :global(p:first-of-type),
-		.prose-story > :global(h2 + p),
-		.prose-story > :global(h3 + p) {
-			text-indent: 0;
-		}
+    /* Section breaks */
+    .prose-story :global(h2) {
+      font-family: "Lora", "Georgia", serif;
+      font-size: 1rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      color: #7a7670;
+      margin: 3rem 0 1.25rem;
+      text-align: center;
+    }
+    .prose-story :global(h2::before) {
+      content: "— ";
+      color: #c8a97e;
+      opacity: 0.5;
+    }
+    .prose-story :global(h2::after) {
+      content: " —";
+      color: #c8a97e;
+      opacity: 0.5;
+    }
 
-		/* Drop cap on first top-level paragraph */
-		.prose-story > :global(p:first-of-type::first-letter) {
-			font-family: 'Lora', 'Georgia', serif;
-			font-size: 3.5rem;
-			font-weight: 500;
-			line-height: 0.8;
-			float: left;
-			margin-right: 0.08em;
-			margin-top: 0.06em;
-			color: #c8a97e;
-		}
+    /* Inline styles */
+    .prose-story :global(strong) {
+      color: #e8e0d5;
+      font-weight: 600;
+    }
+    .prose-story :global(em) {
+      color: #b8a898;
+      font-style: italic;
+    }
 
-		/* Section breaks */
-		.prose-story :global(h2) {
-			font-family: 'Lora', 'Georgia', serif;
-			font-size: 0.7rem;
-			font-weight: 500;
-			text-transform: uppercase;
-			letter-spacing: 0.22em;
-			color: #7a7670;
-			margin: 3rem 0 1.25rem;
-			text-align: center;
-		}
-		.prose-story :global(h2::before) {
-			content: '— ';
-			color: #c8a97e;
-			opacity: 0.5;
-		}
-		.prose-story :global(h2::after) {
-			content: ' —';
-			color: #c8a97e;
-			opacity: 0.5;
-		}
-
-		/* Inline styles */
-		.prose-story :global(strong) {
-			color: #e8e0d5;
-			font-weight: 600;
-		}
-		.prose-story :global(em) {
-			color: #b8a898;
-			font-style: italic;
-		}
-
-		/* Block quote — for epigraphs or pulled lines */
-		.prose-story :global(blockquote) {
-			margin: 2rem 0 2rem 2rem;
-			padding-left: 1.25rem;
-			border-left: 2px solid rgba(200, 169, 126, 0.35);
-			font-style: italic;
-			color: #9a9390;
-		}
-		.prose-story :global(blockquote p) {
-			text-indent: 0;
-			font-size: 1rem;
-		}
-	</style>
+    /* Block quote — for epigraphs or pulled lines */
+    .prose-story :global(blockquote) {
+      margin: 2rem 0 2rem 2rem;
+      padding-left: 1.25rem;
+      border-left: 2px solid rgba(200, 169, 126, 0.35);
+      font-style: italic;
+      color: #9a9390;
+    }
+    .prose-story :global(blockquote p) {
+      text-indent: 0;
+      font-size: 1rem;
+    }
+  </style>
 </Layout>
