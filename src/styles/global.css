@@ -167,6 +167,8 @@ body {
 [data-theme="light"] .text-slate-300\/80 { color: rgba(15, 23, 42, 0.85); }
 [data-theme="light"] .text-slate-300\/85 { color: rgba(15, 23, 42, 0.88); }
 [data-theme="light"] .text-slate-300\/90 { color: rgba(15, 23, 42, 0.92); }
+[data-theme="light"] .text-slate-200\/85 { color: rgba(15, 23, 42, 0.88); }
+[data-theme="light"] .text-slate-200\/90 { color: rgba(15, 23, 42, 0.92); }
 
 /* Cyan text — mapped to blue shades for the ice-blue light palette */
 [data-theme="light"] .text-cyan-100     { color: #1e3a8a; }
@@ -207,3 +209,44 @@ body {
 
 /* Hex-escape overrides removed — components now use text-accent / text-primary
    which cascade through the CSS variable system automatically. */
+
+/* ── Dark-mode restoration for always-dark widgets ────────────────────────
+   When data-theme="dark" is set on a child element (e.g. AgentChat,
+   ActiveProjectStatus) we must explicitly re-declare the dark variable values
+   because CSS variables inherit — without this block the light-theme overrides
+   on <html> would cascade straight through into the widget.              */
+[data-theme="dark"] {
+  --bg-charcoal: #0a0a0a;
+  --bg-charcoal-soft: #111315;
+  --blueprint-cyan: #00ffff;
+  --blueprint-border: rgba(0, 255, 255, 0.35);
+  --blueprint-glow: 0 0 24px rgba(0, 255, 255, 0.15);
+  --neon-green: #39ff14;
+  --neon-green-glow: 0 0 16px rgba(57, 255, 20, 0.25);
+}
+/* Restore slate/cyan text utilities inside always-dark widgets */
+[data-theme="dark"] .text-slate-100    { color: rgb(241 245 249); }
+[data-theme="dark"] .text-slate-200    { color: rgb(226 232 240); }
+[data-theme="dark"] .text-slate-200\/90 { color: rgb(226 232 240 / 0.9); }
+[data-theme="dark"] .text-slate-300    { color: rgb(203 213 225); }
+[data-theme="dark"] .text-slate-300\/80 { color: rgb(203 213 225 / 0.8); }
+[data-theme="dark"] .text-cyan-100     { color: #cffafe; }
+[data-theme="dark"] .text-cyan-300     { color: #67e8f9; }
+[data-theme="dark"] .text-cyan-300\/80 { color: rgba(103, 232, 249, 0.8); }
+[data-theme="dark"] .text-cyan-300\/60 { color: rgba(103, 232, 249, 0.6); }
+[data-theme="dark"] .text-cyan-300\/35 { color: rgba(103, 232, 249, 0.35); }
+[data-theme="dark"] .text-cyan-300\/25 { color: rgba(103, 232, 249, 0.25); }
+[data-theme="dark"] .bg-black\/35  { background-color: rgb(0 0 0 / 0.35); }
+[data-theme="dark"] .bg-black\/40  { background-color: rgb(0 0 0 / 0.4); }
+[data-theme="dark"] .bg-black\/45  { background-color: rgb(0 0 0 / 0.45); }
+
+/* ── Filter button light-mode overrides ───────────────────────────────────
+   .filter-btn is defined in scoped <style> blocks using raw rgba() values.
+   These global (unscoped) rules override those for the light theme.       */
+[data-theme="light"] .filter-btn          { color: rgb(30 58 138 / 0.75); }
+[data-theme="light"] .filter-btn:hover    { color: rgb(15 23 42 / 1); }
+[data-theme="light"] .filter-btn.is-active {
+  color: rgb(15 23 42 / 1);
+  border-color: rgb(30 58 138 / 0.5);
+  background-color: rgb(30 58 138 / 0.08);
+}
