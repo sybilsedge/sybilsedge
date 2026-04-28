@@ -215,7 +215,7 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
     /* Section breaks */
     .prose-story :global(h2) {
       font-family: "Lora", "Georgia", serif;
-      font-size: 1rem;
+      font-size: 1.5rem;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.22em;
@@ -233,7 +233,26 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
       color: #c8a97e;
       opacity: 0.5;
     }
-
+    .prose-story :global(h3) {
+      font-family: "Lora", "Georgia", serif;
+      font-size: 1rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      color: #7a7670;
+      margin: 3rem 0 1.25rem;
+      text-align: center;
+    }
+    .prose-story :global(h3::before) {
+      content: "— ";
+      color: #c8a97e;
+      opacity: 0.5;
+    }
+    .prose-story :global(h3::after) {
+      content: " —";
+      color: #c8a97e;
+      opacity: 0.5;
+    }
     /* Inline styles */
     .prose-story :global(strong) {
       color: #e8e0d5;
