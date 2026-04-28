@@ -16,7 +16,7 @@
   # After any CSP change, re-run Lighthouse Best Practices on the preview
   # URL to confirm the score remains at 100 before merging to main.
   # ---------------------------------------------------------------------------
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://giscus.app; style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com; font-src 'self' https://api.fontshare.com https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://giscus.app; frame-src https://giscus.app; frame-ancestors 'none'; object-src 'none'; base-uri 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://giscus.app https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com; font-src 'self' https://api.fontshare.com https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://giscus.app https://cloudflareinsights.com; frame-src https://giscus.app; frame-ancestors 'none'; object-src 'none'; base-uri 'self'
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   Cross-Origin-Opener-Policy: same-origin
   X-Frame-Options: DENY
