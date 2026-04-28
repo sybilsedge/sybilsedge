@@ -1,6 +1,6 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { skills, experience, previousRoles, certs } from '../data/resume';
+import Layout from "../layouts/Layout.astro";
+import { skills, experience, previousRoles, certs } from "../data/resume";
 
 const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
 const awardSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>`;
@@ -11,130 +11,199 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 ---
 
 <Layout
-	title="Resume | Sybilsedge"
-	description="Senior Architect with 17+ years of experience in cloud, networking, security, and observability. GCP Certified. MS in Computer Science."
+  title="Resume | Sybilsedge"
+  description="Senior Architect with 19+ years of experience in cloud, networking, security, and observability. GCP Certified. MS in Computer Science."
 >
-	<div class="mx-auto w-full max-w-[1500px] px-4 py-6 md:px-8 md:py-10 print:px-0 print:py-0">
+  <div
+    class="mx-auto w-full max-w-[1500px] px-4 py-6 md:px-8 md:py-10 print:px-0 print:py-0"
+  >
+    <!-- Page header -->
+    <header
+      class="mb-8 rounded-md blueprint-border bg-black/35 p-5 md:p-8 print:border-0 print:bg-transparent print:mb-4"
+    >
+      <p
+        class="font-tech text-[11px] uppercase tracking-[0.22em] text-cyan-300/75 print:text-gray-500"
+      >
+        Curriculum Vitae
+      </p>
+      <h1
+        class="font-orbitron mt-2 text-2xl uppercase tracking-[0.12em] text-cyan-100 md:text-4xl print:text-black"
+      >
+        Resume
+      </h1>
+      <p
+        class="mt-3 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/60 print:text-gray-500"
+      >
+        Senior Architect &nbsp;&bull;&nbsp; 19+ Years Experience
+        &nbsp;&bull;&nbsp; Suffolk, VA
+      </p>
+      <button
+        onclick="window.print()"
+        class="mt-5 flex items-center gap-2 rounded blueprint-border px-4 py-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/80 hover:text-cyan-100 transition-colors print:hidden"
+      >
+        <span set:html={zapSvg} aria-hidden="true" class="text-accent" />
+        Print / Save PDF
+      </button>
+    </header>
 
-		<!-- Page header -->
-		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-5 md:p-8 print:border-0 print:bg-transparent print:mb-4">
-			<p class="font-tech text-[11px] uppercase tracking-[0.22em] text-cyan-300/75 print:text-gray-500">Curriculum Vitae</p>
-			<h1 class="font-orbitron mt-2 text-2xl uppercase tracking-[0.12em] text-cyan-100 md:text-4xl print:text-black">
-				Resume
-			</h1>
-			<p class="mt-3 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/60 print:text-gray-500">
-				Senior Architect &nbsp;&bull;&nbsp; 17+ Years Experience &nbsp;&bull;&nbsp; Suffolk, VA
-			</p>
-			<button
-				onclick="window.print()"
-				class="mt-5 flex items-center gap-2 rounded blueprint-border px-4 py-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/80 hover:text-cyan-100 transition-colors print:hidden"
-			>
-				<span set:html={zapSvg} aria-hidden="true" class="text-accent" />
-				Print / Save PDF
-			</button>
-		</header>
+    <div
+      class="grid grid-cols-1 gap-6 lg:grid-cols-[300px_1fr] print:grid-cols-[240px_1fr]"
+    >
+      <!-- LEFT COLUMN: Certs + Skills -->
+      <aside class="space-y-6">
+        <!-- Certifications & Education -->
+        <section
+          aria-labelledby="certs-heading"
+          class="blueprint-border rounded-md bg-black/35 p-5 print:border print:border-gray-300 print:bg-white"
+        >
+          <h2
+            id="certs-heading"
+            class="font-orbitron mb-4 text-xs uppercase tracking-[0.2em] text-cyan-300/70 flex items-center gap-2 print:text-gray-700"
+          >
+            <span set:html={awardSvg} class="text-accent" />
+            Certifications & Education
+          </h2>
+          <ul class="space-y-3" role="list">
+            {
+              certs.map(({ name, issuer, year, highlight }) => (
+                <li
+                  class={`rounded p-3 ${highlight ? "neon-border bg-accent/5" : "blueprint-border bg-black/20 print:border-gray-200"}`}
+                >
+                  <p
+                    class={`font-tech text-[11px] uppercase tracking-[0.14em] ${highlight ? "text-accent" : "text-cyan-300/70 print:text-gray-500"}`}
+                  >
+                    {issuer} &middot; {year}
+                  </p>
+                  <p class="mt-1 text-sm text-slate-200/90 print:text-gray-500">
+                    {name}
+                  </p>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
 
-		<div class="grid grid-cols-1 gap-6 lg:grid-cols-[300px_1fr] print:grid-cols-[240px_1fr]">
+        <!-- Skills -->
+        <section
+          aria-labelledby="skills-heading"
+          class="blueprint-border rounded-md bg-black/35 p-5 print:border print:border-gray-300 print:bg-white"
+        >
+          <h2
+            id="skills-heading"
+            class="font-orbitron mb-4 text-xs uppercase tracking-[0.2em] text-cyan-300/70 flex items-center gap-2 print:text-gray-700"
+          >
+            <span set:html={cpuSvg} class="text-primary" />
+            Skills
+          </h2>
+          <div class="space-y-4">
+            {
+              Object.entries(skills).map(([category, items]) => (
+                <div>
+                  <p class="font-tech text-[10px] uppercase tracking-[0.2em] text-primary/60 mb-2 print:text-gray-500">
+                    {category}
+                  </p>
+                  <ul class="space-y-1" role="list">
+                    {items.map((item) => (
+                      <li class="font-tech text-[11px] text-slate-300/80 before:content-['▸_'] before:text-cyan-300/40 print:text-gray-700">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            }
+          </div>
+        </section>
+      </aside>
 
-			<!-- LEFT COLUMN: Certs + Skills -->
-			<aside class="space-y-6">
+      <!-- RIGHT COLUMN: Experience -->
+      <div class="space-y-6">
+        <section aria-labelledby="exp-heading">
+          <h2
+            id="exp-heading"
+            class="font-orbitron mb-5 text-xs uppercase tracking-[0.2em] text-cyan-300/70 flex items-center gap-2 print:text-gray-700"
+          >
+            <span set:html={briefcaseSvg} class="text-primary" />
+            Experience
+          </h2>
+          <div class="space-y-5">
+            {
+              experience.map(({ title, org, period, bullets }) => (
+                <article class="blueprint-border rounded-md bg-black/35 p-5 print:border print:border-gray-300 print:bg-white print:break-inside-avoid">
+                  <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+                    <h3 class="font-orbitron text-sm uppercase tracking-[0.1em] text-cyan-100 print:text-black">
+                      {title}
+                    </h3>
+                    <span class="font-tech text-[11px] uppercase tracking-[0.14em] text-cyan-300/50 print:text-gray-400">
+                      {period}
+                    </span>
+                  </div>
+                  <p class="font-tech text-[10px] uppercase tracking-[0.18em] text-accent/70 mb-3 print:text-gray-500">
+                    {org}
+                  </p>
+                  <ul class="space-y-2" role="list">
+                    {bullets.map((b) => (
+                      <li class="flex gap-2 text-sm leading-relaxed text-slate-300/80 print:text-gray-700">
+                        <span
+                          class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary/40 print:bg-gray-400"
+                          aria-hidden="true"
+                        />
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              ))
+            }
+          </div>
+        </section>
 
-				<!-- Certifications & Education -->
-				<section aria-labelledby="certs-heading" class="blueprint-border rounded-md bg-black/35 p-5 print:border print:border-gray-300 print:bg-white">
-					<h2 id="certs-heading" class="font-orbitron mb-4 text-xs uppercase tracking-[0.2em] text-cyan-300/70 flex items-center gap-2 print:text-gray-700">
-						<span set:html={awardSvg} class="text-accent" />
-						Certifications & Education
-					</h2>
-					<ul class="space-y-3" role="list">
-						{certs.map(({ name, issuer, year, highlight }) => (
-							<li class={`rounded p-3 ${ highlight ? 'neon-border bg-accent/5' : 'blueprint-border bg-black/20 print:border-gray-200' }`}>
-								<p class={`font-tech text-[11px] uppercase tracking-[0.14em] ${ highlight ? 'text-accent' : 'text-cyan-300/70 print:text-gray-500' }`}>
-									{issuer} &middot; {year}
-								</p>
-								<p class="mt-1 text-sm text-slate-200/90 print:text-gray-800">{name}</p>
-							</li>
-						))}
-					</ul>
-				</section>
+        <!-- Previous Roles -->
+        <section aria-labelledby="prev-heading">
+          <h2
+            id="prev-heading"
+            class="font-orbitron mb-4 text-xs uppercase tracking-[0.2em] text-cyan-300/70 flex items-center gap-2 print:text-gray-700"
+          >
+            <span set:html={clockSvg} class="text-primary/50" />
+            Previous Experience
+          </h2>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {
+              previousRoles.map(({ title, org, period, location }) => (
+                <div class="blueprint-border rounded-md bg-black/20 p-4 print:border print:border-gray-200 print:bg-white">
+                  <p class="font-tech text-[10px] uppercase tracking-[0.18em] text-accent/60 print:text-gray-400">
+                    {org} &middot; {period}
+                  </p>
+                  <p class="mt-1 text-sm text-slate-300/80 print:text-gray-700">
+                    {title}
+                  </p>
+                  <p class="font-tech text-[10px] uppercase tracking-[0.14em] text-cyan-300/40 mt-1 print:text-gray-400">
+                    {location}
+                  </p>
+                </div>
+              ))
+            }
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
 
-				<!-- Skills -->
-				<section aria-labelledby="skills-heading" class="blueprint-border rounded-md bg-black/35 p-5 print:border print:border-gray-300 print:bg-white">
-					<h2 id="skills-heading" class="font-orbitron mb-4 text-xs uppercase tracking-[0.2em] text-cyan-300/70 flex items-center gap-2 print:text-gray-700">
-						<span set:html={cpuSvg} class="text-primary" />
-						Skills
-					</h2>
-					<div class="space-y-4">
-						{Object.entries(skills).map(([category, items]) => (
-							<div>
-								<p class="font-tech text-[10px] uppercase tracking-[0.2em] text-primary/60 mb-2 print:text-gray-500">{category}</p>
-								<ul class="space-y-1" role="list">
-									{items.map((item) => (
-										<li class="font-tech text-[11px] text-slate-300/80 before:content-['▸_'] before:text-cyan-300/40 print:text-gray-700">{item}</li>
-									))}
-								</ul>
-							</div>
-						))}
-					</div>
-				</section>
-
-			</aside>
-
-			<!-- RIGHT COLUMN: Experience -->
-			<div class="space-y-6">
-
-				<section aria-labelledby="exp-heading">
-					<h2 id="exp-heading" class="font-orbitron mb-5 text-xs uppercase tracking-[0.2em] text-cyan-300/70 flex items-center gap-2 print:text-gray-700">
-						<span set:html={briefcaseSvg} class="text-primary" />
-						Experience
-					</h2>
-					<div class="space-y-5">
-						{experience.map(({ title, org, period, bullets }) => (
-							<article class="blueprint-border rounded-md bg-black/35 p-5 print:border print:border-gray-300 print:bg-white print:break-inside-avoid">
-								<div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-									<h3 class="font-orbitron text-sm uppercase tracking-[0.1em] text-cyan-100 print:text-black">{title}</h3>
-									<span class="font-tech text-[11px] uppercase tracking-[0.14em] text-cyan-300/50 print:text-gray-400">{period}</span>
-							</div>
-								<p class="font-tech text-[10px] uppercase tracking-[0.18em] text-accent/70 mb-3 print:text-gray-500">{org}</p>
-								<ul class="space-y-2" role="list">
-									{bullets.map((b) => (
-										<li class="flex gap-2 text-sm leading-relaxed text-slate-300/80 print:text-gray-700">
-											<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary/40 print:bg-gray-400" aria-hidden="true" />
-											{b}
-										</li>
-									))}
-								</ul>
-							</article>
-						))}
-					</div>
-				</section>
-
-				<!-- Previous Roles -->
-				<section aria-labelledby="prev-heading">
-					<h2 id="prev-heading" class="font-orbitron mb-4 text-xs uppercase tracking-[0.2em] text-cyan-300/70 flex items-center gap-2 print:text-gray-700">
-						<span set:html={clockSvg} class="text-primary/50" />
-						Previous Experience
-					</h2>
-					<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-						{previousRoles.map(({ title, org, period, location }) => (
-							<div class="blueprint-border rounded-md bg-black/20 p-4 print:border print:border-gray-200 print:bg-white">
-								<p class="font-tech text-[10px] uppercase tracking-[0.18em] text-accent/60 print:text-gray-400">{org} &middot; {period}</p>
-								<p class="mt-1 text-sm text-slate-300/80 print:text-gray-700">{title}</p>
-								<p class="font-tech text-[10px] uppercase tracking-[0.14em] text-cyan-300/40 mt-1 print:text-gray-400">{location}</p>
-							</div>
-						))}
-					</div>
-				</section>
-
-			</div>
-		</div>
-	</div>
-
-	<style>
-		@media print {
-			body { background: white !important; color: black !important; }
-			.bg-grid { background-image: none !important; }
-			nav { display: none !important; }
-			a[href]::after { content: none !important; }
-		}
-	</style>
+  <style>
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .bg-grid {
+        background-image: none !important;
+      }
+      nav {
+        display: none !important;
+      }
+      a[href]::after {
+        content: none !important;
+      }
+    }
+  </style>
 </Layout>

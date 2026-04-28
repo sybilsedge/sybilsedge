@@ -270,7 +270,7 @@ const PAGES = [
   {
     filename: 'resume',
     title: 'Resume',
-    description: 'Senior cloud architect with 17+ years building complex IT solutions across cloud, networking, security, and observability.',
+    description: 'Senior cloud architect with 19+ years building complex IT solutions across cloud, networking, security, and observability.',
     label: 'Career Record',
     section: 'Resume',
   },
