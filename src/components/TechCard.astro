@@ -8,6 +8,9 @@
  *   body       — body text (Inter)
  *   iconSvg?   — inline SVG string for the tag icon (TRUSTED INTERNAL SOURCES ONLY;
  *                never pass user-supplied strings — rendered via set:html)
+ *   iconClass? — Tailwind text-color class applied to the icon wrapper span
+ *                (default: 'text-cyan-300'). Use 'text-accent' or 'text-primary'
+ *                to align with the semantic token cascade.
  *   href?      — optional card link; rendered as an overlay <a> to avoid nested
  *                interactive elements when the slot contains links/buttons
  *   footer?    — optional bottom-right text (e.g. date, progress %)

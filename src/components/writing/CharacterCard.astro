@@ -20,7 +20,7 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 	class="group blueprint-border rounded-md bg-black/35 p-4 flex flex-col gap-2 transition-shadow duration-200 hover:shadow-[0_0_20px_rgba(0,255,255,0.07)] hover:bg-black/50"
 >
 	<div class="flex items-center gap-2">
-		<span set:html={personSvg} class="shrink-0 text-[#39ff14]/70 group-hover:text-[#39ff14] transition-colors" />
+		<span set:html={personSvg} class="shrink-0 text-accent/70 group-hover:text-accent transition-colors" />
 		<span class="font-orbitron text-sm uppercase tracking-[0.1em] text-cyan-100 leading-tight group-hover:text-cyan-300 transition-colors truncate">
 			{character.data.name}
 		</span>
@@ -30,7 +30,7 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 		<span class="font-tech text-[10px] uppercase tracking-[0.14em] text-cyan-300/50 truncate">
 			{character.data.role}
 		</span>
-		<span set:html={arrowSvg} class="shrink-0 text-cyan-300/30 group-hover:text-[#39ff14]/60 transition-colors" />
+		<span set:html={arrowSvg} class="shrink-0 text-cyan-300/30 group-hover:text-accent/60 transition-colors" />
 	</div>
 
 	{character.data.affiliation && character.data.affiliation.length > 0 && (
