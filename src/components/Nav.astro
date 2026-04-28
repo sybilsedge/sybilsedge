@@ -59,7 +59,7 @@ const isWritingActive = currentPath.startsWith('/writing');
 	<div class="mx-auto flex w-full max-w-[1500px] items-center justify-between px-4 py-3 md:px-8">
 		<!-- Wordmark -->
 		<a href="/" class="flex items-center gap-2 no-underline" aria-label="Sybilsedge home">
-			<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+			<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="text-accent">
 				<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
 			</svg>
 			<span class="font-orbitron text-sm font-bold uppercase tracking-[0.2em] text-cyan-100">
@@ -78,7 +78,7 @@ const isWritingActive = currentPath.startsWith('/writing');
 								href={href}
 								class={`flex items-center gap-1.5 rounded px-3 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors duration-150 ${
 									isActive
-										? 'text-[#39ff14] neon-border bg-[#39ff14]/5'
+										? 'text-accent neon-border bg-accent/5'
 										: 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
 								}`}
 								aria-current={isActive ? 'page' : undefined}
@@ -97,7 +97,7 @@ const isWritingActive = currentPath.startsWith('/writing');
 					href="/writing/"
 					class={`flex items-center gap-1.5 rounded px-3 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors duration-150 ${
 						isWritingActive
-							? 'text-[#39ff14] neon-border bg-[#39ff14]/5'
+							? 'text-accent neon-border bg-accent/5'
 							: 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
 					}`}
 					aria-current={isWritingActive ? 'page' : undefined}
@@ -124,7 +124,7 @@ const isWritingActive = currentPath.startsWith('/writing');
 									href={href}
 									class={`flex items-center rounded px-3 py-1.5 font-tech text-[11px] uppercase tracking-[0.14em] transition-colors ${
 										isSubActive
-											? 'text-[#39ff14] bg-[#39ff14]/5'
+											? 'text-accent bg-accent/5'
 											: 'text-cyan-300/60 hover:text-cyan-100 hover:bg-white/5'
 									}`}
 									aria-current={isSubActive ? 'page' : undefined}
@@ -146,7 +146,7 @@ const isWritingActive = currentPath.startsWith('/writing');
 								href={href}
 								class={`flex items-center gap-1.5 rounded px-3 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors duration-150 ${
 									isActive
-										? 'text-[#39ff14] neon-border bg-[#39ff14]/5'
+										? 'text-accent neon-border bg-accent/5'
 										: 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
 								}`}
 								aria-current={isActive ? 'page' : undefined}
@@ -187,7 +187,7 @@ const isWritingActive = currentPath.startsWith('/writing');
 							<a
 								href={href}
 								class={`flex items-center gap-2 rounded px-3 py-2 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors ${
-									isActive ? 'text-[#39ff14] bg-[#39ff14]/5' : 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
+									isActive ? 'text-accent bg-accent/5' : 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
 								}`}
 								aria-current={isActive ? 'page' : undefined}
 							>
@@ -203,7 +203,7 @@ const isWritingActive = currentPath.startsWith('/writing');
 					<a
 						href="/writing/"
 						class={`flex items-center gap-2 rounded px-3 py-2 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors ${
-							isWritingActive ? 'text-[#39ff14] bg-[#39ff14]/5' : 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
+							isWritingActive ? 'text-accent bg-accent/5' : 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
 						}`}
 						aria-current={isWritingActive ? 'page' : undefined}
 					>
@@ -219,7 +219,7 @@ const isWritingActive = currentPath.startsWith('/writing');
 							<a
 								href={href}
 								class={`flex items-center rounded pl-8 pr-3 py-1.5 font-tech text-[10px] uppercase tracking-[0.14em] transition-colors ${
-									isSubActive ? 'text-[#39ff14]/80 bg-[#39ff14]/5' : 'text-cyan-300/50 hover:text-cyan-100 hover:bg-white/5'
+									isSubActive ? 'text-accent/80 bg-accent/5' : 'text-cyan-300/50 hover:text-cyan-100 hover:bg-white/5'
 								}`}
 								aria-current={isSubActive ? 'page' : undefined}
 							>
@@ -237,7 +237,7 @@ const isWritingActive = currentPath.startsWith('/writing');
 							<a
 								href={href}
 								class={`flex items-center gap-2 rounded px-3 py-2 font-tech text-[11px] uppercase tracking-[0.16em] transition-colors ${
-									isActive ? 'text-[#39ff14] bg-[#39ff14]/5' : 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
+									isActive ? 'text-accent bg-accent/5' : 'text-cyan-300/70 hover:text-cyan-100 hover:bg-white/5'
 								}`}
 								aria-current={isActive ? 'page' : undefined}
 							>

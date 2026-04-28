@@ -31,7 +31,7 @@ const {
 <div class="relative pl-8" id={`event-${slug}`}>
 	<!-- Node dot on the rail -->
 	<div
-		class="absolute left-0 top-1.5 h-3 w-3 rounded-full bg-[#39ff14]/60 border border-[#39ff14]/30 shadow-[0_0_8px_rgba(57,255,20,0.3)]"
+		class="absolute left-0 top-1.5 h-3 w-3 rounded-full bg-accent/60 border border-accent/30 shadow-[0_0_8px_color-mix(in_srgb,var(--color-accent)_30%,transparent)]"
 		aria-hidden="true"
 	></div>
 
@@ -46,7 +46,7 @@ const {
 		</div>
 
 		{era && (
-			<span class="font-tech text-[10px] uppercase tracking-[0.16em] text-[#39ff14]/55">{era}</span>
+			<span class="font-tech text-[10px] uppercase tracking-[0.16em] text-accent/55">{era}</span>
 		)}
 
 		<p class="text-sm leading-relaxed text-slate-300/75">{summary}</p>

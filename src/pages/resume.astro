@@ -2,12 +2,12 @@
 import Layout from '../layouts/Layout.astro';
 import { skills, experience, previousRoles, certs } from '../data/resume';
 
-const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
-const awardSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>`;
-const cpuSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>`;
-const capSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>`;
-const briefcaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`;
-const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00ffff" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+const awardSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>`;
+const cpuSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>`;
+const capSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>`;
+const briefcaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`;
+const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
 ---
 
 <Layout
@@ -29,7 +29,7 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 				onclick="window.print()"
 				class="mt-5 flex items-center gap-2 rounded blueprint-border px-4 py-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/80 hover:text-cyan-100 transition-colors print:hidden"
 			>
-				<span set:html={zapSvg} aria-hidden="true" />
+				<span set:html={zapSvg} aria-hidden="true" class="text-accent" />
 				Print / Save PDF
 			</button>
 		</header>
@@ -42,13 +42,13 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 				<!-- Certifications & Education -->
 				<section aria-labelledby="certs-heading" class="blueprint-border rounded-md bg-black/35 p-5 print:border print:border-gray-300 print:bg-white">
 					<h2 id="certs-heading" class="font-orbitron mb-4 text-xs uppercase tracking-[0.2em] text-cyan-300/70 flex items-center gap-2 print:text-gray-700">
-						<span set:html={awardSvg} />
+						<span set:html={awardSvg} class="text-accent" />
 						Certifications & Education
 					</h2>
 					<ul class="space-y-3" role="list">
 						{certs.map(({ name, issuer, year, highlight }) => (
-							<li class={`rounded p-3 ${ highlight ? 'neon-border bg-[#39ff14]/5' : 'blueprint-border bg-black/20 print:border-gray-200' }`}>
-								<p class={`font-tech text-[11px] uppercase tracking-[0.14em] ${ highlight ? 'text-[#39ff14]' : 'text-cyan-300/70 print:text-gray-500' }`}>
+							<li class={`rounded p-3 ${ highlight ? 'neon-border bg-accent/5' : 'blueprint-border bg-black/20 print:border-gray-200' }`}>
+								<p class={`font-tech text-[11px] uppercase tracking-[0.14em] ${ highlight ? 'text-accent' : 'text-cyan-300/70 print:text-gray-500' }`}>
 									{issuer} &middot; {year}
 								</p>
 								<p class="mt-1 text-sm text-slate-200/90 print:text-gray-800">{name}</p>
@@ -60,13 +60,13 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 				<!-- Skills -->
 				<section aria-labelledby="skills-heading" class="blueprint-border rounded-md bg-black/35 p-5 print:border print:border-gray-300 print:bg-white">
 					<h2 id="skills-heading" class="font-orbitron mb-4 text-xs uppercase tracking-[0.2em] text-cyan-300/70 flex items-center gap-2 print:text-gray-700">
-						<span set:html={cpuSvg} />
+						<span set:html={cpuSvg} class="text-primary" />
 						Skills
 					</h2>
 					<div class="space-y-4">
 						{Object.entries(skills).map(([category, items]) => (
 							<div>
-								<p class="font-tech text-[10px] uppercase tracking-[0.2em] text-[#00ffff]/60 mb-2 print:text-gray-500">{category}</p>
+								<p class="font-tech text-[10px] uppercase tracking-[0.2em] text-primary/60 mb-2 print:text-gray-500">{category}</p>
 								<ul class="space-y-1" role="list">
 									{items.map((item) => (
 										<li class="font-tech text-[11px] text-slate-300/80 before:content-['▸_'] before:text-cyan-300/40 print:text-gray-700">{item}</li>
@@ -84,7 +84,7 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 
 				<section aria-labelledby="exp-heading">
 					<h2 id="exp-heading" class="font-orbitron mb-5 text-xs uppercase tracking-[0.2em] text-cyan-300/70 flex items-center gap-2 print:text-gray-700">
-						<span set:html={briefcaseSvg} />
+						<span set:html={briefcaseSvg} class="text-primary" />
 						Experience
 					</h2>
 					<div class="space-y-5">
@@ -94,11 +94,11 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 									<h3 class="font-orbitron text-sm uppercase tracking-[0.1em] text-cyan-100 print:text-black">{title}</h3>
 									<span class="font-tech text-[11px] uppercase tracking-[0.14em] text-cyan-300/50 print:text-gray-400">{period}</span>
 							</div>
-								<p class="font-tech text-[10px] uppercase tracking-[0.18em] text-[#39ff14]/70 mb-3 print:text-gray-500">{org}</p>
+								<p class="font-tech text-[10px] uppercase tracking-[0.18em] text-accent/70 mb-3 print:text-gray-500">{org}</p>
 								<ul class="space-y-2" role="list">
 									{bullets.map((b) => (
 										<li class="flex gap-2 text-sm leading-relaxed text-slate-300/80 print:text-gray-700">
-											<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#00ffff]/40 print:bg-gray-400" aria-hidden="true" />
+											<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary/40 print:bg-gray-400" aria-hidden="true" />
 											{b}
 										</li>
 									))}
@@ -111,13 +111,13 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 				<!-- Previous Roles -->
 				<section aria-labelledby="prev-heading">
 					<h2 id="prev-heading" class="font-orbitron mb-4 text-xs uppercase tracking-[0.2em] text-cyan-300/70 flex items-center gap-2 print:text-gray-700">
-						<span set:html={clockSvg} />
+						<span set:html={clockSvg} class="text-primary/50" />
 						Previous Experience
 					</h2>
 					<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 						{previousRoles.map(({ title, org, period, location }) => (
 							<div class="blueprint-border rounded-md bg-black/20 p-4 print:border print:border-gray-200 print:bg-white">
-								<p class="font-tech text-[10px] uppercase tracking-[0.18em] text-[#39ff14]/60 print:text-gray-400">{org} &middot; {period}</p>
+								<p class="font-tech text-[10px] uppercase tracking-[0.18em] text-accent/60 print:text-gray-400">{org} &middot; {period}</p>
 								<p class="mt-1 text-sm text-slate-300/80 print:text-gray-700">{title}</p>
 								<p class="font-tech text-[10px] uppercase tracking-[0.14em] text-cyan-300/40 mt-1 print:text-gray-400">{location}</p>
 							</div>

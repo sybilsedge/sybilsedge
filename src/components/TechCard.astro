@@ -8,6 +8,9 @@
  *   body       — body text (Inter)
  *   iconSvg?   — inline SVG string for the tag icon (TRUSTED INTERNAL SOURCES ONLY;
  *                never pass user-supplied strings — rendered via set:html)
+ *   iconClass? — Tailwind text-color class applied to the icon wrapper span
+ *                (default: 'text-cyan-300'). Use 'text-accent' or 'text-primary'
+ *                to align with the semantic token cascade.
  *   href?      — optional card link; rendered as an overlay <a> to avoid nested
  *                interactive elements when the slot contains links/buttons
  *   footer?    — optional bottom-right text (e.g. date, progress %)
@@ -19,6 +22,7 @@ interface Props {
 	title: string;
 	body: string;
 	iconSvg?: string;
+	iconClass?: string;
 	href?: string;
 	footer?: string;
 	featured?: boolean;
@@ -30,6 +34,7 @@ const {
 	title,
 	body,
 	iconSvg,
+	iconClass = 'text-cyan-300',
 	href,
 	footer,
 	featured = false,
@@ -55,7 +60,7 @@ const clampedProgress =
 		<div class="flex items-center justify-between">
 			<div class="flex items-center gap-2">
 				{iconSvg && (
-					<span aria-hidden="true" class="text-cyan-300 flex-shrink-0" set:html={iconSvg} />
+					<span aria-hidden="true" class={`${iconClass} flex-shrink-0`} set:html={iconSvg} />
 				)}
 				<p class="font-tech text-[11px] uppercase tracking-[0.18em] text-cyan-300/80">{tag}</p>
 			</div>

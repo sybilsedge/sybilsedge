@@ -169,8 +169,8 @@ export default function StepGallery({ items, label }: Props) {
 						/>
 
 						{/* Step number badge — top-left */}
-						<div className="absolute left-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded border border-[#39ff14]/40 bg-black/70">
-							<span className="font-orbitron text-[8px] font-semibold leading-none text-[#39ff14]/80">
+						<div className="absolute left-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded border border-accent/40 bg-black/70">
+							<span className="font-orbitron text-[8px] font-semibold leading-none text-accent/80">
 								{idx + 1}
 							</span>
 						</div>

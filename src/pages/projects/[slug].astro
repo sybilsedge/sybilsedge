@@ -33,15 +33,15 @@ const galleryItems: BlueprintImage[] = await buildGalleryItems(entry.data.images
 const stepItems: StepItem[] = await buildStepItems(entry.data.steps);
 
 const statusConfig: Record<string, { label: string; classes: string }> = {
-	active:   { label: 'ACTIVE',   classes: 'border-[#39ff14]/40 text-[#39ff14]/80 bg-[#39ff14]/5' },
-	wip:      { label: 'WIP',      classes: 'border-[#00ffff]/40 text-[#00ffff]/80 bg-[#00ffff]/5' },
+	active:   { label: 'ACTIVE',   classes: 'border-accent/40 text-accent/80 bg-accent/5' },
+	wip:      { label: 'WIP',      classes: 'border-primary/40 text-primary/80 bg-primary/5' },
 	complete: { label: 'COMPLETE', classes: 'border-white/25 text-white/60 bg-white/5' },
 	archived: { label: 'ARCHIVED', classes: 'border-slate-500/30 text-slate-500/60 bg-slate-500/5' },
 };
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
-	tech:   { label: 'Tech',   color: 'text-[#00ffff]/80 border-[#00ffff]/30 bg-[#00ffff]/5' },
-	home:   { label: 'Home',   color: 'text-[#39ff14]/80 border-[#39ff14]/30 bg-[#39ff14]/5' },
+	tech:   { label: 'Tech',   color: 'text-primary/80 border-primary/30 bg-primary/5' },
+	home:   { label: 'Home',   color: 'text-accent/80 border-accent/30 bg-accent/5' },
 	garden: { label: 'Garden', color: 'text-amber-400/80 border-amber-400/30 bg-amber-400/5' },
 };
 

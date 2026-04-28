@@ -17,7 +17,7 @@ const globeSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
 const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
 
 const statusClasses: Record<string, string> = {
-	active:   'border-[#39ff14]/40 text-[#39ff14]/80 bg-[#39ff14]/5',
+	active:   'border-accent/40 text-accent/80 bg-accent/5',
 	planned:  'border-cyan-300/25 text-cyan-300/50 bg-transparent',
 	archived: 'border-slate-500/30 text-slate-500/50 bg-slate-500/5',
 };
@@ -30,7 +30,7 @@ const statusClasses: Record<string, string> = {
 	>
 		<div class="flex items-start justify-between gap-3">
 			<div class="flex items-center gap-2.5">
-				<span set:html={globeSvg} class="shrink-0 text-[#39ff14]/70 group-hover:text-[#39ff14] transition-colors" />
+				<span set:html={globeSvg} class="shrink-0 text-accent/70 group-hover:text-accent transition-colors" />
 				<h2 class="font-orbitron text-base uppercase tracking-[0.1em] text-cyan-100 leading-tight group-hover:text-cyan-300 transition-colors">
 					{universe.data.name}
 				</h2>
@@ -40,7 +40,7 @@ const statusClasses: Record<string, string> = {
 			</span>
 		</div>
 
-		<p class="font-tech text-xs italic text-[#39ff14]/70 leading-snug">
+		<p class="font-tech text-xs italic text-accent/70 leading-snug">
 			{universe.data.tagline}
 		</p>
 
@@ -48,7 +48,7 @@ const statusClasses: Record<string, string> = {
 			{universe.data.description}
 		</p>
 
-		<div class="mt-auto flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/50 group-hover:text-[#39ff14]/70 transition-colors">
+		<div class="mt-auto flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/50 group-hover:text-accent/70 transition-colors">
 			Explore Universe
 			<span set:html={arrowSvg} />
 		</div>

@@ -1,6 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Orbitron:wght@500;700;800&display=swap");
 @import "tailwindcss";
 
+/* ── Semantic colour tokens ──────────────────────────────────
+   @theme inline keeps the var() references live so that overriding
+   --neon-green / --blueprint-cyan in [data-theme="light"] automatically
+   cascades into text-accent/*, bg-accent/*, border-primary/*, etc.    */
+@theme inline {
+  --color-accent:  var(--neon-green);      /* text-accent, bg-accent, border-accent */
+  --color-primary: var(--blueprint-cyan);  /* text-primary, bg-primary, border-primary */
+}
+
 :root {
   /* Surfaces */
   --bg-charcoal: #0a0a0a;
@@ -79,13 +88,13 @@ body {
 
 /* Neon green variant for active/highlight states */
 .neon-border {
-  border: 1px solid rgba(57, 255, 20, 0.4);
+  border: 1px solid color-mix(in srgb, var(--neon-green) 40%, transparent);
   box-shadow: var(--neon-green-glow);
 }
 
 /* Cyan glow shadow — use on images or cards that need a soft cyan halo */
 .glow-cyan {
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 15px color-mix(in srgb, var(--blueprint-cyan) 30%, transparent);
 }
 
 /* Focus styles */
@@ -119,9 +128,10 @@ body {
   --blueprint-border: rgba(29, 78, 216, 0.35);
   --blueprint-glow: 0 0 24px rgba(29, 78, 216, 0.12);
 
-  /* Sky-600: secondary accent for active/highlight states */
-  --accent-secondary: #0284c7;
-  --accent-secondary-glow: 0 0 16px rgba(2, 132, 199, 0.2);
+  /* Blue-700: neon-green maps to blueprint blue in light mode,
+     so text-accent/bg-accent/border-accent all resolve correctly. */
+  --neon-green: #1d4ed8;
+  --neon-green-glow: 0 0 16px rgba(29, 78, 216, 0.2);
 }
 
 [data-theme="light"] body {
@@ -135,15 +145,9 @@ body {
     linear-gradient(90deg, rgba(29, 78, 216, 0.07) 1px, transparent 1px);
 }
 
-/* Neon border uses a hardcoded rgba — override to match updated --neon-green */
-[data-theme="light"] .neon-border {
-  border-color: rgba(2, 132, 199, 0.4);
-}
-
-/* Cyan glow override */
-[data-theme="light"] .glow-cyan {
-  box-shadow: 0 0 15px rgba(29, 78, 216, 0.3);
-}
+/* .neon-border and .glow-cyan now use CSS variables — no overrides needed.
+   The [data-theme="light"] block above remaps --neon-green and --blueprint-cyan
+   so both utilities cascade automatically. */
 
 /* Nav intentionally stays dark in light mode — no overrides needed.
    Cards use hardcoded black/alpha — remap to blue-tinted ice surfaces. */
@@ -194,15 +198,12 @@ body {
 [data-theme="light"] nav .text-cyan-300\/60 { color: rgba(103, 232, 249, 0.6); }
 [data-theme="light"] nav .text-cyan-300\/70 { color: rgba(103, 232, 249, 0.7); }
 [data-theme="light"] nav .text-cyan-300\/80 { color: rgba(103, 232, 249, 0.8); }
-/* neon-border active state — keep original green glow in nav */
-[data-theme="light"] nav .neon-border { border-color: rgba(57, 255, 20, 0.4); box-shadow: 0 0 16px rgba(57, 255, 20, 0.25); }
+/* Nav stays dark — restore neon-green variable so text-accent and neon-border
+   both resolve correctly against the dark nav background in all themes. */
+[data-theme="light"] nav {
+  --neon-green: #39ff14;
+  --neon-green-glow: 0 0 16px rgba(57, 255, 20, 0.25);
+}
 
-/* ── Hardcoded hex colour overrides (resume.astro uses text-[#hex]/opacity) ─
-   These bypass Tailwind's semantic classes so must be overridden explicitly. */
-/* Neon green → blue-700 equivalent */
-[data-theme="light"] .text-\[\#39ff14\]\/70 { color: rgba(29, 78, 216, 0.82); }
-[data-theme="light"] .text-\[\#39ff14\]\/60 { color: rgba(29, 78, 216, 0.75); }
-/* Neon cyan → blue-700 equivalent */
-[data-theme="light"] .text-\[\#00ffff\]\/60 { color: rgba(29, 78, 216, 0.75); }
-/* Bullet dot background */
-[data-theme="light"] .bg-\[\#00ffff\]\/40  { background-color: rgba(29, 78, 216, 0.25); }
+/* Hex-escape overrides removed — components now use text-accent / text-primary
+   which cascade through the CSS variable system automatically. */

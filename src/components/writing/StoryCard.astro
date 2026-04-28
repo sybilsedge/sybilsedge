@@ -22,7 +22,7 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 	class="group blueprint-border rounded-md bg-black/35 p-5 flex flex-col gap-3 transition-shadow duration-200 hover:shadow-[0_0_20px_rgba(0,255,255,0.07)] hover:bg-black/50"
 >
 	<div class="flex items-start gap-2.5">
-		<span set:html={penSvg} class="shrink-0 text-[#39ff14]/70 group-hover:text-[#39ff14] transition-colors mt-0.5" />
+		<span set:html={penSvg} class="shrink-0 text-accent/70 group-hover:text-accent transition-colors mt-0.5" />
 		<h2 class="font-orbitron text-sm uppercase tracking-[0.1em] text-cyan-100 leading-tight group-hover:text-cyan-300 transition-colors">
 			{story.data.title}
 		</h2>
@@ -54,7 +54,7 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 		</div>
 	)}
 
-	<div class="mt-auto flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/40 group-hover:text-[#39ff14]/70 transition-colors">
+	<div class="mt-auto flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/40 group-hover:text-accent/70 transition-colors">
 		Read Story
 		<span set:html={arrowSvg} />
 	</div>

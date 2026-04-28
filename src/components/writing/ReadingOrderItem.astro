@@ -14,8 +14,8 @@ interface Props {
 const { title, type, href, readingOrder, synopsis } = Astro.props;
 
 const typeBadgeClasses = type === 'novel'
-	? 'border-[#39ff14]/35 text-[#39ff14]/70 bg-[#39ff14]/5'
-	: 'border-[#00ffff]/35 text-[#00ffff]/70 bg-[#00ffff]/5';
+	? 'border-accent/35 text-accent/70 bg-accent/5'
+	: 'border-primary/35 text-primary/70 bg-primary/5';
 
 const typeLabel = type === 'novel' ? 'Novel' : 'Short Story';
 
@@ -29,7 +29,7 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 	>
 		<!-- Reading order number -->
 		{readingOrder !== undefined && (
-			<span class="shrink-0 font-orbitron text-lg text-[#39ff14]/40 group-hover:text-[#39ff14]/70 transition-colors w-8 text-right">
+			<span class="shrink-0 font-orbitron text-lg text-accent/40 group-hover:text-accent/70 transition-colors w-8 text-right">
 				{readingOrder}
 			</span>
 		)}
@@ -46,6 +46,6 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 			<p class="font-tech text-[11px] text-slate-400/60 line-clamp-1">{synopsis}</p>
 		</div>
 
-		<span set:html={arrowSvg} class="shrink-0 self-center text-cyan-300/25 group-hover:text-[#39ff14]/60 transition-colors" />
+		<span set:html={arrowSvg} class="shrink-0 self-center text-cyan-300/25 group-hover:text-accent/60 transition-colors" />
 	</a>
 </li>

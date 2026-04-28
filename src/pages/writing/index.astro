@@ -12,7 +12,7 @@ const sorted = allUniverses.sort((a, b) => {
 	return order[a.data.status] - order[b.data.status];
 });
 
-const globeSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`;
+const globeSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`;
 ---
 
 <Layout
@@ -67,7 +67,7 @@ const globeSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
 			sorted.length === 0 ? (
 				<div class="blueprint-border rounded-md bg-black/35 p-12 text-center">
 					<div
-						class="mb-4 flex justify-center opacity-30"
+						class="mb-4 flex justify-center opacity-30 text-accent"
 						set:html={globeSvg}
 					/>
 					<p class="font-orbitron text-sm uppercase tracking-[0.16em] text-cyan-300/50">
