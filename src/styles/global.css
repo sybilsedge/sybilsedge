@@ -180,6 +180,7 @@ body {
 [data-theme="light"] .text-cyan-300\/70  { color: rgba(29, 78, 216, 0.82); }
 [data-theme="light"] .text-cyan-300\/75  { color: rgba(29, 78, 216, 0.85); }
 [data-theme="light"] .text-cyan-300\/80  { color: rgba(29, 78, 216, 0.90); }
+[data-theme="light"] .text-cyan-300\/85  { color: rgba(29, 78, 216, 0.93); }
 
 /* ── Nav: revert to raw dark-theme Tailwind colours ────────────────────
    The global overrides above remap text-cyan-* to blue shades, which makes
@@ -195,3 +196,13 @@ body {
 [data-theme="light"] nav .text-cyan-300\/80 { color: rgba(103, 232, 249, 0.8); }
 /* neon-border active state — keep original green glow in nav */
 [data-theme="light"] nav .neon-border { border-color: rgba(57, 255, 20, 0.4); box-shadow: 0 0 16px rgba(57, 255, 20, 0.25); }
+
+/* ── Hardcoded hex colour overrides (resume.astro uses text-[#hex]/opacity) ─
+   These bypass Tailwind's semantic classes so must be overridden explicitly. */
+/* Neon green → blue-700 equivalent */
+[data-theme="light"] .text-\[\#39ff14\]\/70 { color: rgba(29, 78, 216, 0.82); }
+[data-theme="light"] .text-\[\#39ff14\]\/60 { color: rgba(29, 78, 216, 0.75); }
+/* Neon cyan → blue-700 equivalent */
+[data-theme="light"] .text-\[\#00ffff\]\/60 { color: rgba(29, 78, 216, 0.75); }
+/* Bullet dot background */
+[data-theme="light"] .bg-\[\#00ffff\]\/40  { background-color: rgba(29, 78, 216, 0.25); }
