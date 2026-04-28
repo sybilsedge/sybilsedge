@@ -16,8 +16,8 @@ interface Props {
 const { status } = Astro.props;
 
 const config: Record<string, { label: string; classes: string }> = {
-	'draft':       { label: 'DRAFT',       classes: 'border-[#39ff14]/40 text-[#39ff14]/80 bg-[#39ff14]/5' },
-	'in-progress': { label: 'IN PROGRESS', classes: 'border-[#00ffff]/40 text-[#00ffff]/80 bg-[#00ffff]/5' },
+	'draft':       { label: 'DRAFT',       classes: 'border-accent/40 text-accent/80 bg-accent/5' },
+	'in-progress': { label: 'IN PROGRESS', classes: 'border-primary/40 text-primary/80 bg-primary/5' },
 	'complete':    { label: 'COMPLETE',    classes: 'border-white/25 text-white/60 bg-white/5' },
 	'published':   { label: 'PUBLISHED',   classes: 'border-white/40 text-white/80 bg-white/5' },
 };

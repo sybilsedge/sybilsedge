@@ -20,7 +20,7 @@ const sorted = allNovels.sort((a, b) => {
 
 const universes = [...new Set(allNovels.map((n) => n.data.universe))].sort();
 
-const bookSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>`;
+const bookSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>`;
 ---
 
 <Layout
@@ -60,7 +60,7 @@ const bookSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" 
 
 		{sorted.length === 0 ? (
 			<div class="blueprint-border rounded-md bg-black/35 p-12 text-center">
-				<div class="mb-4 flex justify-center opacity-30" set:html={bookSvg} />
+				<div class="mb-4 flex justify-center opacity-30 text-accent" set:html={bookSvg} />
 				<p class="font-orbitron text-sm uppercase tracking-[0.16em] text-cyan-300/50">No novels yet</p>
 				<p class="mt-2 font-tech text-[11px] text-slate-400/60">Novel entries will appear here once added to the collection.</p>
 			</div>
