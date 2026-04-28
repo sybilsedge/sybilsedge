@@ -1,11 +1,9 @@
 ---
-import { getCollection } from 'astro:content';
-import { env } from 'cloudflare:workers';
+import { getCollection } from "astro:content";
+import { env } from "cloudflare:workers";
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
-const GITHUB_REPOS = [
-	'sybilsedge/sybilsedge',
-];
+const GITHUB_REPOS = ["sybilsedge/sybilsedge"];
 const COMMITS_PER_REPO = 3;
 const COMMIT_CACHE_TTL_SECONDS = 60 * 10;
 
@@ -17,147 +15,159 @@ const githubToken = env.GITHUB_TOKEN;
 
 // ─── GITHUB COMMITS ────────────────────────────────────────────────────────
 type Commit = {
-	repo: string;
-	sha: string;
-	message: string;
-	author: string;
-	sortKey: number;      // epoch ms — used for chronological sort
-	dateDisplay: string;  // formatted string — used for display only
-	url: string;
+  repo: string;
+  sha: string;
+  message: string;
+  author: string;
+  sortKey: number; // epoch ms — used for chronological sort
+  dateDisplay: string; // formatted string — used for display only
+  url: string;
 };
 
 type GithubCommitItem = {
-	sha?: string;
-	html_url?: string;
-	commit?: {
-		message?: string;
-		author?: {
-			date?: string;
-			name?: string;
-		};
-	};
+  sha?: string;
+  html_url?: string;
+  commit?: {
+    message?: string;
+    author?: {
+      date?: string;
+      name?: string;
+    };
+  };
 };
 
 type ValidGithubCommit = GithubCommitItem & {
-	sha: string;
-	html_url: string;
-	commit: {
-		message: string;
-		author: {
-			date: string;
-			name?: string;
-		};
-	};
+  sha: string;
+  html_url: string;
+  commit: {
+    message: string;
+    author: {
+      date: string;
+      name?: string;
+    };
+  };
 };
 
-function isValidGithubCommit(commit: GithubCommitItem): commit is ValidGithubCommit {
-	if (typeof commit !== 'object' || commit === null) return false;
-	if (typeof commit.sha !== 'string' || typeof commit.html_url !== 'string') return false;
-	if (typeof commit.commit !== 'object' || commit.commit === null) return false;
-	if (typeof commit.commit.message !== 'string') return false;
-	if (typeof commit.commit.author !== 'object' || commit.commit.author === null) return false;
-	if (typeof commit.commit.author.date !== 'string') return false;
-	return typeof commit.commit.author.name === 'undefined' || typeof commit.commit.author.name === 'string';
+function isValidGithubCommit(
+  commit: GithubCommitItem,
+): commit is ValidGithubCommit {
+  if (typeof commit !== "object" || commit === null) return false;
+  if (typeof commit.sha !== "string" || typeof commit.html_url !== "string")
+    return false;
+  if (typeof commit.commit !== "object" || commit.commit === null) return false;
+  if (typeof commit.commit.message !== "string") return false;
+  if (typeof commit.commit.author !== "object" || commit.commit.author === null)
+    return false;
+  if (typeof commit.commit.author.date !== "string") return false;
+  return (
+    typeof commit.commit.author.name === "undefined" ||
+    typeof commit.commit.author.name === "string"
+  );
 }
 
 function parseGithubCommitItems(payload: unknown): GithubCommitItem[] {
-	if (!Array.isArray(payload)) return [];
-	return payload.filter((item): item is GithubCommitItem => typeof item === 'object' && item !== null);
+  if (!Array.isArray(payload)) return [];
+  return payload.filter(
+    (item): item is GithubCommitItem =>
+      typeof item === "object" && item !== null,
+  );
 }
 
 const allCommits: Commit[] = [];
 let commitFetchError: string | null = null;
-const commitCache = typeof caches !== 'undefined' ? caches.default : null;
+const commitCache = typeof caches !== "undefined" ? caches.default : null;
 
 for (const repo of GITHUB_REPOS) {
-	try {
-		const commitsUrl = `https://api.github.com/repos/${repo}/commits?per_page=${COMMITS_PER_REPO}`;
-		const cacheKey = new Request(commitsUrl);
-		let repoCommits: GithubCommitItem[] | null = null;
+  try {
+    const commitsUrl = `https://api.github.com/repos/${repo}/commits?per_page=${COMMITS_PER_REPO}`;
+    const cacheKey = new Request(commitsUrl);
+    let repoCommits: GithubCommitItem[] | null = null;
 
-		// Option A (Cloudflare Cache API): short-lived edge cache keeps homepage SSR
-		// fast on repeat requests and reduces direct GitHub API traffic.
-		if (commitCache) {
-			const cached = await commitCache.match(cacheKey);
-			if (cached) {
-				try {
-					repoCommits = parseGithubCommitItems(await cached.json());
-				} catch (err) {
-					console.error(
-						`[StatusFeed] Cache parse failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`
-					);
-				}
-			}
-		}
+    // Option A (Cloudflare Cache API): short-lived edge cache keeps homepage SSR
+    // fast on repeat requests and reduces direct GitHub API traffic.
+    if (commitCache) {
+      const cached = await commitCache.match(cacheKey);
+      if (cached) {
+        try {
+          repoCommits = parseGithubCommitItems(await cached.json());
+        } catch (err) {
+          console.error(
+            `[StatusFeed] Cache parse failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`,
+          );
+        }
+      }
+    }
 
-		if (!repoCommits) {
-			const headers: Record<string, string> = {
-				Accept: 'application/vnd.github+json',
-				'User-Agent': 'sybilsedge/1.0',
-				'X-GitHub-Api-Version': '2022-11-28',
-			};
-			if (githubToken) {
-				headers['Authorization'] = `Bearer ${githubToken}`;
-			}
-			const res = await fetch(commitsUrl, { headers });
-			if (!res.ok) {
-				const msg = `GitHub API ${res.status} for ${repo}. ${githubToken ? 'Check token permissions.' : 'No token configured — using unauthenticated access.'}`;
-				console.error(`[StatusFeed] ${msg}`);
-				commitFetchError = msg;
-				continue;
-			}
+    if (!repoCommits) {
+      const headers: Record<string, string> = {
+        Accept: "application/vnd.github+json",
+        "User-Agent": "sybilsedge/1.0",
+        "X-GitHub-Api-Version": "2022-11-28",
+      };
+      if (githubToken) {
+        headers["Authorization"] = `Bearer ${githubToken}`;
+      }
+      const res = await fetch(commitsUrl, { headers });
+      if (!res.ok) {
+        const msg = `GitHub API ${res.status} for ${repo}. ${githubToken ? "Check token permissions." : "No token configured — using unauthenticated access."}`;
+        console.error(`[StatusFeed] ${msg}`);
+        commitFetchError = msg;
+        continue;
+      }
 
-			try {
-				repoCommits = parseGithubCommitItems(await res.json());
-			} catch (err) {
-				const msg = `GitHub response parse failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`;
-				console.error(`[StatusFeed] ${msg}`);
-				commitFetchError = msg;
-				continue;
-			}
-			if (commitCache) {
-				try {
-					await commitCache.put(
-						cacheKey,
-						new Response(JSON.stringify(repoCommits), {
-							headers: {
-								'Content-Type': 'application/json',
-								'Cache-Control': `public, max-age=${COMMIT_CACHE_TTL_SECONDS}`,
-							},
-						})
-					);
-				} catch (err) {
-					console.error(
-						`[StatusFeed] Cache write failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`
-					);
-				}
-			}
-		}
+      try {
+        repoCommits = parseGithubCommitItems(await res.json());
+      } catch (err) {
+        const msg = `GitHub response parse failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`;
+        console.error(`[StatusFeed] ${msg}`);
+        commitFetchError = msg;
+        continue;
+      }
+      if (commitCache) {
+        try {
+          await commitCache.put(
+            cacheKey,
+            new Response(JSON.stringify(repoCommits), {
+              headers: {
+                "Content-Type": "application/json",
+                "Cache-Control": `public, max-age=${COMMIT_CACHE_TTL_SECONDS}`,
+              },
+            }),
+          );
+        } catch (err) {
+          console.error(
+            `[StatusFeed] Cache write failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`,
+          );
+        }
+      }
+    }
 
-		if (!repoCommits) continue;
-		for (const c of repoCommits) {
-			if (!isValidGithubCommit(c)) continue;
-			const commitAuthor = c.commit.author;
-			const commitDate = new Date(commitAuthor.date);
-			const commitTime = commitDate.getTime();
-			if (!Number.isFinite(commitTime)) continue;
-			allCommits.push({
-				repo,
-				sha: c.sha.slice(0, 7),
-				message: c.commit.message.split('\n')[0].slice(0, 72),
-				author: commitAuthor.name ?? 'unknown',
-				sortKey: commitTime,
-				dateDisplay: commitDate.toLocaleDateString('en-US', {
-					month: 'short', day: 'numeric', year: 'numeric',
-				}),
-				url: c.html_url,
-			});
-		}
-	} catch (err) {
-		const msg = `Fetch failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`;
-		console.error(`[StatusFeed] ${msg}`);
-		commitFetchError = msg;
-	}
+    if (!repoCommits) continue;
+    for (const c of repoCommits) {
+      if (!isValidGithubCommit(c)) continue;
+      const commitAuthor = c.commit.author;
+      const commitDate = new Date(commitAuthor.date);
+      const commitTime = commitDate.getTime();
+      if (!Number.isFinite(commitTime)) continue;
+      allCommits.push({
+        repo,
+        sha: c.sha.slice(0, 7),
+        message: c.commit.message.split("\n")[0].slice(0, 72),
+        author: commitAuthor.name ?? "unknown",
+        sortKey: commitTime,
+        dateDisplay: commitDate.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        url: c.html_url,
+      });
+    }
+  } catch (err) {
+    const msg = `Fetch failed for ${repo}: ${err instanceof Error ? err.message : String(err)}`;
+    console.error(`[StatusFeed] ${msg}`);
+    commitFetchError = msg;
+  }
 }
 
 // Sort newest-first using epoch ms
@@ -165,11 +175,14 @@ allCommits.sort((a, b) => b.sortKey - a.sortKey);
 const commits = allCommits.slice(0, 4);
 
 // ─── WRITING PROGRESS ──────────────────────────────────────────────────────
-const writingEntries = await getCollection('writing');
+const writingEntries = await getCollection("writing");
 const activeWriting = writingEntries
-	.filter((e) => e.data.status === 'draft' && (e.data.wordCount || e.data.chapterStatus))
-	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-	.slice(0, 2);
+  .filter(
+    (e) =>
+      e.data.status === "draft" && (e.data.wordCount || e.data.chapterStatus),
+  )
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 2);
 
 // ─── ICONS ─────────────────────────────────────────────────────────────────
 const commitIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><line x1="3" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="21" y2="12"/></svg>`;
@@ -178,101 +191,150 @@ const healthIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="1
 ---
 
 <section class="blueprint-border rounded-md bg-black/35 p-4 md:p-5">
-	<header class="mb-4 flex items-center justify-between">
-		<h2 class="font-orbitron text-lg uppercase tracking-[0.16em] text-cyan-100">Status Hub</h2>
-		<span class="font-tech text-[11px] uppercase tracking-[0.2em] text-cyan-300/70">Control Plane</span>
-	</header>
+  <header class="mb-4 flex items-center justify-between">
+    <h2 class="font-orbitron text-lg uppercase tracking-[0.16em] text-cyan-100">
+      Status Hub
+    </h2>
+    <span
+      class="font-tech text-[11px] uppercase tracking-[0.2em] text-cyan-300/70"
+      >Control Plane</span
+    >
+  </header>
 
-	<!-- GitHub Activity -->
-	<div class="mb-4">
-		<p class="font-tech mb-2 text-[10px] uppercase tracking-[0.22em] text-cyan-300/50">// GitHub Activity</p>
-		{commits.length === 0 ? (
-			<div class="blueprint-border rounded-md bg-black/40 p-3">
-				<p class="font-tech text-[11px] text-cyan-300/40">
-					{commitFetchError ? `Error: ${commitFetchError}` : 'No commits retrieved'}
-				</p>
-			</div>
-		) : (
-			<div class="space-y-2">
-				{commits.map((c) => (
-					<a
-						href={c.url}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="blueprint-border group flex items-start gap-3 rounded-md bg-black/40 p-3 transition-colors hover:bg-cyan-300/5"
-					>
-						<span class="mt-0.5 shrink-0 text-cyan-300" set:html={commitIcon} />
-						<div class="min-w-0 flex-1">
-							<div class="flex items-center justify-between gap-2">
-								<p class="font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/60 truncate">{c.repo}</p>
-								<p class="font-tech shrink-0 text-[10px] text-cyan-300/40">{c.dateDisplay}</p>
-							</div>
-							<p class="commit-message mt-1 text-sm text-slate-200/90 group-hover:text-cyan-100 transition-colors line-clamp-2">{c.message}</p>
-							<p class="font-tech mt-1 text-[10px] text-cyan-300/40">{c.sha}</p>
-						</div>
-					</a>
-				))}
-			</div>
-		)}
-	</div>
+  <!-- GitHub Activity -->
+  <div class="mb-4">
+    <p
+      class="font-tech mb-2 text-[10px] uppercase tracking-[0.22em] text-cyan-300/50"
+    >
+      // GitHub Activity
+    </p>
+    {
+      commits.length === 0 ? (
+        <div class="blueprint-border rounded-md bg-black/40 p-3">
+          <p class="font-tech text-[11px] text-cyan-300/40">
+            {commitFetchError
+              ? `Error: ${commitFetchError}`
+              : "No commits retrieved"}
+          </p>
+        </div>
+      ) : (
+        <div class="space-y-2">
+          {commits.map((c) => (
+            <a
+              href={c.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="blueprint-border group flex items-start gap-3 rounded-md bg-black/40 p-3 transition-colors hover:bg-cyan-300/5"
+            >
+              <span
+                class="mt-0.5 shrink-0 text-cyan-300"
+                set:html={commitIcon}
+              />
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/60 truncate">
+                    {c.repo}
+                  </p>
+                  <p class="font-tech shrink-0 text-[10px] text-cyan-300/40">
+                    {c.dateDisplay}
+                  </p>
+                </div>
+                <p class="commit-message mt-1 text-sm text-slate-200/90 group-hover:text-cyan-100 transition-colors line-clamp-2">
+                  {c.message}
+                </p>
+                <p class="font-tech mt-1 text-[10px] text-cyan-300/40">
+                  {c.sha}
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+      )
+    }
+  </div>
 
-	<!-- Divider -->
-	<div class="my-3 border-t border-cyan-300/10"></div>
+  <!-- Divider -->
+  <div class="my-3 border-t border-cyan-300/10"></div>
 
-	<!-- Writing Progress -->
-	<div class="mb-4">
-		<p class="font-tech mb-2 text-[10px] uppercase tracking-[0.22em] text-cyan-300/50">// Writing Progress</p>
-		{activeWriting.length === 0 ? (
-			<div class="blueprint-border rounded-md bg-black/40 p-3">
-				<p class="font-tech text-[11px] text-cyan-300/40">No active drafts</p>
-			</div>
-		) : (
-			<div class="space-y-2">
-				{activeWriting.map((entry) => (
-					<div class="blueprint-border rounded-md bg-black/40 p-3">
-						<div class="flex items-start gap-3">
-							<span class="mt-0.5 shrink-0 text-cyan-300" set:html={writeIcon} />
-							<div class="min-w-0 flex-1">
-								<p class="font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/60">{entry.data.genre}</p>
-								<h3 class="font-orbitron mt-0.5 text-sm uppercase tracking-[0.08em] text-cyan-100">{entry.data.title}</h3>
-								<div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
-									{entry.data.wordCount && (
-										<p class="font-tech text-[11px] text-cyan-300/70">
-											{entry.data.wordCount.toLocaleString()} words
-										</p>
-									)}
-									{entry.data.chapterStatus && (
-										<p class="font-tech text-[11px] text-cyan-300/70">{entry.data.chapterStatus}</p>
-									)}
-								</div>
-							</div>
-						</div>
-					</div>
-				))}
-			</div>
-		)}
-	</div>
+  <!-- Writing Progress -->
+  <div class="mb-4">
+    <p
+      class="font-tech mb-2 text-[10px] uppercase tracking-[0.22em] text-cyan-300/50"
+    >
+      // Writing Progress
+    </p>
+    {
+      activeWriting.length === 0 ? (
+        <div class="blueprint-border rounded-md bg-black/40 p-3">
+          <p class="font-tech text-[11px] text-cyan-300/40">No active drafts</p>
+        </div>
+      ) : (
+        <div class="space-y-2">
+          {activeWriting.map((entry) => (
+            <div class="blueprint-border rounded-md bg-black/40 p-3">
+              <div class="flex items-start gap-3">
+                <span
+                  class="mt-0.5 shrink-0 text-cyan-300"
+                  set:html={writeIcon}
+                />
+                <div class="min-w-0 flex-1">
+                  <p class="font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/60">
+                    {entry.data.genre}
+                  </p>
+                  <h3 class="font-orbitron mt-0.5 text-sm uppercase tracking-[0.08em] text-cyan-100">
+                    {entry.data.title}
+                  </h3>
+                  <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+                    {entry.data.wordCount && (
+                      <p class="font-tech text-[11px] text-cyan-300/70">
+                        {entry.data.wordCount.toLocaleString()} words
+                      </p>
+                    )}
+                    {entry.data.chapterStatus && (
+                      <p class="font-tech text-[11px] text-cyan-300/70">
+                        {entry.data.chapterStatus}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )
+    }
+  </div>
 
-	<!-- Divider -->
-	<div class="my-3 border-t border-cyan-300/10"></div>
+  <!-- Divider -->
+  <div class="my-3 border-t border-cyan-300/10"></div>
 
-	<!-- System Health -->
-	<div>
-		<p class="font-tech mb-2 text-[10px] uppercase tracking-[0.22em] text-cyan-300/50">// System Health</p>
-		<div class="blueprint-border rounded-md bg-black/40 p-3">
-			<div class="flex items-center gap-3">
-				<span class="shrink-0 text-cyan-300/40" set:html={healthIcon} />
-				<div>
-					<p class="font-orbitron text-sm uppercase tracking-[0.08em] text-cyan-100/40">Cloudflare Deployment</p>
-					<p class="font-tech mt-0.5 text-[10px] text-cyan-300/30">Status feed — coming in Pass 2</p>
-				</div>
-			</div>
-		</div>
-	</div>
+  <!-- System Health -->
+  <div>
+    <p
+      class="font-tech mb-2 text-[10px] uppercase tracking-[0.22em] text-cyan-300/50"
+    >
+      // System Health
+    </p>
+    <div class="blueprint-border rounded-md bg-black/40 p-3">
+      <div class="flex items-center gap-3">
+        <span class="shrink-0 text-cyan-300/40" set:html={healthIcon} />
+        <div>
+          <p
+            class="font-orbitron text-sm uppercase tracking-[0.08em] text-cyan-300/25"
+          >
+            Cloudflare Deployment
+          </p>
+          <p class="font-tech mt-0.5 text-[10px] text-cyan-300/30">
+            Status feed — coming in Pass 2
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <style>
-	[data-theme="light"] .commit-message {
-		color: rgb(15 23 42 / 0.85);
-	}
+  [data-theme="light"] .commit-message {
+    color: rgb(15 23 42 / 0.85);
+  }
 </style>
