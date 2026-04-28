@@ -23,6 +23,15 @@ const ogImageURL = new URL(ogImage, Astro.site ?? 'https://sybilsedge.com').toSt
 <!doctype html>
 <html lang="en">
 	<head>
+		<!-- Anti-FOUC: apply theme before first paint so there is no flash.
+		     Reads localStorage first; falls back to prefers-color-scheme. -->
+		<script is:inline>
+			(function () {
+				var s = localStorage.getItem('theme');
+				var p = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+				document.documentElement.setAttribute('data-theme', s || p);
+			})();
+		</script>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
