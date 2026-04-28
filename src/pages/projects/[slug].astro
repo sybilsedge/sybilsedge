@@ -193,5 +193,25 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 			padding: 0.1em 0.4em;
 			color: rgb(0 255 255 / 0.75);
 		}
+		/* ── Light mode overrides ── */
+		[data-theme="light"] .prose-project :global(h2) {
+			color: rgb(15 23 42 / 0.9);
+			border-bottom-color: rgb(29 78 216 / 0.15);
+		}
+		[data-theme="light"] .prose-project :global(h3) {
+			color: rgb(30 58 138 / 0.8);
+		}
+		[data-theme="light"] .prose-project :global(p),
+		[data-theme="light"] .prose-project :global(li) {
+			color: rgb(15 23 42 / 0.8);
+		}
+		[data-theme="light"] .prose-project :global(strong) {
+			color: rgb(15 23 42 / 0.95);
+		}
+		[data-theme="light"] .prose-project :global(code) {
+			color: rgb(30 58 138 / 0.85);
+			background: rgb(29 78 216 / 0.06);
+			border-color: rgb(29 78 216 / 0.15);
+		}
 	</style>
 </Layout>

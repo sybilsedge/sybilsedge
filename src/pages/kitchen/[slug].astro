@@ -221,5 +221,31 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 		.prose-recipe :global(em) {
 			color: rgb(148 163 184 / 0.7);
 		}
+		/* ── Light mode overrides ── */
+		[data-theme="light"] .prose-recipe :global(h2) {
+			color: rgb(15 23 42 / 0.9);
+			border-bottom-color: rgb(29 78 216 / 0.15);
+		}
+		[data-theme="light"] .prose-recipe :global(h3) {
+			color: rgb(30 58 138 / 0.8);
+		}
+		[data-theme="light"] .prose-recipe :global(p),
+		[data-theme="light"] .prose-recipe :global(ul li),
+		[data-theme="light"] .prose-recipe :global(ol li) {
+			color: rgb(15 23 42 / 0.8);
+		}
+		[data-theme="light"] .prose-recipe :global(ul li::before) {
+			color: rgb(29 78 216 / 0.45);
+		}
+		[data-theme="light"] .prose-recipe :global(ol li::before) {
+			color: rgb(29 78 216 / 0.85);
+			border-color: rgb(29 78 216 / 0.3);
+		}
+		[data-theme="light"] .prose-recipe :global(strong) {
+			color: rgb(15 23 42 / 0.95);
+		}
+		[data-theme="light"] .prose-recipe :global(em) {
+			color: rgb(15 23 42 / 0.65);
+		}
 	</style>
 </Layout>
