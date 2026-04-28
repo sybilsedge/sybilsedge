@@ -1,4 +1,6 @@
 ---
+import ThemeToggle from './ThemeToggle.tsx';
+
 const navLinks = [
 	{
 		href: '/',
@@ -158,6 +160,11 @@ const isWritingActive = currentPath.startsWith('/writing');
 			}
 		</ul>
 
+		<!-- Theme toggle (desktop) -->
+		<div class="hidden md:flex">
+			<ThemeToggle client:load />
+		</div>
+
 		<!-- Mobile hamburger (CSS-only, zero JS) -->
 		<div class="relative md:hidden">
 			<input type="checkbox" id="mobile-nav-toggle" class="peer sr-only" />
@@ -240,6 +247,11 @@ const isWritingActive = currentPath.startsWith('/writing');
 						</li>
 					);
 				})}
+
+				{/* Theme toggle */}
+				<li class="border-t border-cyan-400/20 pt-1 mt-1">
+					<ThemeToggle client:load />
+				</li>
 			</ul>
 		</div>
 	</div>

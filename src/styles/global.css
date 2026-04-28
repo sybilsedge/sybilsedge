@@ -102,3 +102,69 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ——————————————————————————————————————————
+   Light theme overrides — lighter terminal-green aesthetic
+   Applied via [data-theme="light"] on <html>.
+   The anti-FOUC inline script in Layout.astro sets this attribute before
+   first paint, reading from localStorage or prefers-color-scheme.
+—————————————————————————————————————————— */
+[data-theme="light"] {
+  /* Mint-white surfaces — green-50 / green-100 */
+  --bg-charcoal: #f0fdf4;
+  --bg-charcoal-soft: #dcfce7;
+
+  /* Teal-600: readable "cyan" on a light green background */
+  --blueprint-cyan: #0d9488;
+  --blueprint-border: rgba(13, 148, 136, 0.35);
+  --blueprint-glow: 0 0 24px rgba(13, 148, 136, 0.12);
+
+  /* green-700: darkened neon green for contrast on light bg */
+  --neon-green: #15803d;
+  --neon-green-glow: 0 0 16px rgba(21, 128, 61, 0.2);
+}
+
+[data-theme="light"] body {
+  color: #0f172a;
+}
+
+[data-theme="light"] .bg-grid {
+  background-color: var(--bg-charcoal);
+  background-image:
+    linear-gradient(rgba(21, 128, 61, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(21, 128, 61, 0.08) 1px, transparent 1px);
+}
+
+/* Neon border uses a hardcoded rgba — override to match updated --neon-green */
+[data-theme="light"] .neon-border {
+  border-color: rgba(21, 128, 61, 0.4);
+}
+
+/* Cyan glow override */
+[data-theme="light"] .glow-cyan {
+  box-shadow: 0 0 15px rgba(13, 148, 136, 0.3);
+}
+
+/* Option A: override hardcoded Tailwind hex bg classes — scoped to nav to
+   avoid unintentional changes to other elements (e.g. skip-link, page cards) */
+[data-theme="light"] nav .bg-\[\#0a0a0a\] { background-color: #f0fdf4; }
+[data-theme="light"] nav .bg-\[\#111315\] { background-color: #dcfce7; }
+
+/* Nav bar uses bg-[#0a0a0a]/90 (with Tailwind opacity modifier) */
+[data-theme="light"] nav .bg-\[\#0a0a0a\]\/90 { background-color: rgba(240, 253, 244, 0.9); }
+
+/* Slate text — light-mode equivalents */
+[data-theme="light"] .text-slate-100 { color: #0f172a; }
+[data-theme="light"] .text-slate-200 { color: #1e293b; }
+[data-theme="light"] .text-slate-300 { color: #334155; }
+[data-theme="light"] .text-slate-300\/85 { color: rgba(51, 65, 85, 0.85); }
+
+/* Cyan text — mapped to teal shades for the terminal-green light palette */
+[data-theme="light"] .text-cyan-100   { color: #134e4a; }
+[data-theme="light"] .text-cyan-100\/70 { color: rgba(19, 78, 74, 0.7); }
+[data-theme="light"] .text-cyan-200   { color: #115e59; }
+[data-theme="light"] .text-cyan-300   { color: #0f766e; }
+[data-theme="light"] .text-cyan-300\/50 { color: rgba(15, 118, 110, 0.5); }
+[data-theme="light"] .text-cyan-300\/60 { color: rgba(15, 118, 110, 0.6); }
+[data-theme="light"] .text-cyan-300\/70 { color: rgba(15, 118, 110, 0.7); }
+[data-theme="light"] .text-cyan-300\/80 { color: rgba(15, 118, 110, 0.8); }
