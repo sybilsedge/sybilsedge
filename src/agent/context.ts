@@ -28,7 +28,7 @@ export async function buildSystemPrompt(kbContext?: string): Promise<string> {
 	);
 
 	sections.push(
-		`## About\nBased in Suffolk, Virginia, US.\n${bio.join('\n\n')}`
+		`## About\nBased in Virginia, US.\n${bio.join('\n\n')}`
 	);
 
 	sections.push(
