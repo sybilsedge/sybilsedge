@@ -120,8 +120,8 @@ body {
   --blueprint-glow: 0 0 24px rgba(29, 78, 216, 0.12);
 
   /* Sky-600: secondary accent for active/highlight states */
-  --neon-green: #0284c7;
-  --neon-green-glow: 0 0 16px rgba(2, 132, 199, 0.2);
+  --accent-secondary: #0284c7;
+  --accent-secondary-glow: 0 0 16px rgba(2, 132, 199, 0.2);
 }
 
 [data-theme="light"] body {
