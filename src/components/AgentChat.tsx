@@ -145,7 +145,7 @@ export default function AgentChat() {
 	};
 
 	return (
-		<div className="flex flex-col blueprint-border rounded-md bg-black/35" style={{ minHeight: '520px', maxHeight: '72vh' }}>
+		<div data-theme="dark" className="flex flex-col blueprint-border rounded-md bg-black/35" style={{ minHeight: '520px', maxHeight: '72vh' }}>
 			{/* ── Header ───────────────────────────────────────────────────── */}
 			<div className="flex items-center justify-between px-4 py-3 border-b border-cyan-300/15 shrink-0">
 				<div className="flex items-center gap-2">

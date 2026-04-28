@@ -33,7 +33,7 @@ export default function ActiveProjectStatus() {
   const Icon = descriptor.Icon;
 
   return (
-    <div className="blueprint-border rounded-md border border-cyan-400/35 bg-black/45 p-3">
+    <div data-theme="dark" className="blueprint-border rounded-md border border-cyan-400/35 bg-black/45 p-3">
       <div className="mb-3 flex items-center justify-between">
         <p className="font-tech text-xs uppercase tracking-[0.18em] text-cyan-300/80">Active Project</p>
         <span

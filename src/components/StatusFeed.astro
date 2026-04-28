@@ -207,7 +207,7 @@ const healthIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="1
 								<p class="font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/60 truncate">{c.repo}</p>
 								<p class="font-tech shrink-0 text-[10px] text-cyan-300/40">{c.dateDisplay}</p>
 							</div>
-							<p class="mt-1 text-sm text-slate-200/90 group-hover:text-cyan-100 transition-colors line-clamp-2">{c.message}</p>
+							<p class="commit-message mt-1 text-sm text-slate-200/90 group-hover:text-cyan-100 transition-colors line-clamp-2">{c.message}</p>
 							<p class="font-tech mt-1 text-[10px] text-cyan-300/40">{c.sha}</p>
 						</div>
 					</a>
@@ -270,3 +270,9 @@ const healthIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="1
 		</div>
 	</div>
 </section>
+
+<style>
+	[data-theme="light"] .commit-message {
+		color: rgb(15 23 42 / 0.85);
+	}
+</style>
