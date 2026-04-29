@@ -7,10 +7,12 @@ export const prerender = true;
 export async function GET(context: APIContext) {
 	const site = context.site ?? new URL('https://sybilsedge.com');
 
-	const [posts, recipes, projects] = await Promise.all([
+	const [posts, recipes, projects, novels, shortStories] = await Promise.all([
 		getCollection('posts', ({ data }) => !data.draft),
 		getCollection('recipes'),
 		getCollection('projects'),
+		getCollection('novels'),
+		getCollection('shortStories'),
 	]);
 
 	const items = [
@@ -31,6 +33,20 @@ export async function GET(context: APIContext) {
 			pubDate: project.data.date,
 			description: project.data.description,
 			link: `/projects/${project.id}/`,
+		})),
+		...novels.map((novel) => ({
+			title: `Fiction: ${novel.data.title}`,
+			// Fallback date as fiction collections currently lack date metadata
+			pubDate: new Date('2024-01-01'),
+			description: novel.data.synopsis,
+			link: `/writing/novels/${novel.id}/`,
+		})),
+		...shortStories.map((story) => ({
+			title: `Fiction: ${story.data.title}`,
+			// Fallback date as fiction collections currently lack date metadata
+			pubDate: new Date('2024-01-01'),
+			description: story.data.synopsis,
+			link: `/writing/stories/${story.id}/`,
 		})),
 	];
 
