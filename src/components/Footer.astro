@@ -1,0 +1,34 @@
+---
+const currentYear = new Date().getFullYear();
+const rssIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>`;
+---
+
+<footer class="mt-16 blueprint-border-top bg-[#0a0a0a]/80 py-8 backdrop-blur-sm">
+	<div class="mx-auto flex w-full max-w-[1500px] flex-col items-center justify-between gap-6 px-4 md:flex-row md:px-8">
+		<div class="flex flex-col items-center gap-2 md:items-start">
+			<p class="font-tech text-[10px] uppercase tracking-[0.2em] text-cyan-300/40">
+				&copy; {currentYear} Sybilsedge. All rights reserved.
+			</p>
+			<p class="font-tech text-[9px] uppercase tracking-[0.15em] text-cyan-300/20">
+				Secure Terminal Access Established // Build v0.0.1
+			</p>
+		</div>
+
+		<div class="flex items-center gap-6">
+			<a
+				href="/feed.xml"
+				class="flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/60 transition-colors hover:text-accent"
+				aria-label="RSS Feed"
+			>
+				<span set:html={rssIcon} />
+				RSS
+			</a>
+		</div>
+	</div>
+</footer>
+
+<style>
+	.blueprint-border-top {
+		border-top: 1px solid rgba(0, 255, 255, 0.15);
+	}
+</style>

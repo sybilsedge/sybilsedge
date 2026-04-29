@@ -1,0 +1,70 @@
+---
+/**
+ * ProjectJsonLd.astro
+ *
+ * Injects a schema.org/CreativeWork or SoftwareApplication JSON-LD <script>
+ * into the page <head> via the Layout named "head" slot.
+ */
+
+interface Props {
+	title: string;
+	description: string;
+	url: string;
+	date: Date;
+	image?: string;
+	tags?: string[];
+	schemaType?: 'SoftwareApplication' | 'CreativeWork';
+	projectUrl?: string;
+	keywords?: string[];
+	appCategory?: string;
+	operatingSystem?: string;
+	softwareVersion?: string;
+}
+
+const {
+	title,
+	description,
+	url,
+	date,
+	image,
+	tags,
+	schemaType = 'CreativeWork',
+	projectUrl,
+	keywords,
+	appCategory,
+	operatingSystem,
+	softwareVersion,
+} = Astro.props;
+
+const ld: Record<string, unknown> = {
+	'@context': 'https://schema.org',
+	'@type': schemaType,
+	name: title,
+	description,
+	url: projectUrl || url,
+	author: { '@type': 'Person', name: 'Sybil Melton' },
+	dateCreated: date.toISOString().slice(0, 10),
+};
+
+if (image) ld.image = [image];
+
+const finalKeywords = keywords && keywords.length > 0 ? keywords : tags;
+if (finalKeywords && finalKeywords.length > 0) {
+	ld.keywords = finalKeywords.join(', ');
+}
+
+if (schemaType === 'SoftwareApplication') {
+	if (appCategory) ld.applicationCategory = appCategory;
+	// SoftwareApplication usually requires applicationCategory
+	// If not provided, we can default to a general one or leave it to Rich Results Test validation
+	if (operatingSystem) ld.operatingSystem = operatingSystem;
+	if (softwareVersion) ld.softwareVersion = softwareVersion;
+}
+
+const ldJson = JSON.stringify(ld)
+	.replace(/</g, '\\u003c')
+	.replace(/>/g, '\\u003e')
+	.replace(/&/g, '\\u0026');
+---
+
+<script type="application/ld+json" set:html={ldJson} />
