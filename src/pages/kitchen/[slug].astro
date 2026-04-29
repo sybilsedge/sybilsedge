@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Comments from '../../components/Comments.astro';
 import RecipeJsonLd from '../../components/RecipeJsonLd.astro';
 import { getCollection, render } from 'astro:content';
 import { getImage } from 'astro:assets';
@@ -133,6 +134,9 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 		<div class="blueprint-border rounded-md bg-black/35 p-6 md:p-8 prose-recipe">
 			<Content galleryItems={galleryItems} stepItems={stepItems} />
 		</div>
+
+		<!-- Comments -->
+		<Comments />
 
 	</div>
 

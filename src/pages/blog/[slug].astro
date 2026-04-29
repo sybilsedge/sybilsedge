@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
 import ContentHero from '../../components/ContentHero.astro';
-import Giscus from '../../components/Giscus.astro';
+import Comments from '../../components/Comments.astro';
 import { getReadingTime } from '../../utils/readingTime.ts';
 
 export const prerender = true;
@@ -120,7 +120,7 @@ const formattedUpdatedDate = entry.data.updatedDate
 		)}
 
 		<!-- Giscus comments -->
-		<Giscus />
+		<Comments />
 	</div>
 
 	<style>
