@@ -62,7 +62,7 @@ const enabled = Boolean(repo && repoId && category && categoryId);
 
 			function updateGiscusTheme() {
 				const iframe = document.querySelector('iframe.giscus-frame');
-				if (!iframe) return;
+				if (!iframe || !iframe.contentWindow) return;
 
 				iframe.contentWindow.postMessage(
 					{
@@ -91,14 +91,20 @@ const enabled = Boolean(repo && repoId && category && categoryId);
 				}
 			});
 
-			observer.observe(document.documentElement, { attributes: true });
+			observer.observe(document.documentElement, {
+				attributes: true,
+				attributeFilter: ['data-theme']
+			});
 
 			// Also listen for giscus to be loaded to ensure it has the right theme
 			window.addEventListener('message', (event) => {
 				if (event.origin !== 'https://giscus.app') return;
-				if (!(typeof event.data === 'object' && event.data.giscus)) return;
+				if (!(event.data && typeof event.data === 'object' && 'giscus' in event.data)) return;
 				updateGiscusTheme();
 			});
+
+			// Initial sync attempt in case script loads fast
+			updateGiscusTheme();
 		})();
 	</script>
 )}
