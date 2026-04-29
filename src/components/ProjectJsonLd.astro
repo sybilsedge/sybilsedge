@@ -48,7 +48,7 @@ const ld: Record<string, unknown> = {
 
 if (image) ld.image = [image];
 
-const finalKeywords = keywords || tags;
+const finalKeywords = keywords && keywords.length > 0 ? keywords : tags;
 if (finalKeywords && finalKeywords.length > 0) {
 	ld.keywords = finalKeywords.join(', ');
 }

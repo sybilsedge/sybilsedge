@@ -1,7 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
-import { getImage } from 'astro:assets';
 import ContentHero from '../../components/ContentHero.astro';
 import ProjectJsonLd from '../../components/ProjectJsonLd.astro';
 import { buildGalleryItems, buildStepItems } from '../../utils/gallery.ts';
@@ -35,11 +34,11 @@ const galleryItems: BlueprintImage[] = await buildGalleryItems(entry.data.images
 const stepItems: StepItem[] = await buildStepItems(entry.data.steps);
 
 // Resolve the hero image URL for JSON-LD structured data.
-let heroImageUrl: string | undefined;
-if (entry.data.image) {
-	const optimised = await getImage({ src: entry.data.image.src, width: 1200, format: 'webp' });
-	heroImageUrl = new URL(optimised.src, Astro.site ?? 'https://sybilsedge.com').toString();
-}
+// We derive the absolute URL directly from the ImageMetadata to avoid
+// duplicate image transforms during the build process.
+const heroImageUrl = entry.data.image
+	? new URL(entry.data.image.src.src, Astro.site ?? 'https://sybilsedge.com').toString()
+	: undefined;
 
 const statusConfig: Record<string, { label: string; classes: string }> = {
 	active:   { label: 'ACTIVE',   classes: 'border-accent/40 text-accent/80 bg-accent/5' },
