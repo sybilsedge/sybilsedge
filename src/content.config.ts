@@ -141,6 +141,13 @@ const projects = defineCollection({
 		tags: z.array(z.string()).default([]),
 		// 0–100 completion percentage — renders a progress bar in the gallery card
 		progress: z.number().min(0).max(100).optional(),
+		// Structured data fields for JSON-LD (schema.org/CreativeWork or SoftwareApplication)
+		schemaType: z.enum(['SoftwareApplication', 'CreativeWork']).optional(),
+		projectUrl: z.string().url().optional(),
+		keywords: z.array(z.string()).optional(),
+		appCategory: z.string().optional(),
+		operatingSystem: z.string().optional(),
+		softwareVersion: z.string().optional(),
 	}),
 });
 
