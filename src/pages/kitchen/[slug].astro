@@ -254,4 +254,29 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 			color: rgb(15 23 42 / 0.65);
 		}
 	</style>
+
+	<script is:inline>
+		// Screen Wake Lock API to keep the screen on while cooking.
+		// Silent graceful no-op if unsupported.
+		let wakeLock = null;
+
+		async function requestWakeLock() {
+			try {
+				wakeLock = await navigator.wakeLock.request('screen');
+			} catch (err) {
+				// Silently fail if the request is denied or unsupported
+			}
+		}
+
+		if ('wakeLock' in navigator) {
+			requestWakeLock();
+
+			// Re-acquire the lock when the tab becomes visible again.
+			document.addEventListener('visibilitychange', () => {
+				if (wakeLock !== null && document.visibilityState === 'visible') {
+					requestWakeLock();
+				}
+			});
+		}
+	</script>
 </Layout>
