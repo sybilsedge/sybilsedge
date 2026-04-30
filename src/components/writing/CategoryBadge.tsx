@@ -10,7 +10,7 @@ const config: Record<LoreCategory, { label: string; classes: string }> = {
 	technology: { label: 'Technology', classes: 'border-primary/40 text-primary/80 bg-primary/5' },
 	history:    { label: 'History',    classes: 'border-slate-400/40 text-slate-400/80 bg-slate-400/5' },
 	culture:    { label: 'Culture',    classes: 'border-violet-400/40 text-violet-400/80 bg-violet-400/5' },
-	other:      { label: 'Other',      classes: 'border-cyan-300/20 text-cyan-300/50 bg-transparent' },
+	other:      { label: 'Other',      classes: 'border-primary/20 text-primary/50 bg-transparent' },
 };
 
 export default function CategoryBadge({ category }: Props) {

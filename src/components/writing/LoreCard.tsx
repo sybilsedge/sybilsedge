@@ -31,11 +31,11 @@ export default function LoreCard({ entry }: Props) {
 				<CategoryBadge category={entry.category} />
 			</div>
 
-			<span className="font-tech text-[10px] uppercase tracking-[0.14em] text-cyan-300/40">
+			<span className="font-tech text-[10px] uppercase tracking-[0.14em] text-primary/40">
 				{entry.universe}
 			</span>
 
-			<div className="mt-auto flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/40 group-hover:text-accent/70 transition-colors">
+			<div className="mt-auto flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-primary/40 group-hover:text-accent/70 transition-colors">
 				View Entry
 				{arrowSvg}
 			</div>

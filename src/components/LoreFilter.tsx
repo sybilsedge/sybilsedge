@@ -75,6 +75,13 @@ export default function LoreFilter({ entries, universes }: Props) {
 		</svg>
 	);
 
+	const getButtonClasses = (isActive: boolean) =>
+		`rounded blueprint-border px-4 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] transition-all ${
+			isActive
+				? 'bg-primary/20 border-primary/40 text-primary'
+				: 'text-primary/60 hover:text-primary/90 hover:bg-primary/5'
+		}`;
+
 	return (
 		<div className="space-y-8">
 			{/* Filter Controls */}
@@ -83,11 +90,7 @@ export default function LoreFilter({ entries, universes }: Props) {
 				<div role="group" aria-label="Filter by category" className="flex flex-wrap gap-2">
 					<button
 						onClick={() => setActiveCategory('all')}
-						className={`rounded blueprint-border px-4 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] transition-all ${
-							activeCategory === 'all'
-								? 'bg-cyan-500/20 border-cyan-400 text-cyan-300'
-								: 'text-cyan-300/60 hover:text-cyan-100 hover:bg-cyan-300/5'
-						}`}
+						className={getButtonClasses(activeCategory === 'all')}
 						aria-pressed={activeCategory === 'all'}
 					>
 						All
@@ -96,11 +99,7 @@ export default function LoreFilter({ entries, universes }: Props) {
 						<button
 							key={cat}
 							onClick={() => setActiveCategory(cat)}
-							className={`rounded blueprint-border px-4 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] transition-all ${
-								activeCategory === cat
-									? 'bg-cyan-500/20 border-cyan-400 text-cyan-300'
-									: 'text-cyan-300/60 hover:text-cyan-100 hover:bg-cyan-300/5'
-							}`}
+							className={getButtonClasses(activeCategory === cat)}
 							aria-pressed={activeCategory === cat}
 						>
 							{CATEGORIES_CONFIG[cat]}
@@ -112,11 +111,7 @@ export default function LoreFilter({ entries, universes }: Props) {
 				<div role="group" aria-label="Filter by universe" className="flex flex-wrap gap-2">
 					<button
 						onClick={() => setActiveUniverse('all')}
-						className={`rounded blueprint-border px-4 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] transition-all ${
-							activeUniverse === 'all'
-								? 'bg-cyan-500/20 border-cyan-400 text-cyan-300'
-								: 'text-cyan-300/60 hover:text-cyan-100 hover:bg-cyan-300/5'
-					}`}
+						className={getButtonClasses(activeUniverse === 'all')}
 						aria-pressed={activeUniverse === 'all'}
 					>
 						All
@@ -125,11 +120,7 @@ export default function LoreFilter({ entries, universes }: Props) {
 						<button
 							key={u}
 							onClick={() => setActiveUniverse(u)}
-							className={`rounded blueprint-border px-4 py-1.5 font-tech text-[11px] uppercase tracking-[0.16em] transition-all ${
-								activeUniverse === u
-									? 'bg-cyan-500/20 border-cyan-400 text-cyan-300'
-									: 'text-cyan-300/60 hover:text-cyan-100 hover:bg-cyan-300/5'
-							}`}
+							className={getButtonClasses(activeUniverse === u)}
 							aria-pressed={activeUniverse === u}
 						>
 							{u}
