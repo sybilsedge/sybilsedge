@@ -131,8 +131,12 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 		</header>
 
 		<!-- Recipe content -->
-		<div class="blueprint-border rounded-md bg-black/35 p-6 md:p-8 prose-recipe">
-			<Content galleryItems={galleryItems} stepItems={stepItems} />
+		<div class="recipe-layout blueprint-border rounded-md bg-black/35 p-6 md:p-8 prose-recipe">
+			<div id="recipe-content-source">
+				<Content galleryItems={galleryItems} stepItems={stepItems} />
+			</div>
+			<div id="pane-ingredients" class="recipe-pane"></div>
+			<div id="pane-instructions" class="recipe-pane"></div>
 		</div>
 
 		<!-- Comments -->
@@ -225,6 +229,36 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 		.prose-recipe :global(em) {
 			color: rgb(148 163 184 / 0.7);
 		}
+
+		.recipe-pane {
+			display: contents;
+		}
+
+		@media (orientation: landscape) and (max-width: 1024px) {
+			.recipe-layout {
+				display: flex;
+				height: 80vh;
+				overflow: hidden;
+				padding: 0 !important;
+			}
+			.recipe-pane {
+				display: block;
+				flex: 1;
+				overflow-y: auto;
+				padding: 1.5rem;
+			}
+			@media (min-width: 768px) {
+				.recipe-pane {
+					padding: 2rem;
+				}
+			}
+			#pane-ingredients {
+				border-right: 1px solid var(--blueprint-border);
+			}
+			.recipe-pane :global(h2:first-of-type) {
+				margin-top: 0;
+			}
+		}
 	</style>
 
 	<style is:global>
@@ -257,6 +291,37 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 
 	<script is:inline>
 		(function() {
+			// DOM splitting logic for landscape split-pane layout
+			const source = document.getElementById('recipe-content-source');
+			const paneIngredients = document.getElementById('pane-ingredients');
+			const paneInstructions = document.getElementById('pane-instructions');
+
+			if (source && paneIngredients && paneInstructions) {
+				// Default to ingredients pane for leading content.
+				let targetPane = paneIngredients;
+				const nodes = Array.from(source.childNodes);
+
+				nodes.forEach(node => {
+					// Skip whitespace-only text nodes to ensure first-of-type headers align correctly.
+					if (node.nodeType === Node.TEXT_NODE && !node.textContent.trim()) {
+						return;
+					}
+
+					if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'H2') {
+						const text = node.textContent.trim().toLowerCase();
+						if (text.includes('ingredients')) {
+							targetPane = paneIngredients;
+						} else if (text.includes('instructions') || text.includes('notes')) {
+							targetPane = paneInstructions;
+						}
+					}
+					targetPane.appendChild(node);
+				});
+
+				// Hide the source container after distribution.
+				source.style.display = 'none';
+			}
+
 			// Screen Wake Lock API to keep the screen on while cooking.
 			// Silent graceful no-op if unsupported.
 			async function requestWakeLock() {
