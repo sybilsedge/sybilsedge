@@ -3,7 +3,10 @@ import { getCollection } from "astro:content";
 import { env } from "cloudflare:workers";
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
-const GITHUB_REPOS = ["sybilsedge/sybilsedge"];
+const GITHUB_REPOS = [
+  "sybilsedge/sybilsedge",
+  "ngnetworkpro/net-agent-harness",
+];
 const COMMITS_PER_REPO = 3;
 const COMMIT_CACHE_TTL_SECONDS = 60 * 10;
 
