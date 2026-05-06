@@ -13,11 +13,11 @@
  * Post slugs are never purely numeric so there is no routing collision with
  * /blog/[slug].astro at build time (both use prerender = true).
  */
-import Layout from '../../layouts/Layout.astro';
+import Layout from '../../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import type { GetStaticPathsOptions, Page } from 'astro';
-import { getReadingTime } from '../../utils/readingTime.ts';
+import { getReadingTime } from '../../../utils/readingTime.ts';
 
 export const prerender = true;
 
@@ -34,9 +34,9 @@ export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
 
 const { page } = Astro.props as { page: Page<CollectionEntry<'posts'>> };
 
-// For page 2, Astro paginate computes url.prev as '/blog/' (the spread-route
-// base). That matches index.astro, so the link is always valid.
-const prevUrl = page.url.prev ?? null;
+// For page 2, Astro paginate computes url.prev as '/blog/archive/' (the spread-route
+// base).
+const prevUrl = page.url.prev === '/blog/archive/' ? '/blog' : (page.url.prev ?? null);
 const nextUrl = page.url.next ?? null;
 
 const postIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a4 4 0 0 1-4 4z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="10" x2="16" y1="13" y2="13"/><line x1="10" x2="14" y1="17" y2="17"/></svg>`;
@@ -54,10 +54,10 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-5 md:p-8">
 			<p class="font-tech text-[11px] uppercase tracking-[0.22em] text-cyan-300/75">Transmissions</p>
 			<h1 class="font-orbitron mt-2 text-2xl uppercase tracking-[0.12em] text-cyan-100 md:text-4xl">
-				Blog
+				Blog Archive
 			</h1>
 			<p class="mt-4 max-w-2xl text-base leading-relaxed text-slate-300/85">
-				Cloud architecture, Terraform, networking, AI, and whatever else surfaces after banging on a problem long enough to have something worth writing down.
+				Historical log of all transmissions, sorted by timestamp.
 			</p>
 		</header>
 
@@ -91,15 +91,6 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 
 						<!-- Description -->
 						<p class="text-sm leading-relaxed text-slate-300/80 flex-1">{entry.data.description}</p>
-
-						<!-- Tags -->
-						{entry.data.tags.length > 0 && (
-							<div class="flex flex-wrap gap-1.5">
-								{entry.data.tags.map((tag: string) => (
-									<span class="rounded font-tech text-[10px] uppercase tracking-[0.1em] px-2 py-0.5 bg-black/40 border border-cyan-300/10 text-cyan-300/45">{tag}</span>
-								))}
-							</div>
-						)}
 
 						<!-- Read link -->
 						<div class="mt-auto pt-1">
