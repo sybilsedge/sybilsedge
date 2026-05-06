@@ -1,3 +1,6 @@
+export const shortBio =
+	'Senior Architect with 19+ years designing cloud, networking, and security systems. I also write sci-fi, bake sourdough, and build things that are never quite as simple as they look on the tin.';
+
 export const bio = [
 	'I build systems by day and worlds by night. As a Senior Architect with 19+ years of experience, I design and govern complex, automated IT ecosystems — spanning cloud, networking, security, and observability.',
 	'Outside the terminal, I write sci-fi thrillers, bake sourdough, and take on home projects that are never quite as simple as they look on the tin. This site is my command center — a live record of what I\'m building, writing, cooking, and thinking about.',

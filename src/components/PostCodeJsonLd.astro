@@ -1,0 +1,41 @@
+---
+/**
+ * PostCodeJsonLd — injects SoftwareSourceCode JSON-LD structured data
+ * for blog posts that contain fenced code blocks.
+ *
+ * Rendered into Layout's <slot name="head" /> so it lands in <head>.
+ *
+ * Props:
+ *   title               — post title
+ *   description         — post description
+ *   url                 — canonical post URL (absolute)
+ *   keywords            — post tags array
+ *   programmingLanguage — primary language detected from fenced blocks (optional)
+ */
+interface Props {
+	title: string;
+	description: string;
+	url: string;
+	keywords: string[];
+	programmingLanguage?: string;
+}
+
+const { title, description, url, keywords, programmingLanguage } = Astro.props;
+
+const schema = {
+	'@context': 'https://schema.org',
+	'@type': 'SoftwareSourceCode',
+	name: title,
+	description,
+	url,
+	keywords: keywords.join(', '),
+	...(programmingLanguage ? { programmingLanguage } : {}),
+	author: {
+		'@type': 'Person',
+		name: 'Sybil Melton',
+		url: 'https://sybilsedge.com/about',
+	},
+};
+---
+
+<script type="application/ld+json" slot="head" set:html={JSON.stringify(schema).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')} />

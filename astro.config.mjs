@@ -80,6 +80,13 @@ function durableObjectsPlugin() {
 // https://astro.build/config
 export default defineConfig({
   site: 'https://sybilsedge.com',
+  markdown: {
+    shikiConfig: {
+      // Closest built-in theme to the site's dark cyan palette
+      theme: 'github-dark-dimmed',
+      wrap: false,
+    },
+  },
   output: 'server',
   adapter: cloudflare({
     // Build-time image optimization — no Cloudflare Images binding needed

@@ -1,0 +1,32 @@
+---
+/**
+ * SeriesBadge — compact "Part of Series" strip rendered in the post header.
+ *
+ * Props:
+ *   seriesTitle — human-readable series name
+ *   seriesSlug  — series content entry id (used to build the href)
+ *   part        — optional part number within the series
+ */
+interface Props {
+	seriesTitle: string;
+	seriesSlug: string;
+	part?: number;
+}
+
+const { seriesTitle, seriesSlug, part } = Astro.props;
+
+const linkSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
+---
+
+<div class="series-badge mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded border border-cyan-300/15 bg-cyan-300/[0.04] px-4 py-2.5">
+	<span class="font-tech text-[10px] uppercase tracking-[0.2em] text-cyan-300/45">
+		{part != null ? `// Series · Part ${part}` : '// Part of Series'}
+	</span>
+	<a
+		href={`/blog/series/${seriesSlug}`}
+		class="group inline-flex items-center gap-1 font-orbitron text-[11px] uppercase tracking-[0.1em] text-cyan-300/70 hover:text-cyan-100 transition-colors"
+	>
+		{seriesTitle}
+		<span set:html={linkSvg} class="transition-transform duration-150 group-hover:translate-x-0.5" />
+	</a>
+</div>

@@ -1,13 +1,15 @@
-
 ---
 title: "Terraform Fundamentals Through a Network Lens"
 description: "Getting started with Terraform for network engineering platforms"
 date: 2025-07-12
 tags: ["Network", "IaC", "Terraform"]
+series: "terraform-for-network-engineers"
+seriesOrder: 2
 ---
+
 # Terraform Fundamentals Through a Network Lens
 
-*Part 2 of the "Terraform for Network Engineers" series*
+_Part 2 of the "Terraform for Network Engineers" series_
 
 ## From Network Diagrams to Code
 
@@ -166,7 +168,7 @@ data "meraki_organizations" "main" {
 
 # Find our specific organization
 locals {
-  meraki_org_id = [for org in data.meraki_organizations.main.organizations : 
+  meraki_org_id = [for org in data.meraki_organizations.main.organizations :
     org.id if org.name == var.meraki_organization_name][0]
 }
 
@@ -210,7 +212,7 @@ resource "mist_site" "headquarters" {
   country_code = "US"
   timezone    = "America/New_York"
   address     = var.site_address
-  
+
   # Site-specific settings
   setting = {
     # Enable location services
@@ -231,7 +233,7 @@ resource "netbox_site" "headquarters" {
   description = "Headquarters site managed by Terraform"
   physical_address = var.site_address
   status      = "active"
-  
+
   tags = ["terraform", "headquarters"]
 }
 
@@ -249,6 +251,7 @@ resource "netbox_vlan_group" "headquarters" {
 Let's break down what's happening here:
 
 **Resource Declaration**: Each `resource` block declares a piece of infrastructure. The format is:
+
 ```hcl
 resource "provider_resource_type" "local_name" {
   # configuration parameters
@@ -256,6 +259,7 @@ resource "provider_resource_type" "local_name" {
 ```
 
 **Real-World Dependencies**: Notice how resources reference each other:
+
 - The Meraki network settings depend on the network being created first
 - The NetBox VLAN group references the site ID
 - The Mist site references the organization data
@@ -278,14 +282,14 @@ locals {
     }
     users = {
       id          = 100
-      name        = "Users" 
+      name        = "Users"
       subnet      = "10.0.100.0/24"
       description = "User devices VLAN"
     }
     iot = {
       id          = 200
       name        = "IoT"
-      subnet      = "10.0.200.0/24" 
+      subnet      = "10.0.200.0/24"
       description = "IoT devices VLAN"
     }
   }
@@ -294,18 +298,18 @@ locals {
 # Create VLANs in Meraki
 resource "meraki_networks_appliance_vlans" "site_vlans" {
   for_each = local.vlans
-  
+
   network_id        = meraki_networks.headquarters.network_id
   vlan_id          = each.value.id
   name             = each.value.name
   subnet           = each.value.subnet
   appliance_ip     = cidrhost(each.value.subnet, 1)
-  
+
   # DHCP settings
   dhcp_handling           = "Run a DHCP server"
   dhcp_lease_time         = "1 day"
   dns_nameservers        = "upstream_dns"
-  
+
   # Reserved IP ranges (first 10 IPs)
   reserved_ip_ranges {
     start = cidrhost(each.value.subnet, 2)
@@ -317,7 +321,7 @@ resource "meraki_networks_appliance_vlans" "site_vlans" {
 # Create corresponding VLANs in NetBox for documentation
 resource "netbox_vlan" "site_vlans" {
   for_each = local.vlans
-  
+
   name        = each.value.name
   vid         = each.value.id
   description = each.value.description
@@ -325,21 +329,21 @@ resource "netbox_vlan" "site_vlans" {
   group_id    = netbox_vlan_group.headquarters.id
   status      = "active"
   role        = "production"
-  
+
   tags = ["terraform", each.key]
 }
 
 # Create IP prefixes in NetBox for each VLAN
 resource "netbox_prefix" "vlan_prefixes" {
   for_each = local.vlans
-  
+
   prefix      = each.value.subnet
   description = "${each.value.description} subnet"
   site_id     = netbox_site.headquarters.id
   vlan_id     = netbox_vlan.site_vlans[each.key].id
   status      = "active"
   is_pool     = false
-  
+
   tags = ["terraform", each.key, "vlan-subnet"]
 }
 ```
@@ -391,20 +395,20 @@ locals {
 # Create wireless networks in Meraki
 resource "meraki_networks_wireless_ssids" "site_ssids" {
   for_each = local.ssids
-  
+
   network_id = meraki_networks.headquarters.network_id
   number     = each.key == "corporate" ? 0 : 1
-  
+
   name                = each.value.name
   enabled            = true
   auth_mode          = each.value.auth_mode
   encryption_mode    = each.value.encryption_mode
   psk                = lookup(each.value, "psk", null)
-  
+
   # VLAN settings
   use_vlan_tagging = true
   default_vlan_id  = each.value.vlan_id
-  
+
   # Security settings
   wpa_encryption_mode = "WPA2 only"
   splashing_enabled   = each.key == "guest"
@@ -413,20 +417,20 @@ resource "meraki_networks_wireless_ssids" "site_ssids" {
 # Create corresponding WLANs in Mist
 resource "mist_site_wlan" "site_wlans" {
   for_each = local.ssids
-  
+
   site_id = mist_site.headquarters.id
   ssid    = each.value.name
-  
+
   # Authentication settings
   auth = {
     type = each.value.auth_mode == "psk" ? "psk" : "open"
     psk  = lookup(each.value, "psk", null)
   }
-  
+
   # VLAN settings
   vlan_enabled = true
   vlan_id      = each.value.vlan_id
-  
+
   # Enable for guest networks
   portal_enabled = each.key == "guest"
 }
@@ -443,7 +447,7 @@ Create a separate file `terraform.tfvars.example`:
 meraki_api_key = "your_meraki_api_key_here"
 meraki_organization_name = "Your Organization Name"
 
-# Mist configuration  
+# Mist configuration
 mist_username = "your_mist_username"
 mist_password = "your_mist_password"
 mist_organization_name = "Your Organization Name"
@@ -536,14 +540,14 @@ Now let's walk through the Terraform workflow using our multi-platform network e
 
 Before running Terraform, ensure you have:
 
-1. **API Access**: 
+1. **API Access**:
    - Meraki API key with organization access
    - Mist credentials or API token
    - NetBox API token
 
 2. **Organization Setup**:
    - Existing Meraki organization
-   - Existing Mist organization  
+   - Existing Mist organization
    - NetBox instance with proper permissions
 
 3. **Credentials File**:
@@ -575,6 +579,7 @@ terraform plan
 ```
 
 **Sample output** for our multi-platform configuration:
+
 ```
 Terraform will perform the following actions:
 
@@ -599,7 +604,7 @@ Terraform will perform the following actions:
   # netbox_site.headquarters will be created
   + resource "netbox_site" "headquarters" {
       + id     = (known after apply)
-      + name   = "headquarters" 
+      + name   = "headquarters"
       + slug   = "headquarters"
       + status = "active"
     }
@@ -614,6 +619,7 @@ terraform apply
 ```
 
 Review the plan and type `yes` to proceed. Terraform will:
+
 - Create the Meraki network and configure VLANs
 - Set up the Mist site and WLANs
 - Create NetBox documentation entries
@@ -622,6 +628,7 @@ Review the plan and type `yes` to proceed. Terraform will:
 ### Step 6: Verify Configuration
 
 Check your platforms:
+
 - **Meraki Dashboard**: Verify network, VLANs, and SSIDs
 - **Mist Console**: Confirm site and WLAN configuration
 - **NetBox**: Check site, VLANs, and IP prefixes
@@ -638,7 +645,7 @@ cd terraform-network-lab
 
 # Create the main configuration
 touch main.tf
-touch variables.tf  
+touch variables.tf
 touch outputs.tf
 touch terraform.tfvars.example
 ```
@@ -648,6 +655,7 @@ touch terraform.tfvars.example
 Begin with just one platform to master the workflow:
 
 **main.tf** (NetBox only to start):
+
 ```hcl
 terraform {
   required_providers {
@@ -679,6 +687,7 @@ resource "netbox_vlan" "management" {
 ```
 
 **variables.tf**:
+
 ```hcl
 variable "netbox_url" {
   description = "NetBox server URL"
@@ -693,6 +702,7 @@ variable "netbox_token" {
 ```
 
 **outputs.tf**:
+
 ```hcl
 output "site_info" {
   value = {
@@ -733,7 +743,7 @@ Once comfortable with the workflow, add Meraki or Mist resources following the p
 ```hcl
 locals {
   is_production = var.environment == "production"
-  
+
   # Different settings based on environment
   vlan_config = var.environment == "production" ? {
     management = { id = 10, subnet = "192.168.10.0/24" }
@@ -753,15 +763,15 @@ variable "site_config" {
   description = "Site-specific configuration"
   type = object({
     name           = string
-    timezone       = string  
+    timezone       = string
     country_code   = string
     wireless_power = string
   })
-  
+
   default = {
     name           = "headquarters"
     timezone       = "America/New_York"
-    country_code   = "US" 
+    country_code   = "US"
     wireless_power = "high"
   }
 }
@@ -773,7 +783,7 @@ variable "site_config" {
 # Only create guest network if enabled
 resource "meraki_networks_wireless_ssids" "guest" {
   count = var.enable_guest_wifi ? 1 : 0
-  
+
   network_id = meraki_networks.main.network_id
   number     = 1
   name       = "Guest"
@@ -824,15 +834,13 @@ terraform import meraki_networks.existing L_123456789
 ## Key Takeaways
 
 1. **Start with foundations**: Ensure your organizations and sites exist before creating networks
-2. **Use data sources**: Query existing infrastructure before creating new resources  
+2. **Use data sources**: Query existing infrastructure before creating new resources
 3. **Manage credentials safely**: Never commit API keys or passwords to version control
 4. **Plan dependencies**: Understand how resources depend on each other across platforms
 5. **Test incrementally**: Start with one platform and expand gradually
 
 The concepts you've learned here using real network infrastructure providers form the foundation for everything else we'll build in this series. You're now managing actual network devices and services as code, not just cloud resources.
 
-In Part 3, we'll explore advanced patterns for managing multiple sites, handling complex network topologies, and integrating with existing network infrastructure.
-
 ---
 
-*Next: Part 3 - "Advanced Network Infrastructure Patterns" - We'll explore multi-site deployments, complex network topologies, and integration patterns that work with your existing infrastructure.*
+_Next: Part 3 - "Advanced Network Infrastructure Patterns" - We'll explore multi-site deployments, complex network topologies, and integration patterns that work with your existing infrastructure._

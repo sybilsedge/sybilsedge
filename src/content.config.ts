@@ -204,9 +204,29 @@ const posts = defineCollection({
 		// Used to render a "Related projects" callout on the post detail page
 		// and a "Related posts" section on the referenced project detail pages.
 		relatedProjects: z.array(z.string()).optional(),
+		// Optional series membership. Set to the slug of a `series` entry
+		// to link this post to a pillar page at /blog/series/<series>.
+		series: z.string().optional(),
+		// 1-based position within the series — used for ordering on the pillar page.
+		seriesOrder: z.number().optional(),
 		// Use Astro's image() helper so hero images are validated and optimised
 		// at build time — must be a local path relative to the entry.
 		heroImage: z.object({
+			src: image(),
+			alt: z.string(),
+		}).optional(),
+	}),
+});
+
+// Series — named clusters of related posts with a dedicated pillar page.
+// Each entry generates a route at /blog/series/<slug>.
+const series = defineCollection({
+	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/series' }),
+	schema: ({ image }) => z.object({
+		title: z.string(),
+		description: z.string(),
+		tags: z.array(z.string()).default([]),
+		coverImage: z.object({
 			src: image(),
 			alt: z.string(),
 		}).optional(),
@@ -240,4 +260,4 @@ const writing = defineCollection({
 	}).passthrough(),
 });
 
-export const collections = { universes, characters, novels, shortStories, lore, timeline, projects, recipes, posts, writing };
+export const collections = { universes, characters, novels, shortStories, lore, timeline, projects, recipes, posts, series, writing };

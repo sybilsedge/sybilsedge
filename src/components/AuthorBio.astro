@@ -1,0 +1,77 @@
+---
+/**
+ * AuthorBio — renders an "About the Author" card below every blog post.
+ *
+ * Data sources:
+ *   - Avatar:    src/assets/images/posts/avatar.jpg  (Astro-optimised Image)
+ *   - Short bio: shortBio export from src/data/about.ts
+ *   - Links:     /about (internal)  ·  LinkedIn (external)
+ */
+import { Image } from 'astro:assets';
+import { shortBio } from '../data/about';
+import avatar from '../assets/images/posts/avatar.jpg';
+
+const linkedinUrl = 'https://www.linkedin.com/in/sybil-melton-1785a411/';
+
+const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
+
+const linkedinSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>`;
+---
+
+<aside class="mt-8 blueprint-border rounded-md bg-black/35 p-6 md:p-8" aria-label="About the author">
+	<p class="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/50 mb-5">// About the Author</p>
+
+	<div class="flex flex-col sm:flex-row items-start gap-5">
+		<!-- Avatar -->
+		<div class="shrink-0">
+			<div class="author-avatar-ring rounded-full p-[2px]">
+				<Image
+					src={avatar}
+					alt="Sybil Melton"
+					width={72}
+					height={72}
+					class="rounded-full object-cover block"
+					loading="lazy"
+				/>
+			</div>
+		</div>
+
+		<!-- Bio text + links -->
+		<div class="flex flex-col gap-3 min-w-0">
+			<div>
+				<p class="font-orbitron text-sm uppercase tracking-[0.1em] text-cyan-100 mb-1">Sybil Melton</p>
+				<p class="font-tech text-[11px] uppercase tracking-[0.14em] text-cyan-300/50">Senior Architect · Writer · Maker</p>
+			</div>
+
+			<p class="text-sm leading-relaxed text-slate-300/85">{shortBio}</p>
+
+			<!-- CTA links -->
+			<div class="flex flex-wrap items-center gap-4">
+				<a
+					href="/about"
+					class="author-link group inline-flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/60 hover:text-cyan-300 transition-colors"
+				>
+					Read more about me
+					<span set:html={arrowSvg} class="transition-transform duration-150 group-hover:translate-x-0.5" />
+				</a>
+
+				<a
+					href={linkedinUrl}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="author-link group inline-flex items-center gap-1.5 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/40 hover:text-[#0A66C2] transition-colors"
+					aria-label="Sybil Melton on LinkedIn (opens in new tab)"
+				>
+					<span set:html={linkedinSvg} />
+					LinkedIn
+				</a>
+			</div>
+		</div>
+	</div>
+</aside>
+
+<style>
+	.author-avatar-ring {
+		background: linear-gradient(135deg, rgb(0 255 255 / 0.35), rgb(0 180 255 / 0.15));
+	}
+</style>
