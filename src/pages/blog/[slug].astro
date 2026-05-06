@@ -5,6 +5,8 @@ import ContentHero from '../../components/ContentHero.astro';
 import Comments from '../../components/Comments.astro';
 import AuthorBio from '../../components/AuthorBio.astro';
 import RelatedPosts from '../../components/RelatedPosts.astro';
+import SeriesBadge from '../../components/SeriesBadge.astro';
+import PostCodeJsonLd from '../../components/PostCodeJsonLd.astro';
 import { getReadingTime } from '../../utils/readingTime.ts';
 
 export const prerender = true;
@@ -52,6 +54,30 @@ const icons: Record<string, string> = {
 	clock: `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
 };
 
+// Resolve series entry when this post belongs to a series
+const seriesEntry = entry.data.series
+	? (await getCollection('series')).find((s) => s.id === entry.data.series) ?? null
+	: null;
+
+// Detect code blocks and infer primary programming language for JSON-LD
+const bodyText = entry.body ?? '';
+const hasCode = /^```\w/m.test(bodyText);
+const langMatches = bodyText.match(/^```(\w+)/gm) ?? [];
+const langCounts: Record<string, number> = {};
+for (const m of langMatches) {
+	const lang = m.replace('```', '').toLowerCase();
+	langCounts[lang] = (langCounts[lang] ?? 0) + 1;
+}
+const primaryLang = Object.entries(langCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
+const langLabel: Record<string, string> = {
+	hcl: 'HCL', ts: 'TypeScript', typescript: 'TypeScript', js: 'JavaScript',
+	javascript: 'JavaScript', python: 'Python', bash: 'Bash',
+	yaml: 'YAML', json: 'JSON',
+};
+const programmingLanguage = primaryLang ? (langLabel[primaryLang] ?? primaryLang.toUpperCase()) : undefined;
+
+const canonicalURL = new URL(`/blog/${entry.id}`, Astro.site ?? 'https://sybilsedge.com').toString();
+
 const formattedDate = entry.data.date.toLocaleDateString('en-US', {
 	year: 'numeric',
 	month: 'long',
@@ -72,6 +98,17 @@ const formattedUpdatedDate = entry.data.updatedDate
 	description={entry.data.description}
 	ogImage="/og/default.png"
 >
+	{/* JSON-LD for posts with code blocks */}
+	{hasCode && (
+		<PostCodeJsonLd
+			slot="head"
+			title={entry.data.title}
+			description={entry.data.description}
+			url={canonicalURL}
+			keywords={entry.data.tags}
+			programmingLanguage={programmingLanguage}
+		/>
+	)}
 	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
 		<a
 			href="/blog"
@@ -113,6 +150,14 @@ const formattedUpdatedDate = entry.data.updatedDate
 					class="mt-6"
 				/>
 			)}
+			{/* Series badge — shown below tags when post belongs to a series */}
+			{seriesEntry && (
+				<SeriesBadge
+					seriesTitle={seriesEntry.data.title}
+					seriesSlug={seriesEntry.id}
+					part={entry.data.seriesOrder}
+				/>
+			)}
 		</header>
 
 		<div class="blueprint-border rounded-md bg-black/35 p-6 md:p-8 prose-post">
@@ -152,6 +197,7 @@ const formattedUpdatedDate = entry.data.updatedDate
 	</div>
 
 	<style>
+		/* ── Headings ────────────────────────────────────────────── */
 		.prose-post :global(h2) {
 			font-family: var(--font-orbitron);
 			font-size: 0.9rem;
@@ -172,6 +218,8 @@ const formattedUpdatedDate = entry.data.updatedDate
 			margin-top: 1.25rem;
 			margin-bottom: 0.5rem;
 		}
+
+		/* ── Body text ───────────────────────────────────────────── */
 		.prose-post :global(p) {
 			font-size: 0.925rem;
 			line-height: 1.75;
@@ -191,7 +239,9 @@ const formattedUpdatedDate = entry.data.updatedDate
 			color: rgb(207 250 254 / 0.9);
 			font-weight: 600;
 		}
-		.prose-post :global(code) {
+
+		/* ── Inline code (not inside a Shiki pre block) ──────────── */
+		.prose-post :global(*:not(pre) > code) {
 			font-family: var(--font-tech);
 			font-size: 0.8rem;
 			background: rgb(0 255 255 / 0.06);
@@ -200,5 +250,106 @@ const formattedUpdatedDate = entry.data.updatedDate
 			padding: 0.1em 0.4em;
 			color: rgb(0 255 255 / 0.75);
 		}
+
+		/* ── Shiki fenced code blocks ────────────────────────────── */
+		.prose-post :global(pre) {
+			position: relative;
+			margin: 1.25rem 0;
+			padding: 1.25rem 1rem;
+			border-radius: 6px;
+			border: 1px solid rgb(0 255 255 / 0.12);
+			box-shadow: 0 0 16px rgb(0 255 255 / 0.04);
+			overflow-x: auto;
+			font-size: 0.82rem;
+			line-height: 1.65;
+		}
+		/* Language label in top-right corner of block */
+		.prose-post :global(pre[data-language])::before {
+			content: attr(data-language);
+			position: absolute;
+			top: 0.4rem;
+			left: 1rem;
+			font-family: var(--font-tech);
+			font-size: 0.65rem;
+			text-transform: uppercase;
+			letter-spacing: 0.15em;
+			color: rgb(0 255 255 / 0.25);
+			pointer-events: none;
+		}
+		/* Shrink the top padding slightly so the label doesn't overlap code */
+		.prose-post :global(pre[data-language]) {
+			padding-top: 1.75rem;
+		}
+
+		/* ── Copy button ─────────────────────────────────────────── */
+		:global(.copy-btn) {
+			position: absolute;
+			top: 0.4rem;
+			right: 0.5rem;
+			display: flex;
+			align-items: center;
+			gap: 0.3rem;
+			padding: 0.2rem 0.55rem;
+			border-radius: 4px;
+			border: 1px solid rgb(0 255 255 / 0.12);
+			background: rgb(0 0 0 / 0.35);
+			font-family: var(--font-tech);
+			font-size: 0.6rem;
+			text-transform: uppercase;
+			letter-spacing: 0.12em;
+			color: rgb(0 255 255 / 0.35);
+			cursor: pointer;
+			transition: color 0.15s, border-color 0.15s, background 0.15s;
+			z-index: 10;
+		}
+		:global(.copy-btn:hover) {
+			color: rgb(0 255 255 / 0.8);
+			border-color: rgb(0 255 255 / 0.3);
+			background: rgb(0 255 255 / 0.06);
+		}
+		:global(.copy-btn.copied) {
+			color: rgb(57 255 20 / 0.8);
+			border-color: rgb(57 255 20 / 0.3);
+		}
 	</style>
+
+	<script>
+		// Copy-to-clipboard for all fenced code blocks in the post body.
+		// Runs once after page load; respects prefers-reduced-motion for the
+		// transition reset delay.
+		(function () {
+			const RESET_MS = 2000;
+
+			const clipSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>`;
+			const checkSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+			document.querySelectorAll<HTMLElement>('.prose-post pre').forEach((pre) => {
+				// Ensure position:relative is set (CSS also sets this, belt-and-braces)
+				pre.style.position = 'relative';
+
+				const btn = document.createElement('button');
+				btn.className = 'copy-btn';
+				btn.setAttribute('aria-label', 'Copy code to clipboard');
+				btn.innerHTML = `${clipSvg} Copy`;
+				pre.appendChild(btn);
+
+				btn.addEventListener('click', async () => {
+					const code = pre.querySelector('code')?.textContent ?? pre.textContent ?? '';
+					try {
+						await navigator.clipboard.writeText(code);
+						btn.innerHTML = `${checkSvg} Copied`;
+						btn.classList.add('copied');
+						setTimeout(() => {
+							btn.innerHTML = `${clipSvg} Copy`;
+							btn.classList.remove('copied');
+						}, reducedMotion ? 0 : RESET_MS);
+					} catch {
+						// Clipboard API unavailable — silently no-op
+					}
+				});
+			});
+		})();
+	</script>
 </Layout>
