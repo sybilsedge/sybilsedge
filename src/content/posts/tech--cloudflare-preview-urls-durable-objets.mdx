@@ -8,6 +8,8 @@ draft: false
 relatedProjects: ["sybilsedge"]
 ---
 
+# Cloudflare Preview URLs, Durable Objects, and the tradeoff
+
 ## Overview
 
 I ran into a Cloudflare limitation after deploying my site: once a Worker implements a Durable Object, preview URLs are not generated for it. That meant my normal preview workflow stopped working at the exact moment I wanted it most — when checking responsiveness, trying alternate page layouts, and confirming that new features rendered correctly before merging.
@@ -46,8 +48,8 @@ The idea was:
 That looked roughly like this:
 
 ```ts
-if (env.ENVIRONMENT === 'preview') {
-  return new Response('Digital twin unavailable in preview environments.', {
+if (env.ENVIRONMENT === "preview") {
+  return new Response("Digital twin unavailable in preview environments.", {
     status: 503,
   });
 }
