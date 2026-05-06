@@ -61,12 +61,12 @@ const seriesEntry = entry.data.series
 
 // Detect code blocks and infer primary programming language for JSON-LD
 const bodyText = entry.body ?? '';
-const hasCode = /^```\w/m.test(bodyText);
-const langMatches = bodyText.match(/^```(\w+)/gm) ?? [];
+const hasCode = /^```[\S]*$/m.test(bodyText);
+const langMatches = bodyText.match(/^```[\S]+/gm) ?? [];
 const langCounts: Record<string, number> = {};
 for (const m of langMatches) {
-	const lang = m.replace('```', '').toLowerCase();
-	langCounts[lang] = (langCounts[lang] ?? 0) + 1;
+	const lang = m.replace(/^```/, '').split(/[\s{]/)[0].toLowerCase();
+	if (lang) langCounts[lang] = (langCounts[lang] ?? 0) + 1;
 }
 const primaryLang = Object.entries(langCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
 const langLabel: Record<string, string> = {
@@ -325,18 +325,19 @@ const formattedUpdatedDate = entry.data.updatedDate
 
 			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-			document.querySelectorAll<HTMLElement>('.prose-post pre').forEach((pre) => {
+			document.querySelectorAll('.prose-post pre').forEach((pre) => {
+				const el = /** @type {HTMLElement} */ (pre);
 				// Ensure position:relative is set (CSS also sets this, belt-and-braces)
-				pre.style.position = 'relative';
+				el.style.position = 'relative';
 
 				const btn = document.createElement('button');
 				btn.className = 'copy-btn';
 				btn.setAttribute('aria-label', 'Copy code to clipboard');
 				btn.innerHTML = `${clipSvg} Copy`;
-				pre.appendChild(btn);
+				el.appendChild(btn);
 
 				btn.addEventListener('click', async () => {
-					const code = pre.querySelector('code')?.textContent ?? pre.textContent ?? '';
+					const code = el.querySelector('code')?.textContent ?? el.textContent ?? '';
 					try {
 						await navigator.clipboard.writeText(code);
 						btn.innerHTML = `${checkSvg} Copied`;
