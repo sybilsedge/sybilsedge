@@ -59,6 +59,13 @@ const seriesEntry = entry.data.series
 	? (await getCollection('series')).find((s) => s.id === entry.data.series) ?? null
 	: null;
 
+// Collect other posts in the same series
+const otherSeriesPosts = seriesEntry
+	? allPosts
+		.filter((p) => p.data.series === seriesEntry.id && p.id !== entry.id)
+		.sort((a, b) => (a.data.seriesOrder ?? 999) - (b.data.seriesOrder ?? 999))
+	: [];
+
 // Detect code blocks and infer primary programming language for JSON-LD
 const bodyText = entry.body ?? '';
 const hasCode = /^```[\S]*$/m.test(bodyText);
@@ -110,13 +117,18 @@ const formattedUpdatedDate = entry.data.updatedDate
 		/>
 	)}
 	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
-		<a
-			href="/blog"
-			class="mb-6 inline-flex items-center gap-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/50 hover:text-cyan-300 transition-colors"
-		>
-			<span set:html={icons.arrow} />
-			All Posts
-		</a>
+		<!-- Breadcrumb -->
+		<nav class="mb-6 flex items-center gap-2 font-tech text-[11px] uppercase tracking-[0.16em]" aria-label="Breadcrumb">
+			<a href="/blog" class="text-cyan-300/50 hover:text-cyan-300 transition-colors">Blog</a>
+			<span class="text-cyan-300/20">/</span>
+			{seriesEntry ? (
+				<>
+					<a href={`/blog/series/${seriesEntry.id}`} class="text-cyan-300/50 hover:text-cyan-300 transition-colors">{seriesEntry.data.title}</a>
+					<span class="text-cyan-300/20">/</span>
+				</>
+			) : null}
+			<span class="text-cyan-300/80 line-clamp-1">{entry.data.title}</span>
+		</nav>
 
 		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-6 md:p-8">
 			<!-- Date · reading time -->
@@ -187,8 +199,48 @@ const formattedUpdatedDate = entry.data.updatedDate
 		<!-- Author bio -->
 		<AuthorBio />
 
+		<!-- Series Navigation (More in this cluster) -->
+		{seriesEntry && otherSeriesPosts.length > 0 && (
+			<aside class="mt-8 blueprint-border rounded-md bg-black/35 p-6 md:p-8" aria-label="More in this series">
+				<p class="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/50 mb-5">// More in this cluster: {seriesEntry.data.title}</p>
+				<ul class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" role="list">
+					{otherSeriesPosts.map((post) => {
+						const formattedDate = post.data.date.toLocaleDateString('en-US', {
+							year: 'numeric',
+							month: 'short',
+							day: 'numeric',
+						});
+						return (
+							<li>
+								<a
+									href={`/blog/${post.id}`}
+									class="group flex flex-col gap-3 h-full blueprint-border rounded-md bg-black/30 p-4 transition-all duration-150 hover:bg-black/50 hover:scale-[1.01]"
+								>
+									<div class="flex items-center justify-between">
+										<time datetime={post.data.date.toISOString()} class="font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/35">
+											{formattedDate}
+										</time>
+										{post.data.seriesOrder && (
+											<span class="font-orbitron text-[9px] text-cyan-300/20">Part {post.data.seriesOrder}</span>
+										)}
+									</div>
+									<p class="font-orbitron text-xs uppercase tracking-[0.08em] text-cyan-100 leading-snug group-hover:text-white transition-colors flex-1">
+										{post.data.title}
+									</p>
+									<span class="inline-flex items-center gap-1 font-tech text-[10px] uppercase tracking-[0.14em] text-cyan-300/40 group-hover:text-cyan-300/70 transition-colors mt-auto">
+										Read post
+										<span set:html={icons.arrow} class="transition-transform duration-150 group-hover:translate-x-0.5 rotate-180" />
+									</span>
+								</a>
+							</li>
+						);
+					})}
+				</ul>
+			</aside>
+		)}
+
 		<!-- Related posts (tag-matched, computed at build time) -->
-		{relatedPosts.length > 0 && (
+		{!seriesEntry && relatedPosts.length > 0 && (
 			<RelatedPosts posts={relatedPosts} currentTags={entry.data.tags} />
 		)}
 
@@ -326,7 +378,7 @@ const formattedUpdatedDate = entry.data.updatedDate
 			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 			document.querySelectorAll('.prose-post pre').forEach((pre) => {
-				const el = /** @type {HTMLElement} */ (pre);
+				const el = pre as HTMLElement;
 				// Ensure position:relative is set (CSS also sets this, belt-and-braces)
 				el.style.position = 'relative';
 
