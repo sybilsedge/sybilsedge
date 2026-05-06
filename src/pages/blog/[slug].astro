@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
 import ContentHero from '../../components/ContentHero.astro';
 import Comments from '../../components/Comments.astro';
+import AuthorBio from '../../components/AuthorBio.astro';
 import { getReadingTime } from '../../utils/readingTime.ts';
 
 export const prerender = true;
@@ -118,6 +119,9 @@ const formattedUpdatedDate = entry.data.updatedDate
 				</ul>
 			</aside>
 		)}
+
+		<!-- Author bio -->
+		<AuthorBio />
 
 		<!-- Giscus comments -->
 		<Comments />
