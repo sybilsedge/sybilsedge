@@ -4,6 +4,7 @@ import { getCollection, render } from 'astro:content';
 import ContentHero from '../../components/ContentHero.astro';
 import Comments from '../../components/Comments.astro';
 import AuthorBio from '../../components/AuthorBio.astro';
+import RelatedPosts from '../../components/RelatedPosts.astro';
 import { getReadingTime } from '../../utils/readingTime.ts';
 
 export const prerender = true;
@@ -12,11 +13,29 @@ export async function getStaticPaths() {
 	const posts = await getCollection('posts', ({ data }) => !data.draft);
 	return posts.map((entry) => ({
 		params: { slug: entry.id },
-		props: { entry },
+		props: { entry, allPosts: posts },
 	}));
 }
 
-const { entry } = Astro.props;
+const { entry, allPosts } = Astro.props;
+
+// Compute tag-based related posts (top 3 by overlap count, then newest first)
+const MAX_RELATED = 3;
+const relatedPosts = allPosts
+	.filter((p) => p.id !== entry.id)
+	.map((p) => ({
+		post: p,
+		overlap: p.data.tags.filter((t) => entry.data.tags.includes(t)).length,
+	}))
+	.filter(({ overlap }) => overlap > 0)
+	.sort(
+		(a, b) =>
+			b.overlap - a.overlap ||
+			b.post.data.date.getTime() - a.post.data.date.getTime()
+	)
+	.slice(0, MAX_RELATED)
+	.map(({ post }) => post);
+
 const { Content } = await render(entry);
 
 // Reading time computed from raw body before render
@@ -122,6 +141,11 @@ const formattedUpdatedDate = entry.data.updatedDate
 
 		<!-- Author bio -->
 		<AuthorBio />
+
+		<!-- Related posts (tag-matched, computed at build time) -->
+		{relatedPosts.length > 0 && (
+			<RelatedPosts posts={relatedPosts} currentTags={entry.data.tags} />
+		)}
 
 		<!-- Giscus comments -->
 		<Comments />

@@ -1,0 +1,79 @@
+---
+/**
+ * RelatedPosts — tag-matched post suggestions below every blog post.
+ *
+ * Props:
+ *   posts       — pre-filtered, pre-sorted array of related posts (max 3)
+ *   currentTags — tags of the current post, used to highlight shared tags
+ */
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+	posts: CollectionEntry<'posts'>[];
+	currentTags: string[];
+}
+
+const { posts, currentTags } = Astro.props;
+
+const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
+---
+
+<aside class="mt-8 blueprint-border rounded-md bg-black/35 p-6 md:p-8" aria-label="Related posts">
+	<p class="font-tech text-[10px] uppercase tracking-[0.22em] text-cyan-300/50 mb-5">// Related Posts</p>
+
+	<ul class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" role="list">
+		{posts.map((post) => {
+			const sharedTags = post.data.tags.filter((t) => currentTags.includes(t));
+			const otherTags  = post.data.tags.filter((t) => !currentTags.includes(t));
+			const formattedDate = post.data.date.toLocaleDateString('en-US', {
+				year: 'numeric',
+				month: 'short',
+				day: 'numeric',
+			});
+
+			return (
+				<li>
+					<a
+						href={`/blog/${post.id}`}
+						class="related-card group flex flex-col gap-3 h-full blueprint-border rounded-md bg-black/30 p-4 transition-all duration-150 hover:bg-black/50 hover:scale-[1.01]"
+					>
+						<!-- Date -->
+						<time
+							datetime={post.data.date.toISOString()}
+							class="font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/35"
+						>
+							{formattedDate}
+						</time>
+
+						<!-- Title -->
+						<p class="font-orbitron text-xs uppercase tracking-[0.08em] text-cyan-100 leading-snug group-hover:text-white transition-colors flex-1">
+							{post.data.title}
+						</p>
+
+						<!-- Tags: shared (highlighted) then others (muted) -->
+						{post.data.tags.length > 0 && (
+							<div class="flex flex-wrap gap-1">
+								{sharedTags.map((tag) => (
+									<span class="rounded font-tech text-[9px] uppercase tracking-[0.1em] px-1.5 py-0.5 bg-cyan-300/10 border border-cyan-300/25 text-cyan-300/70">
+										{tag}
+									</span>
+								))}
+								{otherTags.map((tag) => (
+									<span class="rounded font-tech text-[9px] uppercase tracking-[0.1em] px-1.5 py-0.5 bg-black/40 border border-cyan-300/08 text-cyan-300/30">
+										{tag}
+									</span>
+								))}
+							</div>
+						)}
+
+						<!-- Read link -->
+						<span class="inline-flex items-center gap-1 font-tech text-[10px] uppercase tracking-[0.14em] text-cyan-300/40 group-hover:text-cyan-300/70 transition-colors mt-auto">
+							Read post
+							<span set:html={arrowSvg} class="transition-transform duration-150 group-hover:translate-x-0.5" />
+						</span>
+					</a>
+				</li>
+			);
+		})}
+	</ul>
+</aside>
