@@ -32,7 +32,7 @@ const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
 <Layout
 	title={`${entry.data.title} | Series | Sybilsedge`}
 	description={entry.data.description}
-	ogImage="/og/default.png"
+	ogImage={entry.data.coverImage ? entry.data.coverImage.src.src : "/og/default.png"}
 >
 	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
 

@@ -20,7 +20,7 @@ const seriesCounts = allPosts.reduce((acc, post) => {
 }, {} as Record<string, number>);
 
 // Latest posts (3-5)
-const latestPosts = allPosts
+const latestPosts = [...allPosts]
 	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
 	.slice(0, 5);
 
@@ -120,7 +120,7 @@ const rssIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" 
 				Latest Transmissions
 			</h2>
 
-			<div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+			<div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 mb-8">
 				{latestPosts.map((entry) => {
 					const formattedDate = entry.data.date.toLocaleDateString('en-US', {
 						year: 'numeric',
@@ -164,6 +164,18 @@ const rssIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" 
 					);
 				})}
 			</div>
+
+			{allPosts.length > 5 && (
+				<div class="flex justify-center">
+					<a
+						href="/blog/archive/2"
+						class="flex items-center gap-2 rounded border border-cyan-300/20 bg-cyan-300/5 px-6 py-2.5 font-tech text-[11px] uppercase tracking-[0.2em] text-cyan-300/60 transition-all hover:border-accent/40 hover:text-accent hover:bg-cyan-300/10"
+					>
+						View All Transmissions
+						<span set:html={arrowSvg} />
+					</a>
+				</div>
+			)}
 		</section>
 
 	</div>
