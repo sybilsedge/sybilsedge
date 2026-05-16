@@ -1,0 +1,56 @@
+---
+title: "Net Agent Harness"
+category: "tech"
+status: "active"
+description: "A network change planning and execution pipeline designed to turn natural-language requests into safe, reviewable, vendor-specific network changes."
+githubUrl: "https://github.com/ngnetworkpro/net-agent-harness"
+date: 2026-05-16
+featured: true
+tags: ["Python", "PydanticAI", "Network Automation", "LLM Agents"]
+schemaType: "SoftwareApplication"
+appCategory: "DeveloperApplication"
+operatingSystem: "Cross-platform"
+---
+
+## Overview
+
+Net Agent Harness is a personal lab project focused on creating a model-backed
+harness for network-engineering workflows. It transforms plain-English change
+requests into structured, staged, and safe network operations.
+
+The core philosophy is a staged, deterministic pipeline—`route` → `plan` →
+`render` → `execute` → `review`—ensuring that LLM reasoning is used for
+interpretation and planning, while orchestration and validation remain
+authoritative in Python.
+
+## Tech Stack
+
+- **Framework** — [PydanticAI](https://docs.pydantic.dev/latest/concepts/pydantic_ai/) for agentic workflows
+- **Validation** — [Pydantic v2](https://docs.pydantic.dev/) for strict artifact contracts
+- **Models** — Ollama (local), NVIDIA API, and OpenAI
+- **CLI** — [Typer](https://typer.tiangolo.com/) and [Rich](https://rich.readthedocs.io/)
+- **Inventory** — REST adapters for NetBox and local mock data
+
+## Architecture
+
+The system follows an artifact-first, staged pipeline where each stage has clear
+ownership and hand-off contracts:
+
+- **Route** — Deterministically routes requests to relevant network domains (VLAN, ACL, etc.)
+- **Plan** — Interprets intent against current state to decide if a change is needed (`apply`, `no_op`, or `blocked`)
+- **Render** — Translates approved plans into vendor-specific API or CLI operations
+- **Execute** — Applies changes behind approval gates (disabled by default in prototype)
+- **Review** — Validates results and records the outcome
+
+## Features
+
+- **Staged Pipeline** — Enforced stages prevent "hallucination-driven" execution
+- **Deterministic Routing** — Prefers Python-based routing logic for safety
+- **Inventory Grounding** — Target resolution is authoritative and source-backed, not assumed by the LLM
+- **Artifact-First** — Every stage produces a durable, typed JSON artifact for traceability
+- **Multi-Provider** — Seamlessly switch between local models (Ollama) and cloud APIs (NVIDIA/OpenAI)
+
+## Status
+
+Active prototype. Currently handles end-to-end VLAN change planning with ongoing
+work to expand domain support for routing, ACLs, and wireless.
