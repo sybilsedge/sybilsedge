@@ -119,6 +119,8 @@ interface Env {
 	SYBIL_TWIN: DurableObjectNamespace;
 	/** Private R2 bucket for digital-twin knowledge-base documents. Optional — gracefully skipped when unbound (e.g. local dev without binding). */
 	SYBIL_TWIN_KB?: R2Bucket;
+	/** D1 database for Digital Twin interaction logging. Optional — unbound in preview. */
+	DB?: D1Database;
 }
 
 // Provides types for the `cloudflare:workers` virtual module used in Astro v6 SSR.
