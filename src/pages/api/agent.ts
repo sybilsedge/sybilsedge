@@ -103,7 +103,7 @@ export const POST: APIRoute = async ({ request }) => {
 		)
 		.bind(
 			new Date().toISOString(),
-			sessionId,       // from request body or header
+			sessionId,       // from request body
 			userMessage,     // the visitor's question
 			isNewSession ? 1 : 0,
 			request.headers.get('user-agent') ?? null,
