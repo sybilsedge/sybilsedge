@@ -92,6 +92,27 @@ export const POST: APIRoute = async ({ request }) => {
 		console.error(`[agent:${reqId}] history fetch failed:`, err);
 	}
 
+	const isNewSession = history.length === 0;
+	const userMessage = userContent;
+
+	// Fire-and-forget — do NOT await
+	if (env.DB) {
+		env.DB.prepare(
+			`INSERT INTO twin_interactions (timestamp, session_id, message, is_new_session, user_agent, referrer)
+			 VALUES (?, ?, ?, ?, ?, ?)`
+		)
+		.bind(
+			new Date().toISOString(),
+			sessionId,       // from request body or header
+			userMessage,     // the visitor's question
+			isNewSession ? 1 : 0,
+			request.headers.get('user-agent') ?? null,
+			request.headers.get('referer') ?? null
+		)
+		.run()
+		.catch((err: any) => console.error('D1 log failed:', err));
+	}
+
 	// ── 3. Build messages for the model ───────────────────────────────────
 	let systemPrompt: string;
 	try {
