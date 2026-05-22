@@ -21,10 +21,10 @@
 	// Preview: omit D1 binding (consistent with DO omission)
 	"env": {
 		"preview": {
+			"d1_databases": [],
 			"vars": {
 				"ENVIRONMENT": "preview"
 			}
-			// No d1_databases block — preview doesn't need logging
 		}
 	}
 }

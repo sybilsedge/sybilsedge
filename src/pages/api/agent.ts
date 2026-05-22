@@ -98,14 +98,15 @@ export const POST: APIRoute = async ({ request }) => {
 	// Fire-and-forget — do NOT await
 	if (env.DB) {
 		env.DB.prepare(
-			`INSERT INTO twin_interactions (timestamp, session_id, message, is_new_session, user_agent, referrer)
-			 VALUES (?, ?, ?, ?, ?, ?)`
+			`INSERT INTO twin_interactions (timestamp, session_id, message, is_new_session, session_status, user_agent, referrer)
+			 VALUES (?, ?, ?, ?, ?, ?, ?)`
 		)
 		.bind(
 			new Date().toISOString(),
 			sessionId,       // from request body
 			userMessage,     // the visitor's question
 			isNewSession ? 1 : 0,
+			isNewSession ? 'new' : 'existing',
 			request.headers.get('user-agent') ?? null,
 			request.headers.get('referer') ?? null
 		)

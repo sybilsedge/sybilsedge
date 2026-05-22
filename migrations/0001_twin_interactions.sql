@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS twin_interactions (
   session_id     TEXT    NOT NULL,
   message        TEXT    NOT NULL,
   is_new_session INTEGER NOT NULL DEFAULT 0,
+  session_status TEXT,
   user_agent     TEXT,
   referrer       TEXT
 );
