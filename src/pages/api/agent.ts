@@ -121,7 +121,7 @@ export const POST: APIRoute = async ({ request }) => {
 	} catch (err) {
 		console.error(`[agent:${reqId}] context build failed:`, err);
 		systemPrompt =
-			"You are Sybil Melton's digital twin. Answer questions about her professional background honestly and helpfully.";
+			"You ARE Sybil Melton — her digital twin. Always speak in the first person (I, me, my). Never use third-person pronouns about yourself. Answer questions about your professional background, creative projects, and interests honestly and helpfully.";
 	}
 
 	const messages = [
@@ -151,20 +151,132 @@ export const POST: APIRoute = async ({ request }) => {
 	const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
 	const writer = writable.getWriter();
 	const decoder = new TextDecoder();
+	const encoder = new TextEncoder();
 	let fullResponse = '';
 
 	(async () => {
 		const reader = aiStream.getReader();
 		let buffer = '';
+		let insideThink = false;
+		const TAG_WINDOW = 8; // length of '</think>' (longest tag)
 
-		const appendResponseFromSseLine = (line: string) => {
-			const trimmedLine = line.trim();
-			if (!trimmedLine.startsWith('data: ') || trimmedLine.includes('[DONE]')) return;
+		/**
+		 * Two independent look-behind buffers so a token that both emits
+		 * clean text AND opens/closes a think block cannot clobber the
+		 * other branch's carry.
+		 *
+		 * cleanCarry — trailing clean-text chars held back to detect a
+		 *              split <think> open tag across SSE frames.
+		 * thinkCarry — trailing inside-think chars held back to detect a
+		 *              split </think> close tag across SSE frames.
+		 */
+		let cleanCarry = '';
+		let thinkCarry = '';
+
+		/** Flush held-back clean text to the client. */
+		const flushCleanCarry = async () => {
+			if (!cleanCarry) return;
+			fullResponse += cleanCarry;
+			await writer.write(encoder.encode(
+				`data: ${JSON.stringify({ response: cleanCarry })}\n\n`
+			));
+			cleanCarry = '';
+		};
+
+		/**
+		 * Process one SSE line: strip <think>…</think> blocks,
+		 * emit `thinking` signals, and forward only clean tokens.
+		 *
+		 * Tags split across tokens are handled by prepending the
+		 * appropriate carry buffer, running the state machine, then
+		 * holding back the trailing TAG_WINDOW chars in the correct
+		 * buffer for the next call.
+		 */
+		const processSseLine = async (line: string) => {
+			const trimmed = line.trim();
+			if (!trimmed.startsWith('data: ')) return;
+			if (trimmed.includes('[DONE]')) {
+				await flushCleanCarry();
+				await writer.write(encoder.encode(line + '\n'));
+				return;
+			}
 			try {
-				const data = JSON.parse(trimmedLine.slice(6)) as { response?: string };
-				if (data.response) fullResponse += data.response;
+				const data = JSON.parse(trimmed.slice(6)) as { response?: string };
+				if (!data.response) return;
+
+				// Prepend the carry that matches our current state
+				let token: string;
+				if (insideThink) {
+					token = thinkCarry + data.response;
+					thinkCarry = '';
+				} else {
+					token = cleanCarry + data.response;
+					cleanCarry = '';
+				}
+				let clean = '';
+
+				// State machine for <think>…</think> boundaries
+				while (token.length > 0) {
+					if (!insideThink) {
+						const idx = token.indexOf('<think>');
+						if (idx !== -1) {
+							const preThink = clean + token.slice(0, idx);
+							if (preThink) {
+								fullResponse += preThink;
+								await writer.write(encoder.encode(
+									`data: ${JSON.stringify({ response: preThink })}\n\n`
+								));
+							}
+							clean = '';
+							insideThink = true;
+							token = token.slice(idx + 7);
+							await writer.write(encoder.encode(
+								`data: ${JSON.stringify({ response: '', thinking: true })}\n\n`
+							));
+						} else {
+							clean += token;
+							token = '';
+						}
+					} else {
+						const idx = token.indexOf('</think>');
+						if (idx !== -1) {
+							insideThink = false;
+							token = token.slice(idx + 8);
+							await writer.write(encoder.encode(
+								`data: ${JSON.stringify({ response: '', thinking: false })}\n\n`
+							));
+						} else {
+							// Retain trailing TAG_WINDOW chars in case </think>
+							// straddles this token and the next one.
+							thinkCarry = token.length > TAG_WINDOW
+								? token.slice(-TAG_WINDOW)
+								: token;
+							token = ''; // drop the rest — still inside think block
+						}
+					}
+				}
+
+				if (clean) {
+					// If insideThink was true at call entry, cleanCarry was NOT
+					// prepended to the token — merge it now so it isn't lost.
+					const merged = cleanCarry + clean;
+					cleanCarry = '';
+
+					// Hold back the trailing TAG_WINDOW chars in case a
+					// <think> tag straddles this token and the next one.
+					if (merged.length > TAG_WINDOW) {
+						const emit = merged.slice(0, -TAG_WINDOW);
+						cleanCarry = merged.slice(-TAG_WINDOW);
+						fullResponse += emit;
+						await writer.write(encoder.encode(
+							`data: ${JSON.stringify({ response: emit })}\n\n`
+						));
+					} else {
+						cleanCarry = merged;
+					}
+				}
 			} catch {
-				// Ignore malformed or incomplete SSE lines until they can be completed
+				// Ignore malformed or incomplete SSE lines
 			}
 		};
 
@@ -172,15 +284,12 @@ export const POST: APIRoute = async ({ request }) => {
 			while (true) {
 				const { done, value } = await reader.read();
 				if (done) break;
-				await writer.write(value);
-				// Collect tokens from SSE lines to form the complete response
 				buffer += decoder.decode(value, { stream: true });
 				const lines = buffer.split('\n');
-				// Keep the last element in the buffer — it may be an incomplete line
-				// that will be completed by the next chunk.
+				// Keep the last element — it may be an incomplete line
 				buffer = lines.pop() ?? '';
 				for (const line of lines) {
-					appendResponseFromSseLine(line);
+					await processSseLine(line);
 				}
 			}
 		} catch (err) {
@@ -188,12 +297,27 @@ export const POST: APIRoute = async ({ request }) => {
 		} finally {
 			// Flush any remaining bytes held by the decoder
 			buffer += decoder.decode();
-			if (buffer) appendResponseFromSseLine(buffer);
+			if (buffer) await processSseLine(buffer);
+			// Flush any remaining look-behind carry to the client
+			await flushCleanCarry();
+
+			if (insideThink) {
+				try {
+					await writer.write(encoder.encode(
+						`data: ${JSON.stringify({ response: '', thinking: false })}\n\n`
+					));
+				} catch (err) {
+					console.error('[agent] failed to write terminal thinking:false frame:', err);
+				}
+			}
 
 			reader.releaseLock();
 			// Close the writer immediately so the client sees the stream end
 			// before the (slower) DO persistence call below.
 			writer.close();
+
+			// Safety-net regex to catch edge cases (e.g. tags split across tokens)
+			fullResponse = fullResponse.replace(/<think>[\s\S]*?<\/think>/g, '').trimStart();
 
 			// ── 6. Persist both turns to the DO after stream completes ─────
 			if (fullResponse) {
