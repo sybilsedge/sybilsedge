@@ -13,6 +13,7 @@ interface DurableObjectStorage {
 
 interface DurableObjectState {
 	storage: DurableObjectStorage;
+	blockConcurrencyWhile<T>(callback: () => Promise<T>): Promise<T>;
 }
 
 interface DurableObjectId {

@@ -45,7 +45,10 @@ function getSystemPrompt(): Promise<string> {
 	return systemPromptCache;
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async (context) => {
+	const { request, locals } = context;
+	const cfContext = (locals as { cfContext?: { waitUntil?: (promise: Promise<unknown>) => void } })
+		.cfContext;
 	const reqId = crypto.randomUUID().slice(0, 8);
 	const t0 = Date.now();
 
@@ -80,16 +83,21 @@ export const POST: APIRoute = async ({ request }) => {
 	const userContent = (message as string).trim();
 
 	// ── 2. Load conversation history from Durable Object ──────────────────
-	const doId = env.SYBIL_TWIN.idFromName(sessionId as string);
-	const stub = env.SYBIL_TWIN.get(doId);
-
 	let history: Array<{ role: string; content: string }> = [];
-	try {
-		const histRes = await stub.fetch(new Request(`${DO_BASE}/history`));
-		if (histRes.ok) history = await histRes.json();
-	} catch (err) {
-		// Non-fatal: proceed with empty history
-		console.error(`[agent:${reqId}] history fetch failed:`, err);
+	let stub: DurableObjectStub | null = null;
+
+	if (env.SYBIL_TWIN) {
+		try {
+			const doId = env.SYBIL_TWIN.idFromName(sessionId as string);
+			stub = env.SYBIL_TWIN.get(doId);
+			const histRes = await stub.fetch(new Request(`${DO_BASE}/history`));
+			if (histRes.ok) history = await histRes.json();
+		} catch (err) {
+			// Non-fatal: proceed with empty history
+			console.error(`[agent:${reqId}] history fetch failed:`, err);
+		}
+	} else {
+		console.warn(`[agent:${reqId}] SYBIL_TWIN binding not found; proceeding without history`);
 	}
 
 	const isNewSession = history.length === 0;
@@ -97,7 +105,7 @@ export const POST: APIRoute = async ({ request }) => {
 
 	// Fire-and-forget — do NOT await
 	if (env.DB) {
-		env.DB.prepare(
+		const dbLogPromise = env.DB.prepare(
 			`INSERT INTO twin_interactions (timestamp, session_id, message, is_new_session, session_status, user_agent, referrer)
 			 VALUES (?, ?, ?, ?, ?, ?, ?)`
 		)
@@ -112,6 +120,8 @@ export const POST: APIRoute = async ({ request }) => {
 			)
 			.run()
 			.catch((err: any) => console.error('D1 log failed:', err));
+
+		cfContext?.waitUntil?.(dbLogPromise);
 	}
 
 	// ── 3. Build messages for the model ───────────────────────────────────
@@ -153,6 +163,13 @@ export const POST: APIRoute = async ({ request }) => {
 	const decoder = new TextDecoder();
 	const encoder = new TextEncoder();
 	let fullResponse = '';
+	const closeWriter = async () => {
+		try {
+			await writer.close();
+		} catch (err) {
+			console.error(`[agent:${reqId}] stream close failed:`, err);
+		}
+	};
 
 	(async () => {
 		const reader = aiStream.getReader();
@@ -312,33 +329,44 @@ export const POST: APIRoute = async ({ request }) => {
 			}
 
 			reader.releaseLock();
-			// Close the writer immediately so the client sees the stream end
-			// before the (slower) DO persistence call below.
-			writer.close();
 
 			// Safety-net regex to catch edge cases (e.g. tags split across tokens)
 			fullResponse = fullResponse.replace(/<think>[\s\S]*?<\/think>/g, '').trimStart();
 
 			// ── 6. Persist both turns to the DO after stream completes ─────
-			if (fullResponse) {
-				try {
-					await stub.fetch(
-						new Request(`${DO_BASE}/append`, {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify([
-								{ role: 'user', content: userContent },
-								{ role: 'assistant', content: fullResponse },
-							]),
-						})
+			if (stub) {
+				const appendPromise = (async () => {
+					if (fullResponse) {
+						try {
+							await stub.fetch(
+								new Request(`${DO_BASE}/append`, {
+									method: 'POST',
+									headers: { 'Content-Type': 'application/json' },
+									body: JSON.stringify([
+										{ role: 'user', content: userContent },
+										{ role: 'assistant', content: fullResponse },
+									]),
+								})
+							);
+						} catch (err) {
+							console.error(`[agent:${reqId}] DO append failed:`, err);
+						}
+					}
+					console.log(
+						`[agent:${reqId}] done — ${fullResponse.length} chars in ${Date.now() - t0}ms`
 					);
-				} catch (err) {
-					console.error(`[agent:${reqId}] DO append failed:`, err);
+				})();
+
+				if (cfContext) {
+					cfContext.waitUntil?.(appendPromise);
+					await closeWriter();
+				} else {
+					await appendPromise;
+					await closeWriter();
 				}
+			} else {
+				await closeWriter();
 			}
-			console.log(
-				`[agent:${reqId}] done — ${fullResponse.length} chars in ${Date.now() - t0}ms`
-			);
 		}
 	})();
 
