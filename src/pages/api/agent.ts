@@ -6,7 +6,7 @@ import { loadKbContext } from '../../agent/r2-context';
 
 export const prerender = false;
 
-const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+const MODEL = '@cf/meta/llama-3.2-1b-instruct';
 
 /** Arbitrary base URL — DO stubs route by binding, not real HTTP. */
 const DO_BASE = 'http://do';
