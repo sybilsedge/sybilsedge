@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { isValidSessionId, isValidMessage } from '../../agent/types';
 import { buildSystemPrompt } from '../../agent/context';
-import { loadKbContext } from '../../agent/r2-context';
+import { loadKbContext, type KbContext } from '../../agent/r2-context';
 
 export const prerender = false;
 
@@ -20,12 +20,14 @@ let systemPromptCache: Promise<string> | null = null;
  * R2 load failures are non-fatal — the prompt falls back to local data only.
  */
 async function buildPromptWithKb(): Promise<string> {
-	let kbContext: string | undefined;
+	let kbContext: KbContext | undefined;
 	if (env.SYBIL_TWIN_KB) {
 		try {
 			kbContext = await loadKbContext(env.SYBIL_TWIN_KB);
 			if (kbContext) {
-				console.log(`[agent] R2 KB loaded: ${kbContext.length} chars`);
+				console.log(
+					`[agent] R2 KB loaded: style=${kbContext.style.length} chars, facts=${kbContext.facts.length} chars`
+				);
 			}
 		} catch (err) {
 			console.error('[agent] R2 KB load failed; proceeding without KB context:', err);

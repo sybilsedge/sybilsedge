@@ -1,6 +1,9 @@
 # build output
 dist/
 
+#knowledge base - local only
+kb/
+
 # generated types
 .astro/
 .wrangler/

@@ -98,9 +98,7 @@ Author markdown files locally outside the repository (e.g. `~/sybil-twin-kb/`).
 **Upload a single file:**
 
 ```bash
-npx wrangler r2 object put sybil-twin-kb/kb/cloud-architecture-philosophy.md \
-  --file ~/sybil-twin-kb/cloud-architecture-philosophy.md \
-  --content-type text/markdown
+npx wrangler r2 object put sybil-twin-kb/kb/facts/biography.md --file facts/biography.md --content-type text/markdown --remote
 ```
 
 **Upload all files from a local folder:**

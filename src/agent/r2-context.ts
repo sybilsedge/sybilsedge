@@ -14,18 +14,22 @@
  */
 
 /** Maximum number of kb/ documents to load per prompt build. */
-export const MAX_KB_FILES = 20;
+export const MAX_KB_FILES = 50;
 
-/**
- * Maximum total characters contributed by R2 documents to the system prompt
- * (including the `---` dividers inserted between sections at join-time).
- * At ~4 chars/token this is roughly 3 000 tokens — generous but conservative
- * given the 128 k-token context window of Llama 3.3 70B.
- */
-export const MAX_KB_CHARS = 12_000;
+/** Maximum total characters contributed by R2 style documents. */
+export const MAX_STYLE_CHARS = 25_000;
+
+/** Maximum total characters contributed by R2 facts documents. */
+export const MAX_FACTS_CHARS = 20_000;
 
 /** Separator inserted between sections at join-time. */
 const DIVIDER = '\n\n---\n\n';
+
+/** Structured context returned from R2. */
+export interface KbContext {
+	style: string;
+	facts: string;
+}
 
 /** Max concurrent R2 get() calls per prompt build. */
 const FETCH_CONCURRENCY = 5;
@@ -98,13 +102,14 @@ async function fetchAll(bucket: R2Bucket, keys: string[]): Promise<FetchResult[]
  * @returns Plain-text sections joined by `---` dividers, or an empty string
  *          if the bucket is empty or all reads fail.
  */
-export async function loadKbContext(bucket: R2Bucket): Promise<string> {
+export async function loadKbContext(bucket: R2Bucket): Promise<KbContext> {
+	const defaultResult: KbContext = { style: '', facts: '' };
 	let listed: R2Objects;
 	try {
 		listed = await bucket.list({ prefix: 'kb/', limit: MAX_KB_FILES + 1 });
 	} catch (err) {
 		console.error('[r2-context] bucket.list failed:', err);
-		return '';
+		return defaultResult;
 	}
 
 	const mdKeys = listed.objects
@@ -114,15 +119,15 @@ export async function loadKbContext(bucket: R2Bucket): Promise<string> {
 
 	if (mdKeys.length === 0) {
 		console.log('[r2-context] no kb/ markdown objects found in bucket');
-		return '';
+		return defaultResult;
 	}
 
 	const fetched = await fetchAll(bucket, mdKeys);
 
-	const sections: string[] = [];
-	// totalChars tracks the exact byte length of sections.join(DIVIDER) so
-	// that the MAX_KB_CHARS limit accurately reflects what ends up in the prompt.
-	let totalChars = 0;
+	const styleSections: string[] = [];
+	const factsSections: string[] = [];
+	let styleChars = 0;
+	let factsChars = 0;
 
 	for (const result of fetched) {
 		if ('error' in result) {
@@ -133,30 +138,48 @@ export async function loadKbContext(bucket: R2Bucket): Promise<string> {
 		const content = stripFrontmatter(result.raw);
 		if (!content) continue;
 
-		const section = `### ${titleFromKey(result.key)}\n\n${content}`;
-		// Each section after the first contributes an additional DIVIDER in the
-		// final join output, so we must include that overhead in the budget check.
-		const dividerCost = sections.length > 0 ? DIVIDER.length : 0;
-		const addCost = section.length + dividerCost;
+		const title = titleFromKey(result.key);
+		const section = `### ${title}\n\n${content}`;
 
-		if (totalChars + addCost > MAX_KB_CHARS) {
-			const remaining = MAX_KB_CHARS - totalChars - dividerCost;
-			if (remaining > 300) {
-				const truncated = section.slice(0, remaining);
-				sections.push(truncated);
-				totalChars += truncated.length + dividerCost;
-				console.log(`[r2-context] KB budget reached — truncated "${result.key}"`);
+		if (result.key.startsWith('kb/style/')) {
+			const dividerCost = styleSections.length > 0 ? DIVIDER.length : 0;
+			const addCost = section.length + dividerCost;
+			if (styleChars + addCost > MAX_STYLE_CHARS) {
+				const remaining = MAX_STYLE_CHARS - styleChars - dividerCost;
+				if (remaining > 300) {
+					const truncated = section.slice(0, remaining);
+					styleSections.push(truncated);
+					styleChars += truncated.length + dividerCost;
+					console.log(`[r2-context] Style budget reached — truncated "${result.key}"`);
+				}
+				continue;
 			}
-			break;
+			styleSections.push(section);
+			styleChars += addCost;
+		} else {
+			const dividerCost = factsSections.length > 0 ? DIVIDER.length : 0;
+			const addCost = section.length + dividerCost;
+			if (factsChars + addCost > MAX_FACTS_CHARS) {
+				const remaining = MAX_FACTS_CHARS - factsChars - dividerCost;
+				if (remaining > 300) {
+					const truncated = section.slice(0, remaining);
+					factsSections.push(truncated);
+					factsChars += truncated.length + dividerCost;
+					console.log(`[r2-context] Facts budget reached — truncated "${result.key}"`);
+				}
+				continue;
+			}
+			factsSections.push(section);
+			factsChars += addCost;
 		}
-
-		sections.push(section);
-		totalChars += addCost;
 	}
 
 	console.log(
-		`[r2-context] loaded ${sections.length}/${mdKeys.length} files — ${totalChars} chars`
+		`[r2-context] loaded style: ${styleSections.length} files (${styleChars} chars), facts: ${factsSections.length} files (${factsChars} chars)`
 	);
-	return sections.join(DIVIDER);
+	return {
+		style: styleSections.join(DIVIDER),
+		facts: factsSections.join(DIVIDER),
+	};
 }
 
