@@ -159,20 +159,27 @@ export const POST: APIRoute = async ({ request }) => {
 		let buffer = '';
 		let insideThink = false;
 		/**
-		 * Look-behind buffer: holds the last TAG_WINDOW chars of clean output
-		 * so that a tag split across SSE tokens (e.g. "<thi" | "nk>") is caught
-		 * before any fragment leaks to the client.
+		 * Look-behind buffer: holds the last TAG_WINDOW chars across tokens
+		 * so that either tag (<think> or </think>) split across SSE frames
+		 * is caught before any fragment leaks or gets dropped.
+		 * Reused by both branches — only one is active at a time.
 		 */
-		const TAG_WINDOW = 7; // length of '<think>' (longest open tag)
+		const TAG_WINDOW = 8; // length of '</think>' (longest tag)
 		let tagCarry = '';
 
-		/** Flush any held-back carry text to the client as a normal token. */
+		/**
+		 * Flush any held-back carry text to the client as a normal token.
+		 * Only emits when outside a think block — if insideThink is true,
+		 * the carry holds think-block tail bytes that must be discarded.
+		 */
 		const flushCarry = async () => {
 			if (!tagCarry) return;
-			fullResponse += tagCarry;
-			await writer.write(encoder.encode(
-				`data: ${JSON.stringify({ response: tagCarry })}\n\n`
-			));
+			if (!insideThink) {
+				fullResponse += tagCarry;
+				await writer.write(encoder.encode(
+					`data: ${JSON.stringify({ response: tagCarry })}\n\n`
+				));
+			}
 			tagCarry = '';
 		};
 
@@ -183,6 +190,8 @@ export const POST: APIRoute = async ({ request }) => {
 		 * Tags split across tokens are handled by prepending `tagCarry`
 		 * to each new token, running the state machine on the combined
 		 * string, then holding back the trailing TAG_WINDOW chars.
+		 * This applies to both the open-tag (clean text) and close-tag
+		 * (inside-think) branches.
 		 */
 		const processSseLine = async (line: string) => {
 			const trimmed = line.trim();
@@ -225,7 +234,12 @@ export const POST: APIRoute = async ({ request }) => {
 								`data: ${JSON.stringify({ response: '', thinking: false })}\n\n`
 							));
 						} else {
-							token = ''; // drop — still inside think block
+							// Retain trailing TAG_WINDOW chars in case </think>
+							// straddles this token and the next one.
+							tagCarry = token.length > TAG_WINDOW
+								? token.slice(-TAG_WINDOW)
+								: token;
+							token = ''; // drop the rest — still inside think block
 						}
 					}
 				}
