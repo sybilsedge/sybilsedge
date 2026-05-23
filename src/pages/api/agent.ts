@@ -220,7 +220,14 @@ export const POST: APIRoute = async ({ request }) => {
 					if (!insideThink) {
 						const idx = token.indexOf('<think>');
 						if (idx !== -1) {
-							clean += token.slice(0, idx);
+							const preThink = clean + token.slice(0, idx);
+							if (preThink) {
+								fullResponse += preThink;
+								await writer.write(encoder.encode(
+									`data: ${JSON.stringify({ response: preThink })}\n\n`
+								));
+							}
+							clean = '';
 							insideThink = true;
 							token = token.slice(idx + 7);
 							await writer.write(encoder.encode(
@@ -293,6 +300,16 @@ export const POST: APIRoute = async ({ request }) => {
 			if (buffer) await processSseLine(buffer);
 			// Flush any remaining look-behind carry to the client
 			await flushCleanCarry();
+
+			if (insideThink) {
+				try {
+					await writer.write(encoder.encode(
+						`data: ${JSON.stringify({ response: '', thinking: false })}\n\n`
+					));
+				} catch (err) {
+					console.error('[agent] failed to write terminal thinking:false frame:', err);
+				}
+			}
 
 			reader.releaseLock();
 			// Close the writer immediately so the client sees the stream end
