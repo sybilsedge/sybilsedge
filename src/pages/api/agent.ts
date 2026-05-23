@@ -47,7 +47,8 @@ function getSystemPrompt(): Promise<string> {
 
 export const POST: APIRoute = async (context) => {
 	const { request, locals } = context;
-	const cfContext = locals.cfContext;
+	const cfContext = (locals as { cfContext?: { waitUntil?: (promise: Promise<unknown>) => void } })
+		.cfContext;
 	const reqId = crypto.randomUUID().slice(0, 8);
 	const t0 = Date.now();
 
@@ -83,7 +84,7 @@ export const POST: APIRoute = async (context) => {
 
 	// ── 2. Load conversation history from Durable Object ──────────────────
 	let history: Array<{ role: string; content: string }> = [];
-	let stub: any = null;
+	let stub: DurableObjectStub | null = null;
 
 	if (env.SYBIL_TWIN) {
 		try {
@@ -120,9 +121,7 @@ export const POST: APIRoute = async (context) => {
 			.run()
 			.catch((err: any) => console.error('D1 log failed:', err));
 
-		if (cfContext) {
-			cfContext.waitUntil(dbLogPromise);
-		}
+		cfContext?.waitUntil?.(dbLogPromise);
 	}
 
 	// ── 3. Build messages for the model ───────────────────────────────────
@@ -164,6 +163,13 @@ export const POST: APIRoute = async (context) => {
 	const decoder = new TextDecoder();
 	const encoder = new TextEncoder();
 	let fullResponse = '';
+	const closeWriter = async () => {
+		try {
+			await writer.close();
+		} catch (err) {
+			console.error(`[agent:${reqId}] stream close failed:`, err);
+		}
+	};
 
 	(async () => {
 		const reader = aiStream.getReader();
@@ -352,14 +358,14 @@ export const POST: APIRoute = async (context) => {
 				})();
 
 				if (cfContext) {
-					cfContext.waitUntil(appendPromise);
-					writer.close();
+					cfContext.waitUntil?.(appendPromise);
+					await closeWriter();
 				} else {
 					await appendPromise;
-					writer.close();
+					await closeWriter();
 				}
 			} else {
-				writer.close();
+				await closeWriter();
 			}
 		}
 	})();
