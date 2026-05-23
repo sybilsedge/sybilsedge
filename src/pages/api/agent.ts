@@ -158,15 +158,37 @@ export const POST: APIRoute = async ({ request }) => {
 		const reader = aiStream.getReader();
 		let buffer = '';
 		let insideThink = false;
+		/**
+		 * Look-behind buffer: holds the last TAG_WINDOW chars of clean output
+		 * so that a tag split across SSE tokens (e.g. "<thi" | "nk>") is caught
+		 * before any fragment leaks to the client.
+		 */
+		const TAG_WINDOW = 7; // length of '<think>' (longest open tag)
+		let tagCarry = '';
+
+		/** Flush any held-back carry text to the client as a normal token. */
+		const flushCarry = async () => {
+			if (!tagCarry) return;
+			fullResponse += tagCarry;
+			await writer.write(encoder.encode(
+				`data: ${JSON.stringify({ response: tagCarry })}\n\n`
+			));
+			tagCarry = '';
+		};
 
 		/**
 		 * Process one SSE line: strip <think>…</think> blocks,
 		 * emit `thinking` signals, and forward only clean tokens.
+		 *
+		 * Tags split across tokens are handled by prepending `tagCarry`
+		 * to each new token, running the state machine on the combined
+		 * string, then holding back the trailing TAG_WINDOW chars.
 		 */
 		const processSseLine = async (line: string) => {
 			const trimmed = line.trim();
 			if (!trimmed.startsWith('data: ')) return;
 			if (trimmed.includes('[DONE]')) {
+				await flushCarry();
 				await writer.write(encoder.encode(line + '\n'));
 				return;
 			}
@@ -174,10 +196,12 @@ export const POST: APIRoute = async ({ request }) => {
 				const data = JSON.parse(trimmed.slice(6)) as { response?: string };
 				if (!data.response) return;
 
-				let token = data.response;
+				// Prepend any held-back carry so split tags are visible
+				let token = tagCarry + data.response;
+				tagCarry = '';
 				let clean = '';
 
-				// Simple state machine for <think>…</think> boundaries
+				// State machine for <think>…</think> boundaries
 				while (token.length > 0) {
 					if (!insideThink) {
 						const idx = token.indexOf('<think>');
@@ -207,10 +231,18 @@ export const POST: APIRoute = async ({ request }) => {
 				}
 
 				if (clean) {
-					fullResponse += clean;
-					await writer.write(encoder.encode(
-						`data: ${JSON.stringify({ response: clean })}\n\n`
-					));
+					// Hold back the trailing TAG_WINDOW chars in case a tag
+					// straddles this token and the next one.
+					if (clean.length > TAG_WINDOW) {
+						const emit = clean.slice(0, -TAG_WINDOW);
+						tagCarry = clean.slice(-TAG_WINDOW);
+						fullResponse += emit;
+						await writer.write(encoder.encode(
+							`data: ${JSON.stringify({ response: emit })}\n\n`
+						));
+					} else {
+						tagCarry = clean;
+					}
 				}
 			} catch {
 				// Ignore malformed or incomplete SSE lines
@@ -235,6 +267,8 @@ export const POST: APIRoute = async ({ request }) => {
 			// Flush any remaining bytes held by the decoder
 			buffer += decoder.decode();
 			if (buffer) await processSseLine(buffer);
+			// Flush any remaining look-behind carry to the client
+			await flushCarry();
 
 			reader.releaseLock();
 			// Close the writer immediately so the client sees the stream end
