@@ -8,6 +8,7 @@ interface Message {
 	role: 'user' | 'assistant';
 	content: string;
 	streaming?: boolean;
+	thinking?: boolean;
 	error?: boolean;
 }
 
@@ -96,7 +97,15 @@ export default function AgentChat() {
 					const raw = line.slice(6).trim();
 					if (raw === '[DONE]') continue;
 					try {
-						const parsed = JSON.parse(raw) as { response?: string };
+						const parsed = JSON.parse(raw) as { response?: string; thinking?: boolean };
+						if (parsed.thinking !== undefined) {
+							const isThinking = parsed.thinking;
+							setMessages((prev) =>
+								prev.map((m) =>
+									m.id === assistantId ? { ...m, thinking: isThinking } : m
+								)
+							);
+						}
 						if (parsed.response) {
 							accumulated += parsed.response;
 							const snap = accumulated;
@@ -114,7 +123,15 @@ export default function AgentChat() {
 
 			setMessages((prev) =>
 				prev.map((m) =>
-					m.id === assistantId ? { ...m, streaming: false } : m
+					m.id === assistantId
+						? {
+								...m,
+								// Safety-net regex strips any leaked think-block fragments
+								content: m.content.replace(/<think>[\s\S]*?<\/think>/g, '').trimStart(),
+								streaming: false,
+								thinking: false,
+							}
+						: m
 				)
 			);
 		} catch {
@@ -190,8 +207,16 @@ export default function AgentChat() {
 									: 'bg-black/40 border border-[#39ff14]/15 text-slate-200/90'
 							}`}
 						>
+							{msg.streaming && msg.thinking && !msg.content && (
+								<span
+									className="font-tech text-[10px] uppercase tracking-[0.16em] text-cyan-300/50 animate-pulse"
+									aria-label="Model is thinking"
+								>
+									⟨ thinking… ⟩
+								</span>
+							)}
 							{msg.content || (msg.streaming ? null : '\u00a0')}
-							{msg.streaming && (
+							{msg.streaming && !msg.thinking && (
 								<span
 									className="inline-block w-1.5 h-3.5 bg-[#39ff14] ml-0.5 animate-pulse align-middle"
 									aria-label="Generating response"

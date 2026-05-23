@@ -121,7 +121,7 @@ export const POST: APIRoute = async ({ request }) => {
 	} catch (err) {
 		console.error(`[agent:${reqId}] context build failed:`, err);
 		systemPrompt =
-			"You are Sybil Melton's digital twin. Answer questions about her professional background honestly and helpfully.";
+			"You ARE Sybil Melton — her digital twin. Always speak in the first person (I, me, my). Never use third-person pronouns about yourself. Answer questions about your professional background, creative projects, and interests honestly and helpfully.";
 	}
 
 	const messages = [
@@ -151,20 +151,69 @@ export const POST: APIRoute = async ({ request }) => {
 	const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
 	const writer = writable.getWriter();
 	const decoder = new TextDecoder();
+	const encoder = new TextEncoder();
 	let fullResponse = '';
 
 	(async () => {
 		const reader = aiStream.getReader();
 		let buffer = '';
+		let insideThink = false;
 
-		const appendResponseFromSseLine = (line: string) => {
-			const trimmedLine = line.trim();
-			if (!trimmedLine.startsWith('data: ') || trimmedLine.includes('[DONE]')) return;
+		/**
+		 * Process one SSE line: strip <think>…</think> blocks,
+		 * emit `thinking` signals, and forward only clean tokens.
+		 */
+		const processSseLine = async (line: string) => {
+			const trimmed = line.trim();
+			if (!trimmed.startsWith('data: ')) return;
+			if (trimmed.includes('[DONE]')) {
+				await writer.write(encoder.encode(line + '\n'));
+				return;
+			}
 			try {
-				const data = JSON.parse(trimmedLine.slice(6)) as { response?: string };
-				if (data.response) fullResponse += data.response;
+				const data = JSON.parse(trimmed.slice(6)) as { response?: string };
+				if (!data.response) return;
+
+				let token = data.response;
+				let clean = '';
+
+				// Simple state machine for <think>…</think> boundaries
+				while (token.length > 0) {
+					if (!insideThink) {
+						const idx = token.indexOf('<think>');
+						if (idx !== -1) {
+							clean += token.slice(0, idx);
+							insideThink = true;
+							token = token.slice(idx + 7);
+							await writer.write(encoder.encode(
+								`data: ${JSON.stringify({ response: '', thinking: true })}\n\n`
+							));
+						} else {
+							clean += token;
+							token = '';
+						}
+					} else {
+						const idx = token.indexOf('</think>');
+						if (idx !== -1) {
+							insideThink = false;
+							token = token.slice(idx + 8);
+							await writer.write(encoder.encode(
+								`data: ${JSON.stringify({ response: '', thinking: false })}\n\n`
+							));
+						} else {
+							token = ''; // drop — still inside think block
+						}
+					}
+				}
+
+				if (clean) {
+					fullResponse += clean;
+					await writer.write(encoder.encode(
+						`data: ${JSON.stringify({ response: clean })}\n\n`
+					));
+				}
 			} catch {
-				// Ignore malformed or incomplete SSE lines until they can be completed
+				// Ignore malformed or incomplete SSE lines
 			}
 		};
 
@@ -172,15 +221,12 @@ export const POST: APIRoute = async ({ request }) => {
 			while (true) {
 				const { done, value } = await reader.read();
 				if (done) break;
-				await writer.write(value);
-				// Collect tokens from SSE lines to form the complete response
 				buffer += decoder.decode(value, { stream: true });
 				const lines = buffer.split('\n');
-				// Keep the last element in the buffer — it may be an incomplete line
-				// that will be completed by the next chunk.
+				// Keep the last element — it may be an incomplete line
 				buffer = lines.pop() ?? '';
 				for (const line of lines) {
-					appendResponseFromSseLine(line);
+					await processSseLine(line);
 				}
 			}
 		} catch (err) {
@@ -188,12 +234,15 @@ export const POST: APIRoute = async ({ request }) => {
 		} finally {
 			// Flush any remaining bytes held by the decoder
 			buffer += decoder.decode();
-			if (buffer) appendResponseFromSseLine(buffer);
+			if (buffer) await processSseLine(buffer);
 
 			reader.releaseLock();
 			// Close the writer immediately so the client sees the stream end
 			// before the (slower) DO persistence call below.
 			writer.close();
+
+			// Safety-net regex to catch edge cases (e.g. tags split across tokens)
+			fullResponse = fullResponse.replace(/<think>[\s\S]*?<\/think>/g, '').trimStart();
 
 			// ── 6. Persist both turns to the DO after stream completes ─────
 			if (fullResponse) {
