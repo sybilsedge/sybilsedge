@@ -6,7 +6,7 @@ import { loadKbContext } from '../../agent/r2-context';
 
 export const prerender = false;
 
-const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+const MODEL = '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b';
 
 /** Arbitrary base URL — DO stubs route by binding, not real HTTP. */
 const DO_BASE = 'http://do';
@@ -101,17 +101,17 @@ export const POST: APIRoute = async ({ request }) => {
 			`INSERT INTO twin_interactions (timestamp, session_id, message, is_new_session, session_status, user_agent, referrer)
 			 VALUES (?, ?, ?, ?, ?, ?, ?)`
 		)
-		.bind(
-			new Date().toISOString(),
-			sessionId,       // from request body
-			userMessage,     // the visitor's question
-			isNewSession ? 1 : 0,
-			isNewSession ? 'new' : 'existing',
-			request.headers.get('user-agent') ?? null,
-			request.headers.get('referer') ?? null
-		)
-		.run()
-		.catch((err: any) => console.error('D1 log failed:', err));
+			.bind(
+				new Date().toISOString(),
+				sessionId,       // from request body
+				userMessage,     // the visitor's question
+				isNewSession ? 1 : 0,
+				isNewSession ? 'new' : 'existing',
+				request.headers.get('user-agent') ?? null,
+				request.headers.get('referer') ?? null
+			)
+			.run()
+			.catch((err: any) => console.error('D1 log failed:', err));
 	}
 
 	// ── 3. Build messages for the model ───────────────────────────────────
