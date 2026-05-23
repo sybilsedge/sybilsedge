@@ -6,7 +6,7 @@ import { loadKbContext } from '../../agent/r2-context';
 
 export const prerender = false;
 
-const MODEL = '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b';
+const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
 /** Arbitrary base URL — DO stubs route by binding, not real HTTP. */
 const DO_BASE = 'http://do';
