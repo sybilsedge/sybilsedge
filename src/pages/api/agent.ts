@@ -158,46 +158,45 @@ export const POST: APIRoute = async ({ request }) => {
 		const reader = aiStream.getReader();
 		let buffer = '';
 		let insideThink = false;
-		/**
-		 * Look-behind buffer: holds the last TAG_WINDOW chars across tokens
-		 * so that either tag (<think> or </think>) split across SSE frames
-		 * is caught before any fragment leaks or gets dropped.
-		 * Reused by both branches — only one is active at a time.
-		 */
 		const TAG_WINDOW = 8; // length of '</think>' (longest tag)
-		let tagCarry = '';
 
 		/**
-		 * Flush any held-back carry text to the client as a normal token.
-		 * Only emits when outside a think block — if insideThink is true,
-		 * the carry holds think-block tail bytes that must be discarded.
+		 * Two independent look-behind buffers so a token that both emits
+		 * clean text AND opens/closes a think block cannot clobber the
+		 * other branch's carry.
+		 *
+		 * cleanCarry — trailing clean-text chars held back to detect a
+		 *              split <think> open tag across SSE frames.
+		 * thinkCarry — trailing inside-think chars held back to detect a
+		 *              split </think> close tag across SSE frames.
 		 */
-		const flushCarry = async () => {
-			if (!tagCarry) return;
-			if (!insideThink) {
-				fullResponse += tagCarry;
-				await writer.write(encoder.encode(
-					`data: ${JSON.stringify({ response: tagCarry })}\n\n`
-				));
-			}
-			tagCarry = '';
+		let cleanCarry = '';
+		let thinkCarry = '';
+
+		/** Flush held-back clean text to the client. */
+		const flushCleanCarry = async () => {
+			if (!cleanCarry) return;
+			fullResponse += cleanCarry;
+			await writer.write(encoder.encode(
+				`data: ${JSON.stringify({ response: cleanCarry })}\n\n`
+			));
+			cleanCarry = '';
 		};
 
 		/**
 		 * Process one SSE line: strip <think>…</think> blocks,
 		 * emit `thinking` signals, and forward only clean tokens.
 		 *
-		 * Tags split across tokens are handled by prepending `tagCarry`
-		 * to each new token, running the state machine on the combined
-		 * string, then holding back the trailing TAG_WINDOW chars.
-		 * This applies to both the open-tag (clean text) and close-tag
-		 * (inside-think) branches.
+		 * Tags split across tokens are handled by prepending the
+		 * appropriate carry buffer, running the state machine, then
+		 * holding back the trailing TAG_WINDOW chars in the correct
+		 * buffer for the next call.
 		 */
 		const processSseLine = async (line: string) => {
 			const trimmed = line.trim();
 			if (!trimmed.startsWith('data: ')) return;
 			if (trimmed.includes('[DONE]')) {
-				await flushCarry();
+				await flushCleanCarry();
 				await writer.write(encoder.encode(line + '\n'));
 				return;
 			}
@@ -205,9 +204,15 @@ export const POST: APIRoute = async ({ request }) => {
 				const data = JSON.parse(trimmed.slice(6)) as { response?: string };
 				if (!data.response) return;
 
-				// Prepend any held-back carry so split tags are visible
-				let token = tagCarry + data.response;
-				tagCarry = '';
+				// Prepend the carry that matches our current state
+				let token: string;
+				if (insideThink) {
+					token = thinkCarry + data.response;
+					thinkCarry = '';
+				} else {
+					token = cleanCarry + data.response;
+					cleanCarry = '';
+				}
 				let clean = '';
 
 				// State machine for <think>…</think> boundaries
@@ -236,7 +241,7 @@ export const POST: APIRoute = async ({ request }) => {
 						} else {
 							// Retain trailing TAG_WINDOW chars in case </think>
 							// straddles this token and the next one.
-							tagCarry = token.length > TAG_WINDOW
+							thinkCarry = token.length > TAG_WINDOW
 								? token.slice(-TAG_WINDOW)
 								: token;
 							token = ''; // drop the rest — still inside think block
@@ -245,17 +250,22 @@ export const POST: APIRoute = async ({ request }) => {
 				}
 
 				if (clean) {
-					// Hold back the trailing TAG_WINDOW chars in case a tag
-					// straddles this token and the next one.
-					if (clean.length > TAG_WINDOW) {
-						const emit = clean.slice(0, -TAG_WINDOW);
-						tagCarry = clean.slice(-TAG_WINDOW);
+					// If insideThink was true at call entry, cleanCarry was NOT
+					// prepended to the token — merge it now so it isn't lost.
+					const merged = cleanCarry + clean;
+					cleanCarry = '';
+
+					// Hold back the trailing TAG_WINDOW chars in case a
+					// <think> tag straddles this token and the next one.
+					if (merged.length > TAG_WINDOW) {
+						const emit = merged.slice(0, -TAG_WINDOW);
+						cleanCarry = merged.slice(-TAG_WINDOW);
 						fullResponse += emit;
 						await writer.write(encoder.encode(
 							`data: ${JSON.stringify({ response: emit })}\n\n`
 						));
 					} else {
-						tagCarry = clean;
+						cleanCarry = merged;
 					}
 				}
 			} catch {
@@ -282,7 +292,7 @@ export const POST: APIRoute = async ({ request }) => {
 			buffer += decoder.decode();
 			if (buffer) await processSseLine(buffer);
 			// Flush any remaining look-behind carry to the client
-			await flushCarry();
+			await flushCleanCarry();
 
 			reader.releaseLock();
 			// Close the writer immediately so the client sees the stream end
