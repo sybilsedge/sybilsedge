@@ -1,0 +1,52 @@
+sequenceDiagram
+    autonumber
+    actor User as Visitor / Client
+    participant UI as AgentChat.tsx
+    participant Worker as /api/agent (Worker)
+    participant D1 as D1 SQL Database
+    participant DO as SybilTwinDO
+    participant R2 as R2 (sybil-twin-kb)
+    participant AI as Workers AI (Llama 3.3)
+
+    User->>UI: Types query & hits Send
+    UI->>Worker: POST /api/agent { sessionId, message }
+    
+    rect rgb(5, 30, 46)
+        Note over Worker, D1: Telemetry (Non-blocking)
+        Worker-->>D1: Prepare & execute INSERT INTO twin_interactions (via cfContext.waitUntil)
+    end
+
+    rect rgb(10, 40, 10)
+        Note over Worker, DO: Load Session Context
+        Worker->>DO: GET /history (with sessionId)
+        DO-->>Worker: Return recent ChatMessage[]
+    end
+
+    rect rgb(30, 30, 30)
+        Note over Worker, R2: Load Persona Context
+        Worker->>R2: list(prefix: 'kb/') & get() objects (if cached null)
+        R2-->>Worker: Return style & facts markdown
+        Note over Worker: Compile system prompt (caching result)
+    end
+
+    Worker->>AI: env.AI.run(MODEL, { messages: [sys, history, current] })
+    AI-->>Worker: Stream chunked SSE tokens (e.g. data: {"response": "..."})
+
+    loop Stream Processing
+        Worker->>Worker: Extract & strip <think>...</think> blocks
+        alt Thinking Block Started/Ended
+            Worker->>UI: SSE event: data: {"thinking": true/false}
+        else Clean Token Received
+            Worker->>UI: SSE event: data: {"response": "clean text"}
+            UI->>User: Render real-time tokens in chat
+        end
+    end
+
+    AI-->>Worker: Stream Finished [DONE]
+    Worker->>UI: SSE event: data: [DONE]
+    
+    rect rgb(10, 40, 10)
+        Note over Worker, DO: Persist History (Non-blocking)
+        Worker-->>DO: POST /append [current user & assistant turns]
+        Note over DO: Trim history to 50 & reset 30-day eviction alarm
+    end

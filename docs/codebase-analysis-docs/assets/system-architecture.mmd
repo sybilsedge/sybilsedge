@@ -1,0 +1,39 @@
+graph TD
+    %% Styling Definitions
+    classDef client fill:#0a0f1d,stroke:#00ffff,stroke-width:2px,color:#cffafe;
+    classDef edge fill:#051e2e,stroke:#39ff14,stroke-width:2px,color:#ecfdf5;
+    classDef storage fill:#1e1e1e,stroke:#00ffff,stroke-width:1px,color:#e2e8f0;
+    classDef external fill:#2d1d2d,stroke:#a855f7,stroke-width:1px,color:#fae8ff;
+
+    %% Nodes
+    subgraph Client [Browser Client]
+        Browser["Astro Web Page (HTML/CSS)"]:::client
+        ChatUI["React Chat Island (AgentChat.tsx)"]:::client
+    end
+
+    subgraph Cloudflare [Cloudflare Edge Platform]
+        Worker["SSR Engine / Worker Endpoint (/api/agent)"]:::edge
+        D1[("D1 DB (twin_interactions)")]:::storage
+        DO[("Durable Object (SybilTwinDO)")]:::storage
+        R2[("R2 Bucket (sybil-twin-kb)")]:::storage
+        AI["Workers AI (Llama 3.3 70B)"]:::edge
+    end
+
+    subgraph External [External Services]
+        GitHub["GitHub API (Commits Feed)"]:::external
+    end
+
+    %% Connections
+    Browser -->|HTTP GET /agent| Worker
+    Worker -->|Render Page with Island| ChatUI
+    ChatUI -->|POST /api/agent (SSE Stream)| Worker
+    Worker -->|Write Telemetry (WaitUntil)| D1
+    Worker -->|Fetch/Append History| DO
+    Worker -->|Load KB Style & Facts| R2
+    Worker -->|Run Llama Inference| AI
+    Worker -->|Fetch Commits (Cached)| GitHub
+
+    %% Subgraph Styling
+    style Client fill:#05070a,stroke:#00ffff,stroke-dasharray: 5 5;
+    style Cloudflare fill:#020b14,stroke:#39ff14,stroke-dasharray: 5 5;
+    style External fill:#0f0f16,stroke:#a855f7,stroke-dasharray: 5 5;

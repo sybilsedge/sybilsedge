@@ -1,0 +1,67 @@
+erDiagram
+    UNIVERSES ||--o{ NOVELS : contains
+    UNIVERSES ||--o{ SHORT_STORIES : contains
+    UNIVERSES ||--o{ CHARACTERS : contains
+    UNIVERSES ||--o{ LORE : contains
+    UNIVERSES ||--o{ TIMELINE : contains
+
+    NOVELS }o--o{ CHARACTERS : references
+    SHORT_STORIES }o--o{ CHARACTERS : references
+    SHORT_STORIES }o--o{ SHORT_STORIES : references
+    LORE }o--o{ CHARACTERS : references
+    LORE }o--o{ SHORT_STORIES : references
+    TIMELINE }o--o{ CHARACTERS : references
+    TIMELINE }o--o{ SHORT_STORIES : references
+    TIMELINE }o--o{ LORE : references
+
+    UNIVERSES {
+        string slug PK
+        string name
+        string tagline
+        string description
+        string status
+    }
+
+    CHARACTERS {
+        string slug PK
+        string name
+        string universe FK
+        string role
+        string description
+        string spoilerLevel
+    }
+
+    NOVELS {
+        string slug PK
+        string title
+        string universe FK
+        string status
+        string synopsis
+        number readingOrder
+    }
+
+    SHORT_STORIES {
+        string slug PK
+        string title
+        string universe FK
+        string synopsis
+        number readingOrder
+        string tags
+    }
+
+    LORE {
+        string slug PK
+        string title
+        string universe FK
+        string category
+        string description
+    }
+
+    TIMELINE {
+        string slug PK
+        string title
+        string universe FK
+        string era
+        string inUniverseDate
+        string summary
+    }
