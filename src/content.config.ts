@@ -11,7 +11,7 @@ import { glob } from 'astro/loaders';
 //   - `lore.category` is an enum for consistent filtering
 
 const universes = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/universes' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/universes' }),
 	schema: ({ image }) => z.object({
 		name: z.string(),
 		tagline: z.string(),
@@ -25,7 +25,7 @@ const universes = defineCollection({
 });
 
 const characters = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/characters' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/characters' }),
 	schema: ({ image }) => z.object({
 		name: z.string(),
 		aliases: z.array(z.string()).optional(),
@@ -45,7 +45,7 @@ const characters = defineCollection({
 });
 
 const novels = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/novels' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/novels' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		universe: z.string(),
@@ -61,7 +61,7 @@ const novels = defineCollection({
 });
 
 const shortStories = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/shortStories' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/shortStories' }),
 	schema: () => z.object({
 		title: z.string(),
 		universe: z.string(),
@@ -75,7 +75,7 @@ const shortStories = defineCollection({
 });
 
 const lore = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/lore' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/lore' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		universe: z.string(),
@@ -91,7 +91,7 @@ const lore = defineCollection({
 });
 
 const timeline = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/timeline' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/timeline' }),
 	schema: () => z.object({
 		title: z.string(),
 		universe: z.string(),
@@ -114,7 +114,7 @@ export type Timeline = CollectionEntry<'timeline'>;
 
 // Tech, home, and garden projects
 const projects = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/projects' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		category: z.enum(['tech', 'home', 'garden']),
@@ -153,7 +153,7 @@ const projects = defineCollection({
 
 // Recipes — cooking, baking, preservation
 const recipes = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/recipes' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/recipes' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		category: z.enum(['baking', 'cooking', 'preservation']),
@@ -190,7 +190,7 @@ const recipes = defineCollection({
 
 // Blog / long-form posts
 const posts = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/posts' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		date: z.coerce.date(),
@@ -221,7 +221,7 @@ const posts = defineCollection({
 // Series — named clusters of related posts with a dedicated pillar page.
 // Each entry generates a route at /blog/series/<slug>.
 const series = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/series' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/series' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		description: z.string(),
@@ -237,7 +237,7 @@ const series = defineCollection({
 // getCollection('writing'). This should be removed once all consumers have
 // been migrated to the newer fiction collections.
 const writing = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/writing' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/writing' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		description: z.string().optional(),

@@ -82,7 +82,7 @@ const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" v
 			<div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3" id="recipes-grid">
 				{sorted.map((entry) => {
 					const cat = categoryConfig[entry.data.category];
-					const slug = entry.id.replace(/\.mdx?$/, '');
+					const slug = entry.id.replace(/\.(mdx?|mdoc)$/, '');
 					return (
 						<article
 							class="recipe-card group blueprint-border rounded-md bg-black/35 p-6 flex flex-col gap-3 transition-shadow duration-200 hover:shadow-[0_0_24px_rgba(0,255,255,0.07)]"
