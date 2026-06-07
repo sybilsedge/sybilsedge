@@ -1,10 +1,11 @@
 import { config, fields, collection } from '@keystatic/core';
 
-export default config({
-	storage: process.env.NODE_ENV === 'production'
+	const isProd = import.meta.env.PROD;
+
+	storage: isProd
 		? {
 				kind: 'github',
-				repo: 'ngnetworkpro/sybilsedge.com',
+				repo: 'sybilsedge/sybilsedge',
 			}
 		: {
 				kind: 'local',
