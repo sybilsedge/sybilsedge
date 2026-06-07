@@ -1,7 +1,8 @@
 import { config, fields, collection } from '@keystatic/core';
 
-	const isProd = import.meta.env.PROD;
+const isProd = import.meta.env.PROD;
 
+export default config({
 	storage: isProd
 		? {
 				kind: 'github',
@@ -380,27 +381,7 @@ import { config, fields, collection } from '@keystatic/core';
 				appCategory: fields.text({ label: 'App Category' }),
 				operatingSystem: fields.text({ label: 'Operating System' }),
 				softwareVersion: fields.text({ label: 'Software Version' }),
-				content: fields.markdoc({
-					label: 'Content',
-					options: {
-						tags: {
-							blueprintGallery: {
-								label: 'Blueprint Gallery',
-								schema: {
-									items: {
-										label: 'Images Source',
-										type: 'array',
-										// Markdoc lets us define the attributes for tags
-									},
-									label: {
-										label: 'Section Label',
-										type: 'string',
-									},
-								},
-							},
-						},
-					},
-				}),
+				content: fields.markdoc({ label: 'Content' }),
 			},
 		}),
 		recipes: collection({
