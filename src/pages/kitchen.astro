@@ -143,10 +143,10 @@ const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" v
 	</div>
 
 	<script>
-		const buttons = document.querySelectorAll('.filter-btn');
-		const cards = document.querySelectorAll('.recipe-card');
+		const buttons = document.querySelectorAll<HTMLElement>('.filter-btn');
+		const cards = document.querySelectorAll<HTMLElement>('.recipe-card');
 
-		function setFilter(cat) {
+		function setFilter(cat: string) {
 			buttons.forEach((btn) => {
 				const isActive = btn.dataset.filter === cat;
 				btn.classList.toggle('is-active', isActive);
