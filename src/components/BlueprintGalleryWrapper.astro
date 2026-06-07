@@ -1,0 +1,11 @@
+---
+import BlueprintGallery from './BlueprintGallery.tsx';
+
+interface Props {
+	items: any[];
+	label?: string;
+}
+
+const { items, label } = Astro.props;
+---
+<BlueprintGallery items={items} label={label} client:visible />

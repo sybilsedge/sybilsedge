@@ -82,7 +82,7 @@ const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" v
 			<div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3" id="recipes-grid">
 				{sorted.map((entry) => {
 					const cat = categoryConfig[entry.data.category];
-					const slug = entry.id.replace(/\.mdx?$/, '');
+					const slug = entry.id.replace(/\.(mdx?|mdoc)$/, '');
 					return (
 						<article
 							class="recipe-card group blueprint-border rounded-md bg-black/35 p-6 flex flex-col gap-3 transition-shadow duration-200 hover:shadow-[0_0_24px_rgba(0,255,255,0.07)]"
@@ -146,19 +146,22 @@ const zapSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" v
 		const buttons = document.querySelectorAll('.filter-btn');
 		const cards = document.querySelectorAll('.recipe-card');
 
-		function setFilter(cat) {
+		function setFilter(cat = 'all') {
 			buttons.forEach((btn) => {
+				if (!(btn instanceof HTMLElement)) return;
 				const isActive = btn.dataset.filter === cat;
 				btn.classList.toggle('is-active', isActive);
 				btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
 			});
 			cards.forEach((card) => {
+				if (!(card instanceof HTMLElement)) return;
 				const match = cat === 'all' || card.dataset.category === cat;
 				card.classList.toggle('is-hidden', !match);
 			});
 		}
 
 		buttons.forEach((btn) => {
+			if (!(btn instanceof HTMLElement)) return;
 			btn.addEventListener('click', () => setFilter(btn.dataset.filter || 'all'));
 		});
 	</script>

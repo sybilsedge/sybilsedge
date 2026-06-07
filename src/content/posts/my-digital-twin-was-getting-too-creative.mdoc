@@ -1,0 +1,71 @@
+---
+title: My Digital Twin Was Getting Too Creative
+date: 2026-06-07
+updatedDate: 2026-06-07
+description: "This post explores the challenge of building a digital twin that stays truthful without sounding flat or
+robotic. It covers how I reduced hallucinations, restored personality, and found a better balance between grounding and
+voice."
+tags:
+- ai
+- digital-twin
+draft: false
+featured: true
+relatedProjects:
+- sybilsedge
+series: the-blueprint-files
+seriesOrder: 3
+---
+I built a digital twin to speak in my voice, but the first version ran into a problem that’s probably familiar to anyone
+who’s tried to make an AI feel personal: it started making things up.
+
+The obvious fix was to clamp down on truth. That worked, mostly. The twin stopped inventing trips, dates, and little
+autobiographical details that sounded plausible but weren’t real. But then something else happened. Once I tightened the
+guardrails, the voice got flatter. Cleaner, yes. More accurate, absolutely. Also more like a corporate assistant that
+had been trained to avoid liability at all costs.
+
+That was the actual problem. Not hallucinations alone. Not tone alone. The tension was between realism and personality.
+If you let the model wander, it starts freelancing your life. If you lock it down too hard, it starts sounding like a
+policy memo with a pulse.
+
+The first version of the twin answered questions with too much confidence. Ask it about travel, and it would happily
+fill in gaps with invented memories. Ask it when something happened, and it would produce a timeline that sounded
+specific enough to be true. It wasn’t malicious. It was just doing what language models do when they’re trying to
+complete a pattern. But in a digital twin, that’s a bug, not a feature.
+
+So I fixed the factual problem first. I made the prompt stricter about what counts as truth. If a personal detail isn’t
+explicitly grounded in the provided context, the model shouldn’t guess. It should say it doesn’t remember, or that it
+isn’t sure. No improvising. No “likely sometime between 2000 and 2006” nonsense. That part was easy enough to define,
+even if it took some trial and error to get right.
+
+Then came the second problem: the twin stopped sounding like me.
+
+A lot of AI writing defaults to a very recognizable tone. It’s polished, balanced, helpful, and weirdly bloodless. It
+loves phrases like “Certainly,” “Additionally,” and “Here’s a breakdown.” It structures everything like it’s trying to
+survive a product demo. Useful? Sure. Human? Not especially.
+
+That was the mistake I made at first. I treated “truthful” as the main goal and “personality” as something to let emerge
+naturally. That doesn’t work. If you want a digital twin to feel alive, voice has to be designed deliberately. It needs
+rhythm. Cadence. Some bluntness. Some dryness. The willingness to answer in a short sentence when a short sentence is
+enough.
+
+The key insight for me was that personality does not require fictional memories. It can come from tone, opinion, pacing,
+and the way a response is framed. The model can be direct without being cold. It can be a little dark without being
+deceptive. It can use personal inspirations as flavor without turning them into facts.
+
+That distinction matters a lot. Inspirations are not the same as memories. A theme, a habit of thought, a worldview, a
+recurring interest — those can shape the response without claiming that something actually happened. The model can say,
+in effect, “this is how I tend to think,” without pretending it was on a ship in Hamburg if it wasn’t.
+
+That led me to split the problem into two layers. The first layer is grounding: what is actually true, what is actually
+known, what the model is allowed to claim. The second layer is voice: how it sounds, how sharply it answers, how much it
+meanders, and how much personality it brings to the table. Once I separated those two concerns, things got better fast.
+
+The grounded version is less dramatic, but more credible. The voice-preserving version is less robotic, but still
+honest. That’s the balance I was after all along.
+
+If I had to summarize what I learned, it’s this: a digital twin doesn’t need permission to invent a life in order to
+feel human. It needs enough structure to stay honest, and enough style to stop sounding like a compliance-trained
+chatbot. The sweet spot is not perfect imitation. It’s recognizable voice, disciplined truth, and just enough rough edge
+to feel like a person.
+
+That’s the version worth building.

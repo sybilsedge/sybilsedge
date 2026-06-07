@@ -2,6 +2,15 @@ import { defineCollection, z } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import { glob } from 'astro/loaders';
 
+// Helper to transform empty Keystatic image objects ({}) to undefined for Astro's validation
+const optionalImage = (imageHelper: any) => z.preprocess(
+	(val) => (val && typeof val === 'object' && Object.keys(val).length === 0 ? undefined : val),
+	z.object({
+		src: imageHelper(),
+		alt: z.string(),
+	}).optional()
+);
+
 // ─── Writing Universe System ──────────────────────────────────────────────────
 // Six inter-linked collections that power the multi-universe fiction system.
 // Design principles (see #96):
@@ -11,21 +20,18 @@ import { glob } from 'astro/loaders';
 //   - `lore.category` is an enum for consistent filtering
 
 const universes = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/universes' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/universes' }),
 	schema: ({ image }) => z.object({
 		name: z.string(),
-		tagline: z.string(),
-		description: z.string(),
-		coverImage: z.object({
-			src: image(),
-			alt: z.string(),
-		}).optional(),
+		tagline: z.string().default(''),
+		description: z.string().default(''),
+		coverImage: optionalImage(image),
 		status: z.enum(['active', 'planned', 'archived']),
 	}),
 });
 
 const characters = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/characters' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/characters' }),
 	schema: ({ image }) => z.object({
 		name: z.string(),
 		aliases: z.array(z.string()).optional(),
@@ -34,10 +40,7 @@ const characters = defineCollection({
 		description: z.string().optional(),
 		affiliation: z.array(z.string()).optional(),
 		highlight: z.string().optional(),
-		profileImage: z.object({
-			src: image(),
-			alt: z.string(),
-		}).optional(),
+		profileImage: optionalImage(image),
 		spoilerLevel: z.enum(['none', 'light', 'moderate', 'major']).optional(),
 		order: z.number().optional(),
 		relatedCharacters: z.array(z.string()).default([]),
@@ -45,27 +48,24 @@ const characters = defineCollection({
 });
 
 const novels = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/novels' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/novels' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		universe: z.string(),
 		status: z.enum(['draft', 'in-progress', 'complete', 'published']),
-		synopsis: z.string(),
-		coverImage: z.object({
-			src: image(),
-			alt: z.string(),
-		}).optional(),
+		synopsis: z.string().default(''),
+		coverImage: optionalImage(image),
 		readingOrder: z.number().optional(),
 		relatedCharacters: z.array(z.string()).default([]),
 	}),
 });
 
 const shortStories = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/shortStories' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/shortStories' }),
 	schema: () => z.object({
 		title: z.string(),
 		universe: z.string(),
-		synopsis: z.string(),
+		synopsis: z.string().default(''),
 		wordcount: z.number().optional(),
 		readingOrder: z.number().optional(),
 		relatedCharacters: z.array(z.string()).default([]),
@@ -75,7 +75,7 @@ const shortStories = defineCollection({
 });
 
 const lore = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/lore' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/lore' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		universe: z.string(),
@@ -83,21 +83,18 @@ const lore = defineCollection({
 		description: z.string().optional(),
 		relatedCharacters: z.array(z.string()).default([]),
 		relatedStories: z.array(z.string()).default([]),
-		coverImage: z.object({
-			src: image(),
-			alt: z.string(),
-		}).optional(),
+		coverImage: optionalImage(image),
 	}),
 });
 
 const timeline = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/timeline' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/timeline' }),
 	schema: () => z.object({
 		title: z.string(),
 		universe: z.string(),
 		era: z.string().optional(),
 		inUniverseDate: z.string().optional(),
-		summary: z.string(),
+		summary: z.string().default(''),
 		relatedCharacters: z.array(z.string()).default([]),
 		relatedStories: z.array(z.string()).default([]),
 		relatedLore: z.array(z.string()).default([]),
@@ -114,17 +111,14 @@ export type Timeline = CollectionEntry<'timeline'>;
 
 // Tech, home, and garden projects
 const projects = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/projects' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		category: z.enum(['tech', 'home', 'garden']),
 		status: z.enum(['active', 'complete', 'archived', 'wip']),
-		description: z.string(),
+		description: z.string().default(''),
 		githubUrl: z.string().url().optional(),
-		image: z.object({
-			src: image(),
-			alt: z.string(),
-		  }).optional(),
+		image: optionalImage(image),
 		images: z.array(z.object({
 			src: image(),
 			alt: z.string(),
@@ -153,11 +147,11 @@ const projects = defineCollection({
 
 // Recipes — cooking, baking, preservation
 const recipes = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/recipes' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/recipes' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		category: z.enum(['baking', 'cooking', 'preservation']),
-		description: z.string(),
+		description: z.string().default(''),
 		tags: z.array(z.string()).default([]),
 		prepTime: z.string().optional(),
 		cookTime: z.string().optional(),
@@ -168,10 +162,7 @@ const recipes = defineCollection({
 		instructions: z.array(z.string()).optional(),
 		// Use Astro's image() helper so images are validated and optimised at
 		// build time via getImage() — must be a local path relative to the entry.
-		image: z.object({
-			src: image(),
-			alt: z.string(),
-		}).optional(),
+		image: optionalImage(image),
 		images: z.array(z.object({
 			src: image(),
 			alt: z.string(),
@@ -190,13 +181,13 @@ const recipes = defineCollection({
 
 // Blog / long-form posts
 const posts = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/posts' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		date: z.coerce.date(),
 		// Optional updated date — displayed in post header when present
 		updatedDate: z.coerce.date().optional(),
-		description: z.string(),
+		description: z.string().default(''),
 		tags: z.array(z.string()).default([]),
 		draft: z.boolean().default(false),
 		featured: z.boolean().default(false),
@@ -211,25 +202,19 @@ const posts = defineCollection({
 		seriesOrder: z.number().optional(),
 		// Use Astro's image() helper so hero images are validated and optimised
 		// at build time — must be a local path relative to the entry.
-		heroImage: z.object({
-			src: image(),
-			alt: z.string(),
-		}).optional(),
+		heroImage: optionalImage(image),
 	}),
 });
 
 // Series — named clusters of related posts with a dedicated pillar page.
 // Each entry generates a route at /blog/series/<slug>.
 const series = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/series' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/series' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
-		description: z.string(),
+		description: z.string().default(''),
 		tags: z.array(z.string()).default([]),
-		coverImage: z.object({
-			src: image(),
-			alt: z.string(),
-		}).optional(),
+		coverImage: optionalImage(image),
 	}),
 });
 
@@ -237,7 +222,7 @@ const series = defineCollection({
 // getCollection('writing'). This should be removed once all consumers have
 // been migrated to the newer fiction collections.
 const writing = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/writing' }),
+	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/writing' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		description: z.string().optional(),
@@ -249,14 +234,8 @@ const writing = defineCollection({
 		status: z.string().optional(),
 		category: z.string().optional(),
 		universe: z.string().optional(),
-		coverImage: z.object({
-			src: image(),
-			alt: z.string(),
-		}).optional(),
-		heroImage: z.object({
-			src: image(),
-			alt: z.string(),
-		}).optional(),
+		coverImage: optionalImage(image),
+		heroImage: optionalImage(image),
 	}).passthrough(),
 });
 
