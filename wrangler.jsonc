@@ -10,6 +10,9 @@
 	"observability": {
 		"enabled": true
 	},
+	"vars": {
+		"PUBLIC_KEYSTATIC_GITHUB_APP_SLUG": "sybilsedge-cms"
+	},
 	// D1 database for Digital Twin interaction logging
 	"d1_databases": [
 		{
