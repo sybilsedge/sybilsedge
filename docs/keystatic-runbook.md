@@ -43,7 +43,7 @@ To access the `/keystatic` admin panel on your live website, you must authentica
 * Configure the following settings:
   * **GitHub App name**: `SybilsEdge CMS` (or similar)
   * **Homepage URL**: `https://sybilsedge.com` (your production domain)
-  * **Callback URL**: `https://sybilsedge.com/api/keystatic/github/callback`
+  * **Callback URL**: `https://sybilsedge.com/api/keystatic/github/oauth/callback`
   * **Webhooks**: Uncheck **Active**
 
 ### Step 2: Configure Permissions
