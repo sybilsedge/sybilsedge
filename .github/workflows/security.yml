@@ -47,6 +47,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Manual Trivy Setup
+        uses: aquasecurity/setup-trivy@v0.2.0
+        with:
+          cache: true
+          version: v0.71.0
+
       - name: Trivy scan (PR — vuln + secret)
         if: github.event_name == 'pull_request'
         uses: aquasecurity/trivy-action@v0.36.0
@@ -57,6 +63,7 @@ jobs:
           exit-code: 1
           format: sarif
           output: trivy-results.sarif
+          skip-setup-trivy: true
 
       - name: Trivy scan (push to main — vuln + secret + misconfig)
         if: github.event_name == 'push'
@@ -68,6 +75,7 @@ jobs:
           exit-code: 1
           format: sarif
           output: trivy-results.sarif
+          skip-setup-trivy: true
 
       - name: Upload Trivy SARIF to GitHub Security tab
         if: success() || failure()
