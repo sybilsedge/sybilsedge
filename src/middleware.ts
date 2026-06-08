@@ -18,10 +18,11 @@ import { defineMiddleware } from 'astro:middleware';
 export const onRequest = defineMiddleware(async (context, next) => {
 	// Only inject the shim when we're running inside Cloudflare Workers and the
 	// runtime object isn't already present (guards against double-injection).
-	if (typeof (context.locals as any).runtime === 'undefined') {
+	const localsAny = context.locals as any;
+	if (!localsAny.runtime?.env) {
 		try {
-			const { env } = await import('cloudflare:workers');
-			(context.locals as any).runtime = { env };
+			const { env } = await import(/* @vite-ignore */ 'cloudflare:workers');
+			localsAny.runtime = { ...(localsAny.runtime ?? {}), env };
 		} catch {
 			// Not in Cloudflare runtime — local dev, no-op.
 		}
