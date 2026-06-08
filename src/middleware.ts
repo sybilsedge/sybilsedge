@@ -16,13 +16,25 @@ import { defineMiddleware } from 'astro:middleware';
  * storage and never reaches the GitHub OAuth path.
  */
 export const onRequest = defineMiddleware(async (context, next) => {
-	// Only inject the shim when we're running inside Cloudflare Workers and the
-	// runtime object isn't already present (guards against double-injection).
 	const localsAny = context.locals as any;
-	if (!localsAny.runtime?.env) {
+
+	if (localsAny.runtime) {
 		try {
 			const { env } = await import(/* @vite-ignore */ 'cloudflare:workers');
-			localsAny.runtime = { ...(localsAny.runtime ?? {}), env };
+			// Use defineProperty to bypass and overwrite the throwing getter of 'env'
+			Object.defineProperty(localsAny.runtime, 'env', {
+				value: env,
+				writable: true,
+				configurable: true,
+				enumerable: true,
+			});
+		} catch {
+			// Not in Cloudflare runtime or import failed — no-op.
+		}
+	} else {
+		try {
+			const { env } = await import(/* @vite-ignore */ 'cloudflare:workers');
+			localsAny.runtime = { env };
 		} catch {
 			// Not in Cloudflare runtime — local dev, no-op.
 		}
