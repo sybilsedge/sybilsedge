@@ -7,7 +7,6 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
-import keystatic from '@keystatic/astro';
 import markdoc from '@astrojs/markdoc';
 
 /**
@@ -109,14 +108,11 @@ export default defineConfig({
       target: isProd ? 'webworker' : undefined,
       noExternal: /** @type {true | string[]} */ (isProd ? true : []),
     },
-    optimizeDeps: {
-      exclude: ['@keystatic/astro'],
-    },
     resolve: {
       dedupe: ['react', 'react-dom'],
     },
   },
-  integrations: [react(), sitemap(), keystatic(), markdoc()],
+  integrations: [react(), sitemap(), markdoc()],
   // Security headers are served for Cloudflare deployments from public/_headers.
   // Do not configure them here; keep the canonical CSP and related headers in
   // public/_headers (or a global src/middleware.ts if headers must be dynamic).

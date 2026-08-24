@@ -2,7 +2,7 @@ import { defineCollection, z } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import { glob } from 'astro/loaders';
 
-// Helper to transform empty Keystatic image objects ({}) to undefined for Astro's validation
+// Helper to transform empty image objects ({}) to undefined for Astro's validation
 const optionalImage = (imageHelper: any) => z.preprocess(
 	(val) => (val && typeof val === 'object' && Object.keys(val).length === 0 ? undefined : val),
 	z.object({
