@@ -24,7 +24,7 @@
     "tailwindcss": "^4.3.2"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.9",
+    "@astrojs/check": "^0.9.10",
     "@fontsource/inter": "^5.1.1",
     "@fontsource/orbitron": "^5.1.1",
     "@resvg/resvg-js": "^2.6.2",
