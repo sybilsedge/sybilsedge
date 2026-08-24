@@ -23,11 +23,11 @@ const categoryIcons: Record<string, string> = {
 <section class="blueprint-border rounded-md bg-black/35 p-4 md:p-5">
 	<SectionHeader title="Maker Gallery" label="Analog Archive" />
 	<div class="space-y-3">
+		{/* Blueprint placeholder — shown when no projects are featured yet */}
 		{featured.length === 0 ? (
-			<!-- Blueprint placeholder — shown when no projects are featured yet -->
 			<div class="blueprint-border rounded-md bg-black/40 p-6">
 				<div class="flex flex-col items-center justify-center gap-3 text-center">
-					<!-- Schematic grid decoration -->
+					{/* Schematic grid decoration */}
 					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="text-cyan-300/20">
 						<rect x="1" y="1" width="46" height="46" rx="2" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3"/>
 						<line x1="24" y1="1" x2="24" y2="47" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 4"/>
