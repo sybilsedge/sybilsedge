@@ -39,7 +39,7 @@ The platform is built on a serverless Edge-native architecture deploying to Clou
 ### Technological Stack
 
 * **Core Framework**: [Astro 6](https://astro.build) configured for server-side rendering (SSR) via the `@astrojs/cloudflare` adapter.
-* **Content Authoring**: Content is authored in [Markdoc](https://markdoc.dev) format (`.mdoc` files) and standard Markdown, parsed and validated via `@astrojs/markdoc` in Astro Content Collections.
+* **Content Authoring**: Content is authored in [Markdoc](https://markdoc.dev) format (`.mdoc` files, parsed via `@astrojs/markdoc`) and standard Markdown (`.md` files, parsed via Astro's built-in Markdown pipeline). Entry schemas and frontmatter validation across all collections are enforced via `astro:content` and Zod.
 * **Frontend Islands**: [React 19](https://react.dev) integrated via Astro's `client:load` and `client:visible` directives for interactive components.
 * **Styling**: [Tailwind CSS v4](https://tailwindcss.com) compiled through `@tailwindcss/vite`.
 * **Runtime & Services**:
@@ -272,40 +272,40 @@ The following table summarizes the key files in the repository.
   * `+` : High coupling, core architecture, routing entry point, or system configuration.
   * `–` : Static content collections, standard styles, or general utilities.
 
-| (#) | PRIORITY | PATH | TYPE | LINES | HASH8 | NOTES |
-| :---: | :---: | :--- | :---: | :---: | :---: | :--- |
-| 1 | `+` | [package.json](file:///package.json) | Config | 36 | `888` | Core project description, scripts, and production dependencies. |
-| 2 | `+` | [astro.config.mjs](file:///astro.config.mjs) | Config | 118 | `261ed8ad` | Adapters (conditional dev/prod), integrations, and the esbuild Durable Object builder. |
-| 3 | `+` | [wrangler.jsonc](file:///wrangler.jsonc) | Config | 30 | `557` | Primary wrangler configuration; contains D1 binding specifications. |
-| 4 | `+` | [markdoc.config.mjs](file:///markdoc.config.mjs) | Config | 12 | `–` | Markdoc tag definitions (e.g. `blueprintGallery`) mapping to Astro wrapper components. |
-| 6 | `+` | [scripts/patch-wrangler.mjs](file:///scripts/patch-wrangler.mjs) | Script | 90 | `57bd97b4` | Post-build wrangler binder and Astro adapter compiler patcher. |
-| 7 | `+` | [migrations/0001_twin_interactions.sql](file:///migrations/0001_twin_interactions.sql) | DDL | 13 | `d71ab5e5` | Initial D1 schema creation script for interaction logs. |
-| 8 | `+` | [src/agent/types.ts](file:///src/agent/types.ts) | Types | 43 | `1146` | Validation schemas, session regex rules, and session TTL configuration. |
-| 9 | `+` | [src/agent/context.ts](file:///src/agent/context.ts) | Logic | 137 | `7060` | Main assembly function compiling system prompt text. |
-| 10 | `+` | [src/agent/r2-context.ts](file:///src/agent/r2-context.ts) | Logic | 186 | `6408` | Private R2 object loader and character size constraint manager. |
-| 11 | `+` | [src/agent/sybil-twin.ts](file:///src/agent/sybil-twin.ts) | Class | 75 | `2559` | Durable Object storage class managing active session memory. |
-| 12 | `+` | [src/pages/api/agent.ts](file:///src/pages/api/agent.ts) | Route | 384 | `8310aa2b` | Streaming endpoint handling Workers AI and SSE frame generation. |
-| 13 | `+` | [src/components/AgentChat.tsx](file:///src/components/AgentChat.tsx) | Island | 270 | `9008` | Frontend chat wrapper and stream parser React component. |
-| 14 | `+` | [src/content.config.ts](file:///src/content.config.ts) | Config | 227 | `9410` | Astro Content Collections loaders, validation schemas, and `optionalImage()` preprocessor. |
-| 15 | `+` | [src/components/StatusFeed.astro](file:///src/components/StatusFeed.astro) | Island | 344 | `4e605c78` | Edge-cached GitHub commit reader and writing progress metrics. |
-| 16 | `+` | [src/styles/global.css](file:///src/styles/global.css) | Styles | 259 | `261ed8ad` | Global CSS declarations, dark mode tokens, and blueprint variables. |
-| 17 | `+` | [src/layouts/Layout.astro](file:///src/layouts/Layout.astro) | Layout | 99 | `5c7c2851` | Master layout framework; manages FOUC mitigation. |
-| 18 | `–` | [docs/r2-kb-runbook.md](file:///docs/r2-kb-runbook.md) | Docs | 208 | `b4d85118` | Reference manual for managing private R2 bucket documents. |
-| 20 | `–` | [src/data/about.ts](file:///src/data/about.ts) | Data | 31 | `f8ae47f6` | Static bio profiles and timeline data. |
-| 21 | `–` | [src/data/resume.ts](file:///src/data/resume.ts) | Data | 102 | `b6bec988` | Career history records and credentials lists. |
-| 22 | `–` | [src/utils/gallery.ts](file:///src/utils/gallery.ts) | Util | 83 | `da708aa0` | Astro image preprocessing utilities. |
-| 23 | `–` | [src/components/TechCard.astro](file:///src/components/TechCard.astro) | Card | 93 | `161fd528` | Specialized Maker Gallery card rendering progress metrics. |
-| 24 | `–` | [src/components/TheLab.astro](file:///src/components/TheLab.astro) | Column | 90 | `28610746` | Homepage panel displaying blog and recipe feeds. |
-| 25 | `–` | [src/components/BlueprintGallery.astro](file:///src/components/BlueprintGallery.astro) | Column | 54 | `3371` | Homepage column sorting and showcasing featured project cards. |
-| 26 | `–` | [src/components/BlueprintGalleryWrapper.astro](file:///src/components/BlueprintGalleryWrapper.astro) | Wrapper | 9 | `–` | Markdoc hydration boundary mounting the React BlueprintGallery island. |
-| 27 | `–` | [src/pages/index.astro](file:///src/pages/index.astro) | Page | 28 | `aab6eece` | Platform homepage mounting column adapters. |
-| 28 | `–` | [src/pages/agent.astro](file:///src/pages/agent.astro) | Page | 25 | `5f90ef40` | Router page mounting the React chat island. |
-| 29 | `–` | [src/pages/blog/\[slug\].astro](file:///src/pages/blog/[slug].astro) | Page | 375 | `1a1876a1` | Custom blog detail viewport template. |
-| 30 | `–` | [src/pages/kitchen/\[slug\].astro](file:///src/pages/kitchen/[slug].astro) | Page | 318 | `a33ab1b9` | Culinary recipe presentation template. |
-| 31 | `–` | [src/pages/projects/\[slug\].astro](file:///src/pages/projects/[slug].astro) | Page | 222 | `78eea6e8` | Project showcase layout template. |
-| 32 | `–` | [src/components/ProjectJsonLd.astro](file:///src/components/ProjectJsonLd.astro) | SEO | 49 | `c332b828` | JSON-LD schema builder for projects. |
-| 33 | `–` | [src/components/RecipeJsonLd.astro](file:///src/components/RecipeJsonLd.astro) | SEO | 68 | `76516a85` | JSON-LD schema builder for culinary presets. |
-| 34 | `–` | [src/components/ThemeToggle.tsx](file:///src/components/ThemeToggle.tsx) | Widget | 50 | `769b8416` | Client theme swapper widget. |
+| (#) | PRIORITY | PATH | TYPE | NOTES |
+| :---: | :---: | :--- | :---: | :--- |
+| 1 | `+` | [package.json](file:///package.json) | Config | Core project description, scripts, and production dependencies. |
+| 2 | `+` | [astro.config.mjs](file:///astro.config.mjs) | Config | Adapters (conditional dev/prod), integrations, and the esbuild Durable Object builder. |
+| 3 | `+` | [wrangler.jsonc](file:///wrangler.jsonc) | Config | Primary wrangler configuration; contains D1 binding specifications. |
+| 4 | `+` | [markdoc.config.mjs](file:///markdoc.config.mjs) | Config | Markdoc tag definitions (e.g. `blueprintGallery`) mapping to Astro wrapper components. |
+| 5 | `+` | [scripts/patch-wrangler.mjs](file:///scripts/patch-wrangler.mjs) | Script | Post-build wrangler binder and Astro adapter compiler patcher. |
+| 6 | `+` | [migrations/0001_twin_interactions.sql](file:///migrations/0001_twin_interactions.sql) | DDL | Initial D1 schema creation script for interaction logs. |
+| 7 | `+` | [src/agent/types.ts](file:///src/agent/types.ts) | Types | Validation schemas, session regex rules, and session TTL configuration. |
+| 8 | `+` | [src/agent/context.ts](file:///src/agent/context.ts) | Logic | Main assembly function compiling system prompt text. |
+| 9 | `+` | [src/agent/r2-context.ts](file:///src/agent/r2-context.ts) | Logic | Private R2 object loader and character size constraint manager. |
+| 10 | `+` | [src/agent/sybil-twin.ts](file:///src/agent/sybil-twin.ts) | Class | Durable Object storage class managing active session memory. |
+| 11 | `+` | [src/pages/api/agent.ts](file:///src/pages/api/agent.ts) | Route | Streaming endpoint handling Workers AI and SSE frame generation. |
+| 12 | `+` | [src/components/AgentChat.tsx](file:///src/components/AgentChat.tsx) | Island | Frontend chat wrapper and stream parser React component. |
+| 13 | `+` | [src/content.config.ts](file:///src/content.config.ts) | Config | Astro Content Collections loaders, validation schemas, and `optionalImage()` preprocessor. |
+| 14 | `+` | [src/components/StatusFeed.astro](file:///src/components/StatusFeed.astro) | Island | Edge-cached GitHub commit reader and writing progress metrics. |
+| 15 | `+` | [src/styles/global.css](file:///src/styles/global.css) | Styles | Global CSS declarations, dark mode tokens, and blueprint variables. |
+| 16 | `+` | [src/layouts/Layout.astro](file:///src/layouts/Layout.astro) | Layout | Master layout framework; manages FOUC mitigation. |
+| 17 | `–` | [docs/r2-kb-runbook.md](file:///docs/r2-kb-runbook.md) | Docs | Reference manual for managing private R2 bucket documents. |
+| 18 | `–` | [src/data/about.ts](file:///src/data/about.ts) | Data | Static bio profiles and timeline data. |
+| 19 | `–` | [src/data/resume.ts](file:///src/data/resume.ts) | Data | Career history records and credentials lists. |
+| 20 | `–` | [src/utils/gallery.ts](file:///src/utils/gallery.ts) | Util | Astro image preprocessing utilities. |
+| 21 | `–` | [src/components/TechCard.astro](file:///src/components/TechCard.astro) | Card | Specialized Maker Gallery card rendering progress metrics. |
+| 22 | `–` | [src/components/TheLab.astro](file:///src/components/TheLab.astro) | Column | Homepage panel displaying blog and recipe feeds. |
+| 23 | `–` | [src/components/BlueprintGallery.astro](file:///src/components/BlueprintGallery.astro) | Column | Homepage column sorting and showcasing featured project cards. |
+| 24 | `–` | [src/components/BlueprintGalleryWrapper.astro](file:///src/components/BlueprintGalleryWrapper.astro) | Wrapper | Markdoc hydration boundary mounting the React BlueprintGallery island. |
+| 25 | `–` | [src/pages/index.astro](file:///src/pages/index.astro) | Page | Platform homepage mounting column adapters. |
+| 26 | `–` | [src/pages/agent.astro](file:///src/pages/agent.astro) | Page | Router page mounting the React chat island. |
+| 27 | `–` | [src/pages/blog/\[slug\].astro](file:///src/pages/blog/[slug].astro) | Page | Custom blog detail viewport template. |
+| 28 | `–` | [src/pages/kitchen/\[slug\].astro](file:///src/pages/kitchen/[slug].astro) | Page | Culinary recipe presentation template. |
+| 29 | `–` | [src/pages/projects/\[slug\].astro](file:///src/pages/projects/[slug].astro) | Page | Project showcase layout template. |
+| 30 | `–` | [src/components/ProjectJsonLd.astro](file:///src/components/ProjectJsonLd.astro) | SEO | JSON-LD schema builder for projects. |
+| 31 | `–` | [src/components/RecipeJsonLd.astro](file:///src/components/RecipeJsonLd.astro) | SEO | JSON-LD schema builder for culinary presets. |
+| 32 | `–` | [src/components/ThemeToggle.tsx](file:///src/components/ThemeToggle.tsx) | Widget | Client theme swapper widget. |
 
 ---
 
