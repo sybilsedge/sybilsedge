@@ -39,7 +39,7 @@ The platform is built on a serverless Edge-native architecture deploying to Clou
 ### Technological Stack
 
 * **Core Framework**: [Astro 6](https://astro.build) configured for server-side rendering (SSR) via the `@astrojs/cloudflare` adapter.
-* **Content Authoring**: [Keystatic CMS](https://keystatic.com) (`@keystatic/astro` + `@keystatic/core`) provides a local/GitHub-backed admin UI at `/keystatic`. Content is authored in [Markdoc](https://markdoc.dev) format (`.mdoc` files) via `@astrojs/markdoc`.
+* **Content Authoring**: Content is authored in [Markdoc](https://markdoc.dev) format (`.mdoc` files) and standard Markdown, parsed and validated via `@astrojs/markdoc` in Astro Content Collections.
 * **Frontend Islands**: [React 19](https://react.dev) integrated via Astro's `client:load` and `client:visible` directives for interactive components.
 * **Styling**: [Tailwind CSS v4](https://tailwindcss.com) compiled through `@tailwindcss/vite`.
 * **Runtime & Services**:
@@ -127,8 +127,7 @@ graph TD
 ### B. Multi-Universe Fiction System
 * **Purpose**: Hosts an inter-linked universe, story, novel, lore, and timeline database.
 * **Technical Structure**:
-  * **Frontmatter Schemas**: Defined in [content.config.ts](file:///src/content.config.ts) for `universes`, `characters`, `novels`, `shortStories`, `lore`, and `timeline` collections. Image fields use the `optionalImage()` preprocessor to gracefully handle empty Keystatic objects.
-  * **CMS Schema**: The Keystatic admin schema is defined in [keystatic.config.ts](file:///keystatic.config.ts), mapping all 11 content collections with relationship fields, local image directories, and Markdoc content editors.
+  * **Frontmatter Schemas**: Defined in [content.config.ts](file:///src/content.config.ts) for `universes`, `characters`, `novels`, `shortStories`, `lore`, and `timeline` collections. Image fields use the `optionalImage()` preprocessor to gracefully handle optional image objects.
   * **Relations**: Relational arrays (e.g. `relatedCharacters`, `relatedStories`, `relatedLore`) use slugs to construct cross-reference links.
   * **UI Components**:
     * `<LoreFilter />` ([LoreFilter.tsx](file:///src/components/LoreFilter.tsx)) manages client-side categorization and spoiler levels.
@@ -177,8 +176,8 @@ Appends IIFE + "export { SybilTwinDO };" to entry.mjs
 ```
 
 ### A-2. Conditional Adapter for Local Development
-* **The Problem**: Keystatic's admin UI and its transitive dependencies (e.g. `direction`, `use-sync-external-store`, `remove-accents`) use CommonJS module patterns. Cloudflare's `workerd` runtime (used by the Cloudflare adapter in dev) lacks Node.js globals like `module`, causing hydration crashes on `/keystatic`.
-* **The Solution**: In [astro.config.mjs](file:///astro.config.mjs), the `adapter` and `vite.ssr` settings are **conditional on `isProd`** (`NODE_ENV === 'production'` or `process.argv.includes('build')`). During local development, no adapter is loaded — Astro falls back to its native Node.js dev server, which resolves CommonJS modules natively. In production builds, the full Cloudflare adapter with `ssr.target: 'webworker'` and `ssr.noExternal: true` is activated.
+* **The Problem**: Cloudflare's `workerd` runtime (used by the Cloudflare adapter in dev) behaves differently from Node.js during development.
+* **The Solution**: In [astro.config.mjs](file:///astro.config.mjs), the `adapter` and `vite.ssr` settings are **conditional on `isProd`** (`NODE_ENV === 'production'` or `process.argv.includes('build')`). During local development, no adapter is loaded — Astro falls back to its native Node.js dev server. In production builds, the full Cloudflare adapter with `ssr.target: 'webworker'` and `ssr.noExternal: true` is activated.
 
 ### B. Post-Build Wrangler Patching
 * **The Problem**: The `@astrojs/cloudflare` adapter generates an invalid `wrangler.json` inside the build output folder. It contains an empty `triggers: {}` block and `kv_namespaces` stubs with no IDs, both of which cause deployment failures.
@@ -276,10 +275,9 @@ The following table summarizes the key files in the repository.
 | (#) | PRIORITY | PATH | TYPE | LINES | HASH8 | NOTES |
 | :---: | :---: | :--- | :---: | :---: | :---: | :--- |
 | 1 | `+` | [package.json](file:///package.json) | Config | 36 | `888` | Core project description, scripts, and production dependencies. |
-| 2 | `+` | [astro.config.mjs](file:///astro.config.mjs) | Config | 124 | `261ed8ad` | Adapters (conditional dev/prod), integrations, Keystatic, and the esbuild Durable Object builder. |
+| 2 | `+` | [astro.config.mjs](file:///astro.config.mjs) | Config | 118 | `261ed8ad` | Adapters (conditional dev/prod), integrations, and the esbuild Durable Object builder. |
 | 3 | `+` | [wrangler.jsonc](file:///wrangler.jsonc) | Config | 30 | `557` | Primary wrangler configuration; contains D1 binding specifications. |
-| 4 | `+` | [keystatic.config.ts](file:///keystatic.config.ts) | Config | 586 | `–` | Keystatic CMS schema mapping all 11 content collections with relationship fields, image directories, and Markdoc editors. |
-| 5 | `+` | [markdoc.config.mjs](file:///markdoc.config.mjs) | Config | 12 | `–` | Markdoc tag definitions (e.g. `blueprintGallery`) mapping to Astro wrapper components. |
+| 4 | `+` | [markdoc.config.mjs](file:///markdoc.config.mjs) | Config | 12 | `–` | Markdoc tag definitions (e.g. `blueprintGallery`) mapping to Astro wrapper components. |
 | 6 | `+` | [scripts/patch-wrangler.mjs](file:///scripts/patch-wrangler.mjs) | Script | 90 | `57bd97b4` | Post-build wrangler binder and Astro adapter compiler patcher. |
 | 7 | `+` | [migrations/0001_twin_interactions.sql](file:///migrations/0001_twin_interactions.sql) | DDL | 13 | `d71ab5e5` | Initial D1 schema creation script for interaction logs. |
 | 8 | `+` | [src/agent/types.ts](file:///src/agent/types.ts) | Types | 43 | `1146` | Validation schemas, session regex rules, and session TTL configuration. |
@@ -293,7 +291,6 @@ The following table summarizes the key files in the repository.
 | 16 | `+` | [src/styles/global.css](file:///src/styles/global.css) | Styles | 259 | `261ed8ad` | Global CSS declarations, dark mode tokens, and blueprint variables. |
 | 17 | `+` | [src/layouts/Layout.astro](file:///src/layouts/Layout.astro) | Layout | 99 | `5c7c2851` | Master layout framework; manages FOUC mitigation. |
 | 18 | `–` | [docs/r2-kb-runbook.md](file:///docs/r2-kb-runbook.md) | Docs | 208 | `b4d85118` | Reference manual for managing private R2 bucket documents. |
-| 19 | `–` | [docs/keystatic-runbook.md](file:///docs/keystatic-runbook.md) | Docs | 79 | `–` | Reference manual for Keystatic CMS setup, GitHub App config, and troubleshooting. |
 | 20 | `–` | [src/data/about.ts](file:///src/data/about.ts) | Data | 31 | `f8ae47f6` | Static bio profiles and timeline data. |
 | 21 | `–` | [src/data/resume.ts](file:///src/data/resume.ts) | Data | 102 | `b6bec988` | Career history records and credentials lists. |
 | 22 | `–` | [src/utils/gallery.ts](file:///src/utils/gallery.ts) | Util | 83 | `da708aa0` | Astro image preprocessing utilities. |

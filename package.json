@@ -15,8 +15,6 @@
     "@astrojs/react": "^6.0.1",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
-    "@keystatic/astro": "^5.1.0",
-    "@keystatic/core": "^0.5.50",
     "@tailwindcss/vite": "^4.3.1",
     "astro": "^6.4.7",
     "framer-motion": "^12.40.0",
