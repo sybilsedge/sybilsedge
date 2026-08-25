@@ -78,7 +78,7 @@ function parseGithubCommitItems(payload: unknown): GithubCommitItem[] {
 
 const allCommits: Commit[] = [];
 let commitFetchError: string | null = null;
-const commitCache = typeof caches !== "undefined" ? caches.default : null;
+const commitCache = typeof caches !== "undefined" ? (caches as any).default : null;
 
 for (const repo of GITHUB_REPOS) {
   try {
@@ -180,11 +180,8 @@ const commits = allCommits.slice(0, 4);
 // ─── WRITING PROGRESS ──────────────────────────────────────────────────────
 const writingEntries = await getCollection("writing");
 const activeWriting = writingEntries
-  .filter(
-    (e) =>
-      e.data.status === "draft" && (e.data.wordCount || e.data.chapterStatus),
-  )
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .filter((e) => e.data.status === "draft")
+  .sort((a, b) => (b.data.date?.valueOf() ?? 0) - (a.data.date?.valueOf() ?? 0))
   .slice(0, 2);
 
 // ─── ICONS ─────────────────────────────────────────────────────────────────

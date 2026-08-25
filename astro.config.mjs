@@ -34,7 +34,7 @@ function durableObjectsPlugin() {
 
 	return {
 		name: 'durable-objects-export',
-		/** @param {any} _opts @param {import('rollup').OutputBundle} bundle */
+		/** @param {any} _opts @param {any} bundle */
 		generateBundle(_opts, bundle) {
 			// The SSR entry may be _worker.js (older adapters) or entry.mjs
 			// Only applicable to the SSR build — absent in client asset builds
@@ -63,7 +63,7 @@ function durableObjectsPlugin() {
 				});
 				iifeCode = result.outputFiles[0].text;
 			} catch (err) {
-				this.warn(`[durable-objects] esbuild compile failed: ${err}`);
+				console.warn(`[durable-objects] esbuild compile failed: ${err}`);
 				return;
 			}
 
@@ -94,11 +94,6 @@ export default defineConfig({
     ? cloudflare({
         // Build-time image optimization — no Cloudflare Images binding needed
         imageService: 'compile',
-        // Explicitly disable Astro sessions — prevents the adapter from injecting
-        // a SESSION KV binding stub into dist/server/wrangler.json, which would
-        // cause a UserError at runtime (KV bindings require an "id" field).
-        // Re-enable and provision a real KV namespace if sessions are needed later.
-        sessions: false,
       })
     : undefined,
   vite: {
