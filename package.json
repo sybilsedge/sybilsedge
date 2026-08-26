@@ -29,6 +29,6 @@
     "@fontsource/orbitron": "^5.1.1",
     "@resvg/resvg-js": "^2.6.2",
     "satori": "^0.26.0",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   }
 }
