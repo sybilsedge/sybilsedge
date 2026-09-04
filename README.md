@@ -53,6 +53,10 @@ Personal site for Sybil Melton — built with [Astro](https://astro.build) and d
 
 ## Local Development
 
+### Prerequisites
+
+- **Node.js**: `>= 22.0.0`
+
 ```sh
 # Install dependencies
 npm install
