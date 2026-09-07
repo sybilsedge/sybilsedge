@@ -312,12 +312,9 @@ const resetSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
 			cards.forEach((card) => {
 				if (!(card instanceof HTMLElement)) return;
 				const cardCourse = card.dataset.course;
-				let cardAppliances: string[] = [];
-				try {
-					cardAppliances = JSON.parse(card.dataset.appliances || '[]');
-				} catch (e) {
-					cardAppliances = [];
-				}
+let cardAppliances = [];
+try { cardAppliances = JSON.parse(card.dataset.appliances || '[]'); } catch {}
+if (!Array.isArray(cardAppliances)) cardAppliances = [];
 
 				const matchesCourse = activeCourse === 'all' || cardCourse === activeCourse;
 				const matchesAppliance = activeAppliance === 'all' || cardAppliances.includes(activeAppliance);
