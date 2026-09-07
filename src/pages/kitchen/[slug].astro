@@ -42,6 +42,30 @@ const categoryConfig: Record<string, { label: string; color: string }> = {
 	preservation: { label: 'Preservation', color: 'text-primary/80 border-primary/30 bg-primary/5' },
 };
 
+const courseConfig: Record<string, { label: string; color: string }> = {
+	main:     { label: 'Main Dish', color: 'text-cyan-300 border-cyan-400/40 bg-cyan-400/10' },
+	side:     { label: 'Side Dish', color: 'text-teal-300 border-teal-400/40 bg-teal-400/10' },
+	dessert:  { label: 'Dessert',   color: 'text-fuchsia-300 border-fuchsia-400/40 bg-fuchsia-400/10' },
+	beverage: { label: 'Beverage',  color: 'text-sky-300 border-sky-400/40 bg-sky-400/10' },
+	sauce:    { label: 'Sauce',     color: 'text-amber-300 border-amber-400/40 bg-amber-400/10' },
+	other:    { label: 'Other',     color: 'text-slate-300 border-slate-400/40 bg-slate-400/10' },
+};
+
+const applianceConfig: Record<string, { label: string; icon: string }> = {
+	'slow-cooker': {
+		label: 'Slow Cooker',
+		icon: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16a1 1 0 0 1 1 1v6a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-6a1 1 0 0 1 1-1Z"/><path d="M6 11V8a6 6 0 0 1 12 0v3"/><path d="M12 2v2"/><path d="M8 3v1"/><path d="M16 3v1"/></svg>`,
+	},
+	'dutch-oven': {
+		label: 'Dutch Oven',
+		icon: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="7" rx="8" ry="3"/><path d="M4 7v8a8 5 0 0 0 16 0V7"/><path d="M2 9h2"/><path d="M20 9h2"/><path d="M12 2v2"/></svg>`,
+	},
+	'instant-pot': {
+		label: 'Instant Pot / Pressure Cooker',
+		icon: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="16" height="15" rx="3"/><path d="M2 10h2"/><path d="M20 10h2"/><path d="M8 2h8"/><path d="M12 2v4"/><circle cx="12" cy="13" r="2.5"/><path d="m13.5 11.5-1.5 1.5"/></svg>`,
+	},
+};
+
 const cat = categoryConfig[entry.data.category];
 
 const readingTime = getReadingTime(entry.body ?? '');
@@ -60,6 +84,8 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 		name={entry.data.title}
 		description={entry.data.description}
 		category={entry.data.category}
+		course={entry.data.course}
+		appliances={entry.data.appliances}
 		date={entry.data.date}
 		prepTime={entry.data.prepTime}
 		cookTime={entry.data.cookTime}
@@ -84,6 +110,17 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 		<header class="mb-8 rounded-md blueprint-border bg-black/35 p-6 md:p-8">
 			<div class="mb-3 flex flex-wrap items-center gap-2">
 				<span class={`rounded border font-tech text-[10px] uppercase tracking-[0.14em] px-2 py-0.5 ${cat.color}`}>{cat.label}</span>
+				{entry.data.course && courseConfig[entry.data.course] && (
+					<span class={`rounded border font-tech text-[10px] uppercase tracking-[0.14em] px-2 py-0.5 ${courseConfig[entry.data.course].color}`}>
+						{courseConfig[entry.data.course].label}
+					</span>
+				)}
+				{entry.data.appliances && entry.data.appliances.map((app: string) => applianceConfig[app] && (
+					<span class="inline-flex items-center gap-1.5 rounded border border-cyan-400/30 bg-cyan-400/5 px-2 py-0.5 font-tech text-[10px] uppercase tracking-[0.12em] text-cyan-300/80">
+						<span set:html={applianceConfig[app].icon} class="shrink-0 text-cyan-300" />
+						{applianceConfig[app].label}
+					</span>
+				))}
 				<span class="font-tech text-[11px] text-cyan-300/35 ml-auto">{entry.data.date.getFullYear()}</span>
 			</div>
 			<h1 class="font-orbitron text-2xl uppercase tracking-[0.1em] text-cyan-100 md:text-3xl">

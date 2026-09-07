@@ -11,6 +11,8 @@ interface Props {
 	name: string;
 	description: string;
 	category: string;
+	course?: string;
+	appliances?: string[];
 	date: Date;
 	prepTime?: string;
 	cookTime?: string;
@@ -25,6 +27,8 @@ const {
 	name,
 	description,
 	category,
+	course,
+	appliances,
 	date,
 	prepTime,
 	cookTime,
@@ -35,6 +39,21 @@ const {
 	imageUrl,
 } = Astro.props;
 
+const courseLabels: Record<string, string> = {
+	main: 'Main Course',
+	side: 'Side Dish',
+	dessert: 'Dessert',
+	beverage: 'Beverage',
+	sauce: 'Sauce & Seasoning',
+	other: 'Other',
+};
+
+const applianceLabels: Record<string, string> = {
+	'slow-cooker': 'Slow Cooker',
+	'dutch-oven': 'Dutch Oven',
+	'instant-pot': 'Pressure Cooker',
+};
+
 // Build the JSON-LD object, omitting keys whose values are absent so that
 // Google's Rich Results Test does not flag empty/null fields.
 const ld: Record<string, unknown> = {
@@ -44,8 +63,12 @@ const ld: Record<string, unknown> = {
 	description,
 	author: { '@type': 'Person', name: 'Sybil Melton' },
 	datePublished: date.toISOString().slice(0, 10),
-	recipeCategory: category,
+	recipeCategory: course ? (courseLabels[course] ?? course) : category,
 };
+
+if (appliances && appliances.length > 0) {
+	ld.cookingMethod = appliances.map((a) => applianceLabels[a] ?? a);
+}
 
 if (imageUrl) ld.image = [imageUrl];
 // prepTime / cookTime are passed through as authored in frontmatter (e.g. "20 min").
