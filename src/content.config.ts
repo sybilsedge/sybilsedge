@@ -152,6 +152,8 @@ const recipes = defineCollection({
 	schema: ({ image }) => z.object({
 		title: z.string(),
 		category: z.enum(['baking', 'cooking', 'preservation']),
+		course: z.enum(['main', 'side', 'dessert', 'beverage', 'sauce', 'other']).default('main'),
+		appliances: z.array(z.enum(['slow-cooker', 'dutch-oven', 'instant-pot'])).default([]),
 		description: z.string().default(''),
 		tags: z.array(z.string()).default([]),
 		prepTime: z.string().optional(),
