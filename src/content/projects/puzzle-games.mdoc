@@ -1,0 +1,86 @@
+---
+title: "Puzzle Games PWA"
+category: "tech"
+status: "active"
+description: "A zero-cost, ad-free, mobile-first Progressive Web App featuring Sudoku Classic with an off-thread QQWing generation engine and classic Minesweeper with blueprint HUD aesthetics."
+githubUrl: "https://github.com/sybilsedge/sudoku"
+projectUrl: "https://sudoku-9dc.pages.dev/"
+date: 2026-09-10
+featured: true
+tags: ["React", "TypeScript", "PWA", "Vite", "Tailwind CSS", "Cloudflare Pages"]
+schemaType: "SoftwareApplication"
+appCategory: "GameApplication"
+operatingSystem: "Web, iOS, Android (PWA)"
+keywords: ["sudoku", "minesweeper", "pwa", "puzzle games", "react 19", "offline game", "qqwing"]
+---
+
+## Overview
+
+A personal, zero-cost, ad-free puzzle game suite built for mobile and desktop play.
+Born out of frustration with commercial mobile puzzle apps riddled with unskippable
+video ads, battery-draining telemetry, and aggressive monetization, this project
+delivers an instant-loading, distraction-free environment for daily puzzle solving.
+
+The suite combines a full-featured **Sudoku Classic** game and a retro-modern
+**Minesweeper** under a unified architectural navigation shell powered by the
+Sybilsedge Blueprint Design System.
+
+## The Games
+
+### Sudoku Classic
+
+- **Mobile-First Responsive Grid** — 9x9 board with distinct 3x3 block borders, hairline cell dividers, and high-contrast styling optimized for touch screens.
+- **Dual Input Modes** — 
+  - *Cell-First*: Tap any cell, then tap a digit on the numeric keypad.
+  - *Digit-First*: Select a digit on the keypad, then rapidly paint multiple cells across the board.
+- **Dual-Layer Pencilmarks** — Supports both perimeter **Corner Notes** and clustered **Center Notes** for advanced candidate tracking.
+- **Auto-Erasure** — Placing a confirmed digit automatically removes that candidate note from all peer cells in the same row, column, and 3x3 box.
+- **Visual Assistance** — Row, column, and 3x3 block crosshair shading, same-digit highlight matching, and optional auto-check error indicators.
+- **QQWing Puzzle Engine in Web Worker** — Generates boards off-thread via a dedicated Web Worker (`generator.worker.ts`) with background pre-caching. Guarantees 180° rotational symmetry and exactly one unique solution across logical difficulty tiers (Easy, Medium, Hard).
+- **Move History & Persistence** — Full Undo/Redo stack, anti-peeking pause screen with timer freeze, and `localStorage` persistence across page reloads.
+
+### Minesweeper
+
+- **Retro-Modern Digital HUD** — LED-style segmented digital readouts for remaining mine count and elapsed time, paired with an interactive status face button.
+- **Difficulty Presets** — Beginner (9x9, 10 mines), Intermediate (16x16, 40 mines), Expert (30x16, 99 mines), and custom dimension configurations.
+- **Mobile Touch Controls** — Ergonomic thumb-friendly Dig vs. Flag mode toggle, long-press cell flagging, and chord clearing on revealed numbers.
+- **Celebration Effects** — Integrated canvas confetti celebration upon successfully sweeping the grid.
+
+## Tech Stack
+
+- **Framework** — React 19 + TypeScript on Vite
+- **Styling** — Tailwind CSS v4 (`@tailwindcss/vite`)
+- **Design System** — `@sybilsedge/blueprint-design`
+- **Puzzle Engine** — `qqwing` compiled for browser execution
+- **PWA & Offline** — `vite-plugin-pwa` and Workbox
+- **Icons & Effects** — `lucide-react`, `canvas-confetti`
+- **Hosting** — Cloudflare Pages via Wrangler
+
+## Architecture
+
+### Off-Thread Puzzle Generation
+
+Generating valid Sudoku puzzles with guaranteed rotational symmetry and unique solutions
+can be computationally intensive, especially on mobile hardware. Offloading the QQWing
+solver and board generator to a dedicated Web Worker prevents frame drops on the main UI
+thread, keeping input handling and animations running at 60/120fps.
+
+### Offline PWA & Zero-Backend
+
+The entire application runs purely client-side with zero backend dependencies.
+Service worker caching via Workbox enables seamless offline play when installed to
+an iOS or Android home screen (`display: standalone`). All gameplay state, active timers,
+and settings persist to browser `localStorage`.
+
+### Blueprint Design System
+
+The application adopts the Sybilsedge Blueprint Design System, featuring:
+- **Dark Cyberpunk Mode**: Deep black background, cyan glowing borders, and high-contrast monospace indicators.
+- **Light Technical Blueprint Mode**: Crisp technical drawing styling reminiscent of architectural blueprints.
+- **Classic Typography**: `Lora` serif font for the newspaper puzzle aesthetic paired with `Orbitron` and `JetBrains Mono` for technical readouts.
+
+## Status
+
+Active and deployed. The app is live on Cloudflare Pages at
+[sudoku-9dc.pages.dev](https://sudoku-9dc.pages.dev/) and open source on
+[GitHub](https://github.com/sybilsedge/sudoku).

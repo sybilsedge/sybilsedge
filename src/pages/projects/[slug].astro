@@ -48,16 +48,22 @@ const statusConfig: Record<string, { label: string; classes: string }> = {
 };
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
-	tech:   { label: 'Tech',   color: 'text-primary/80 border-primary/30 bg-primary/5' },
-	home:   { label: 'Home',   color: 'text-accent/80 border-accent/30 bg-accent/5' },
-	garden: { label: 'Garden', color: 'text-amber-400/80 border-amber-400/30 bg-amber-400/5' },
+	tech:    { label: 'Tech',    color: 'text-primary/80 border-primary/30 bg-primary/5' },
+	home:    { label: 'Home',    color: 'text-accent/80 border-accent/30 bg-accent/5' },
+	outdoor: { label: 'Outdoor', color: 'text-amber-400/80 border-amber-400/30 bg-amber-400/5' },
+	garden:  { label: 'Outdoor', color: 'text-amber-400/80 border-amber-400/30 bg-amber-400/5' },
 };
 
 const { label: statusLabel, classes: statusClasses } = statusConfig[entry.data.status];
-const cat = categoryConfig[entry.data.category];
+const cat = categoryConfig[entry.data.category] ?? categoryConfig.tech;
 
 const linkSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+const launchSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+const youtubeSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><polygon points="10 15 15 12 10 9 10 15"/></svg>`;
 const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`;
+
+const isYouTube = entry.data.projectUrl ? /youtube\.com|youtu\.be/.test(entry.data.projectUrl) : false;
+const projectUrlLabel = entry.data.projectUrlLabel ?? (isYouTube ? 'YouTube Channel' : 'Launch App');
 ---
 
 <Layout
@@ -119,17 +125,32 @@ const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
 					class="mt-5"
 				/>
 			)}
-			<!-- GitHub link -->
-			{entry.data.githubUrl && (
-				<a
-					href={entry.data.githubUrl}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="mt-5 inline-flex items-center gap-2 rounded blueprint-border px-4 py-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/70 hover:text-cyan-100 transition-colors"
-				>
-					<span set:html={linkSvg} />
-					View on GitHub
-				</a>
+			<!-- Action links -->
+			{(entry.data.projectUrl || entry.data.githubUrl) && (
+				<div class="mt-5 flex flex-wrap items-center gap-3">
+					{entry.data.projectUrl && (
+						<a
+							href={entry.data.projectUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-flex items-center gap-2 rounded border border-cyan-400/60 bg-cyan-500/15 px-4 py-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-200 hover:bg-cyan-500/25 hover:text-cyan-100 hover:border-cyan-300 transition-colors shadow-[0_0_12px_rgba(0,255,255,0.15)]"
+						>
+							<span set:html={isYouTube ? youtubeSvg : launchSvg} />
+							{projectUrlLabel}
+						</a>
+					)}
+					{entry.data.githubUrl && (
+						<a
+							href={entry.data.githubUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-flex items-center gap-2 rounded blueprint-border px-4 py-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/70 hover:text-cyan-100 transition-colors"
+						>
+							<span set:html={linkSvg} />
+							View on GitHub
+						</a>
+					)}
+				</div>
 			)}
 		</header>
 
