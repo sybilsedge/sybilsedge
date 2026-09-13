@@ -115,7 +115,7 @@ const projects = defineCollection({
 	loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/projects' }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
-		category: z.enum(['tech', 'home', 'garden']),
+		category: z.enum(['tech', 'home', 'outdoor', 'garden']),
 		status: z.enum(['active', 'complete', 'archived', 'wip']),
 		description: z.string().default(''),
 		githubUrl: z.string().url().optional(),
@@ -139,6 +139,7 @@ const projects = defineCollection({
 		// Structured data fields for JSON-LD (schema.org/CreativeWork or SoftwareApplication)
 		schemaType: z.enum(['SoftwareApplication', 'CreativeWork']).optional(),
 		projectUrl: z.string().url().optional(),
+		projectUrlLabel: z.string().optional(),
 		keywords: z.array(z.string()).optional(),
 		appCategory: z.string().optional(),
 		operatingSystem: z.string().optional(),
