@@ -1,0 +1,7 @@
+# Cloudflare Pages 301 redirects for renamed legacy URLs
+/blog/tech--terraform-ne--002/ /blog/terraform-fundaments-through-a-network-lens/ 301
+/blog/tech--terraform-ne--002 /blog/terraform-fundaments-through-a-network-lens/ 301
+/blog/tech-sybilsedge-site--001/ /blog/notes-on-building-a-personal-site/ 301
+/blog/tech-sybilsedge-site--001 /blog/notes-on-building-a-personal-site/ 301
+/blog/tech--terraform-ne--001/ /blog/why-terraform-for-network-engineers/ 301
+/blog/tech--terraform-ne--001 /blog/why-terraform-for-network-engineers/ 301

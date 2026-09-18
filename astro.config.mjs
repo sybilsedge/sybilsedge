@@ -82,6 +82,7 @@ const isProd = process.env.NODE_ENV === 'production' || process.argv.includes('b
 // https://astro.build/config
 export default defineConfig({
   site: 'https://sybilsedge.com',
+  trailingSlash: 'always',
   markdown: {
     shikiConfig: {
       // Closest built-in theme to the site's dark cyan palette
