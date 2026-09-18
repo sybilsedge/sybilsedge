@@ -6,6 +6,34 @@
  * Layout named "head" slot.  All values come from locally-authored frontmatter
  * so set:html is safe here — there is no user-supplied input involved.
  */
+import { formatIsoDuration, calculateTotalIsoDuration } from '../utils/duration.ts';
+
+interface NutritionData {
+	calories?: string;
+	servingSize?: string;
+	fatContent?: string;
+	saturatedFatContent?: string;
+	carbohydrateContent?: string;
+	sugarContent?: string;
+	fiberContent?: string;
+	proteinContent?: string;
+	sodiumContent?: string;
+}
+
+interface VideoData {
+	name?: string;
+	description?: string;
+	thumbnailUrl?: string;
+	uploadDate?: Date;
+	contentUrl?: string;
+	embedUrl?: string;
+}
+
+interface RatingData {
+	ratingValue: number;
+	reviewCount: number;
+	bestRating?: number;
+}
 
 interface Props {
 	name: string;
@@ -21,6 +49,12 @@ interface Props {
 	ingredients?: string[];
 	instructions?: string[];
 	imageUrl?: string;
+	tags?: string[];
+	recipeUrl?: string;
+	stepImages?: (string | undefined)[];
+	nutrition?: NutritionData;
+	video?: VideoData;
+	rating?: RatingData;
 }
 
 const {
@@ -37,6 +71,12 @@ const {
 	ingredients,
 	instructions,
 	imageUrl,
+	tags,
+	recipeUrl,
+	stepImages,
+	nutrition,
+	video,
+	rating,
 } = Astro.props;
 
 const courseLabels: Record<string, string> = {
@@ -72,20 +112,105 @@ if (appliances && appliances.length > 0) {
 }
 
 if (imageUrl) ld.image = [imageUrl];
-// prepTime / cookTime are passed through as authored in frontmatter (e.g. "20 min").
-// schema.org prefers ISO 8601 duration strings (e.g. "PT20M"), but Google also
-// accepts human-readable values. Update individual recipe entries to ISO 8601 if
-// full Rich Results compliance is required.
-if (prepTime) ld.prepTime = prepTime;
-if (cookTime) ld.cookTime = cookTime;
+
+// Format prepTime, cookTime, and totalTime into ISO 8601 durations (e.g. "PT20M")
+// to meet Google's Rich Results specifications.
+const isoPrep = formatIsoDuration(prepTime);
+const isoCook = formatIsoDuration(cookTime);
+const isoTotal = calculateTotalIsoDuration(prepTime, cookTime);
+
+if (isoPrep) ld.prepTime = isoPrep;
+if (isoCook) ld.cookTime = isoCook;
+if (isoTotal) ld.totalTime = isoTotal;
+
 if (servings) ld.recipeYield = `${servings} servings`;
 if (cuisine) ld.recipeCuisine = cuisine;
+
+// Map tags, category, and cuisine to comma-separated keywords
+const keywordSet = new Set<string>();
+if (tags && tags.length > 0) {
+	tags.forEach((t) => keywordSet.add(t));
+}
+if (cuisine) keywordSet.add(cuisine);
+if (course && courseLabels[course]) keywordSet.add(courseLabels[course]);
+if (keywordSet.size > 0) {
+	ld.keywords = Array.from(keywordSet).join(', ');
+}
+
 if (ingredients && ingredients.length > 0) ld.recipeIngredient = ingredients;
+
+// Format recipeInstructions as structured HowToStep objects with name, text, url, and optional image
 if (instructions && instructions.length > 0) {
-	ld.recipeInstructions = instructions.map((text) => ({
-		'@type': 'HowToStep',
-		text,
-	}));
+	ld.recipeInstructions = instructions.map((instruction, index) => {
+		let stepName = `Step ${index + 1}`;
+		let stepText = instruction.trim();
+
+		const colonIndex = instruction.indexOf(':');
+		// If colon exists within first 60 characters, treat prefix as step title
+		if (colonIndex > 0 && colonIndex < 60) {
+			const potentialTitle = instruction.slice(0, colonIndex).trim();
+			const cleanedTitle = potentialTitle.replace(/^(?:step\s*\d+\s*[:.-]?\s*|\d+\s*[:.-]?\s*)/i, '').trim();
+			if (cleanedTitle.length > 0) {
+				stepName = cleanedTitle;
+			}
+			stepText = instruction.slice(colonIndex + 1).trim();
+		}
+
+		const step: Record<string, unknown> = {
+			'@type': 'HowToStep',
+			name: stepName,
+			text: stepText || instruction.trim(),
+		};
+
+		if (recipeUrl) {
+			step.url = `${recipeUrl}#step-${index + 1}`;
+		}
+
+		const stepImg = stepImages?.[index];
+		if (stepImg) {
+			step.image = stepImg;
+		}
+
+		return step;
+	});
+}
+
+// Nutrition information (optional)
+if (nutrition) {
+	const nutObj: Record<string, unknown> = {
+		'@type': 'NutritionInformation',
+	};
+	for (const [key, val] of Object.entries(nutrition)) {
+		if (val) nutObj[key] = val;
+	}
+	if (Object.keys(nutObj).length > 1) {
+		ld.nutrition = nutObj;
+	}
+}
+
+// Video information (optional)
+if (video) {
+	const vidObj: Record<string, unknown> = {
+		'@type': 'VideoObject',
+		name: video.name ?? name,
+		description: video.description ?? description,
+	};
+	if (video.thumbnailUrl) vidObj.thumbnailUrl = [video.thumbnailUrl];
+	else if (imageUrl) vidObj.thumbnailUrl = [imageUrl];
+	if (video.uploadDate) vidObj.uploadDate = video.uploadDate.toISOString().slice(0, 10);
+	if (video.contentUrl) vidObj.contentUrl = video.contentUrl;
+	if (video.embedUrl) vidObj.embedUrl = video.embedUrl;
+	ld.video = vidObj;
+}
+
+// Aggregate rating (optional, only when genuine rating data is available)
+if (rating && rating.reviewCount > 0) {
+	ld.aggregateRating = {
+		'@type': 'AggregateRating',
+		ratingValue: rating.ratingValue,
+		reviewCount: rating.reviewCount,
+		bestRating: rating.bestRating ?? 5,
+	};
 }
 
 // Safely serialize JSON for inline embedding in a <script> tag.

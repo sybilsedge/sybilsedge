@@ -164,6 +164,30 @@ const recipes = defineCollection({
 		cuisine: z.string().optional(),
 		ingredients: z.array(z.string()).optional(),
 		instructions: z.array(z.string()).optional(),
+		nutrition: z.object({
+			calories: z.string().optional(),
+			servingSize: z.string().optional(),
+			fatContent: z.string().optional(),
+			saturatedFatContent: z.string().optional(),
+			carbohydrateContent: z.string().optional(),
+			sugarContent: z.string().optional(),
+			fiberContent: z.string().optional(),
+			proteinContent: z.string().optional(),
+			sodiumContent: z.string().optional(),
+		}).optional(),
+		video: z.object({
+			name: z.string().optional(),
+			description: z.string().optional(),
+			thumbnailUrl: z.string().optional(),
+			uploadDate: z.coerce.date().optional(),
+			contentUrl: z.string().url().optional(),
+			embedUrl: z.string().url().optional(),
+		}).optional(),
+		rating: z.object({
+			ratingValue: z.number().min(1).max(5),
+			reviewCount: z.number().min(1),
+			bestRating: z.number().default(5).optional(),
+		}).optional(),
 		// Use Astro's image() helper so images are validated and optimised at
 		// build time via getImage() — must be a local path relative to the entry.
 		image: optionalImage(image),
