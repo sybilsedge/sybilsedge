@@ -54,6 +54,11 @@ const applianceOptions = [
 		label: 'Instant Pot / Pressure Cooker',
 		icon: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="16" height="15" rx="3"/><path d="M2 10h2"/><path d="M20 10h2"/><path d="M8 2h8"/><path d="M12 2v4"/><circle cx="12" cy="13" r="2.5"/><path d="m13.5 11.5-1.5 1.5"/></svg>`,
 	},
+	{
+		id: 'ninja-creami',
+		label: 'Ninja Creami',
+		icon: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17c5 0 8-2.69 8-6H4c0 3.31 3 6 8 6Z"/><path d="M5.14 11a3.5 3.5 0 1 1 6.71-1.2 3.5 3.5 0 1 1 6.88 1.2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>`,
+	},
 ] as const;
 
 const applianceMap: Record<string, { label: string; icon: string }> = Object.fromEntries(
