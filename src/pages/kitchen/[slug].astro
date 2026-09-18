@@ -279,6 +279,7 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 			.recipe-layout {
 				display: flex;
 				height: 80vh;
+				height: 80dvh;
 				overflow: hidden;
 				padding: 0 !important;
 			}
@@ -295,6 +296,9 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 			}
 			#pane-ingredients {
 				border-right: 1px solid var(--blueprint-border);
+			}
+			.recipe-pane :global(> *:first-child) {
+				margin-top: 0;
 			}
 			.recipe-pane :global(h2:first-of-type) {
 				margin-top: 0;
@@ -338,9 +342,12 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 			const paneInstructions = document.getElementById('pane-instructions');
 
 			if (source && paneIngredients && paneInstructions) {
+				// Markdoc wraps content in an <article> element; target its children,
+				// falling back to direct source children if no wrapper exists.
+				const container = source.querySelector('article') || source;
 				// Default to ingredients pane for leading content.
 				let targetPane = paneIngredients;
-				const nodes = Array.from(source.childNodes);
+				const nodes = Array.from(container.childNodes);
 
 				nodes.forEach(node => {
 					// Skip whitespace-only text nodes to ensure first-of-type headers align correctly.
@@ -352,7 +359,7 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 						const text = node.textContent.trim().toLowerCase();
 						if (text.includes('ingredients')) {
 							targetPane = paneIngredients;
-						} else if (text.includes('instructions') || text.includes('notes')) {
+						} else if (text.includes('instructions') || text.includes('directions') || text.includes('notes')) {
 							targetPane = paneInstructions;
 						}
 					}
