@@ -29,12 +29,18 @@ const galleryItems: BlueprintImage[] = await buildGalleryItems(entry.data.images
 // Pre-optimise the `steps` array for the StepGallery island.
 const stepItems: StepItem[] = await buildStepItems(entry.data.steps);
 
+const siteUrl = Astro.site ?? 'https://sybilsedge.com';
+const recipeUrl = new URL(Astro.url.pathname, siteUrl).toString();
+
 // Resolve the hero image URL for JSON-LD structured data (optional).
 let heroImageUrl: string | undefined;
 if (entry.data.image) {
 	const optimised = await getImage({ src: entry.data.image.src, width: 1200, format: 'webp' });
-	heroImageUrl = new URL(optimised.src, Astro.site ?? 'https://sybilsedge.com').toString();
+	heroImageUrl = new URL(optimised.src, siteUrl).toString();
 }
+
+// Resolve step image URLs for JSON-LD HowToStep metadata (optional).
+const stepImages = stepItems.map((item) => item.src ? new URL(item.src, siteUrl).toString() : undefined);
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
 	baking:       { label: 'Baking',       color: 'text-amber-400/80 border-amber-400/30 bg-amber-400/5' },
@@ -98,12 +104,18 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 		ingredients={entry.data.ingredients}
 		instructions={entry.data.instructions}
 		imageUrl={heroImageUrl}
+		tags={entry.data.tags}
+		recipeUrl={recipeUrl}
+		stepImages={stepImages}
+		nutrition={entry.data.nutrition}
+		video={entry.data.video}
+		rating={entry.data.rating}
 	/>
 	<div class="mx-auto w-full max-w-[960px] px-4 py-6 md:px-8 md:py-10">
 
 		<!-- Back link -->
 		<a
-			href="/kitchen"
+			href="/kitchen/"
 			class="mb-6 inline-flex items-center gap-2 font-tech text-[11px] uppercase tracking-[0.16em] text-cyan-300/50 hover:text-cyan-300 transition-colors"
 		>
 			<span set:html={arrowSvg} />
@@ -247,6 +259,11 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 			padding-left: 2.25rem;
 			position: relative;
 			counter-increment: recipe-step;
+			scroll-margin-top: 5rem;
+		}
+		.prose-recipe :global(ol li:target) {
+			background-color: rgb(0 255 255 / 0.08);
+			border-radius: 4px;
 		}
 		.prose-recipe :global(ol li::before) {
 			content: counter(recipe-step);
@@ -368,6 +385,16 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 
 				// Hide the source container after distribution.
 				source.style.display = 'none';
+
+				// Assign id="step-1", id="step-2", etc. to instruction list items for deep-link anchors
+				const ol = paneInstructions.querySelector('ol');
+				if (ol) {
+					ol.querySelectorAll('li').forEach((li, idx) => {
+						if (!li.id) {
+							li.id = `step-${idx + 1}`;
+						}
+					});
+				}
 			}
 
 			// Screen Wake Lock API to keep the screen on while cooking.
