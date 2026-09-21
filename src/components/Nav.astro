@@ -8,32 +8,32 @@ const navLinks = [
 		svg: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>`,
 	},
 	{
-		href: '/blog',
+		href: '/blog/',
 		label: 'Blog',
 		svg: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a4 4 0 0 1-4 4z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="10" x2="16" y1="13" y2="13"/><line x1="10" x2="14" y1="17" y2="17"/></svg>`,
 	},
 	{
-		href: '/projects',
+		href: '/projects/',
 		label: 'Projects',
 		svg: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/></svg>`,
 	},
 	{
-		href: '/kitchen',
+		href: '/kitchen/',
 		label: 'Kitchen',
 		svg: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>`,
 	},
 	{
-		href: '/about',
+		href: '/about/',
 		label: 'About',
 		svg: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>`,
 	},
 	{
-		href: '/resume',
+		href: '/resume/',
 		label: 'Resume',
 		svg: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="10" x2="16" y1="13" y2="13"/><line x1="10" x2="14" y1="17" y2="17"/></svg>`,
 	},
 	{
-		href: '/agent',
+		href: '/agent/',
 		label: 'Twin',
 		svg: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="10" x="3" y="11" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" x2="8" y1="16" y2="16"/><line x1="16" x2="16" y1="16" y2="16"/><line x1="12" x2="12" y1="16" y2="16"/></svg>`,
 	},
@@ -52,7 +52,8 @@ const writingSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="1
 const chevronSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg>`;
 
 const currentPath = Astro.url.pathname;
-const isWritingActive = currentPath.startsWith('/writing');
+const normalizedPath = currentPath.endsWith('/') ? currentPath : `${currentPath}/`;
+const isWritingActive = normalizedPath.startsWith('/writing/');
 ---
 
 <nav class="blueprint-border-bottom sticky top-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-sm" aria-label="Main navigation">
@@ -116,8 +117,8 @@ const isWritingActive = currentPath.startsWith('/writing');
 						// For the Universes link (/writing/), only mark active on exact match
 						// to avoid it highlighting when a sub-section (novels, stories, etc.) is active.
 						const isSubActive = href === '/writing/'
-							? currentPath === '/writing/'
-							: currentPath.startsWith(href);
+							? normalizedPath === '/writing/'
+							: normalizedPath.startsWith(href);
 						return (
 							<li>
 								<a
@@ -139,7 +140,7 @@ const isWritingActive = currentPath.startsWith('/writing');
 
 			{
 				navLinks.slice(1).map(({ href, label, svg }) => {
-					const isActive = currentPath.startsWith(href);
+					const isActive = normalizedPath.startsWith(href);
 					return (
 						<li>
 							<a
@@ -181,7 +182,7 @@ const isWritingActive = currentPath.startsWith('/writing');
 			>
 				{/* Dashboard */}
 				{navLinks.slice(0, 1).map(({ href, label, svg }) => {
-					const isActive = currentPath === '/';
+					const isActive = normalizedPath === '/';
 					return (
 						<li>
 							<a
@@ -213,7 +214,7 @@ const isWritingActive = currentPath.startsWith('/writing');
 				</li>
 				{/* Writing sub-links */}
 				{writingSubLinks.slice(1).map(({ href, label }) => {
-					const isSubActive = currentPath.startsWith(href);
+					const isSubActive = normalizedPath.startsWith(href);
 					return (
 						<li>
 							<a
@@ -231,7 +232,7 @@ const isWritingActive = currentPath.startsWith('/writing');
 
 				{/* Remaining nav links */}
 				{navLinks.slice(1).map(({ href, label, svg }) => {
-					const isActive = currentPath.startsWith(href);
+					const isActive = normalizedPath.startsWith(href);
 					return (
 						<li>
 							<a

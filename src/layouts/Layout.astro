@@ -3,6 +3,8 @@ import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 
+import { getCanonicalUrl } from '../utils/url.ts';
+
 interface Props {
 	title?: string;
 	description?: string;
@@ -17,8 +19,9 @@ const {
 	ogImage = '/og/default.png',
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsedge.com');
-const ogImageURL = new URL(ogImage, Astro.site ?? 'https://sybilsedge.com').toString();
+const siteBase = Astro.site ?? 'https://sybilsedge.com';
+const canonicalURL = getCanonicalUrl(Astro.url.pathname, siteBase);
+const ogImageURL = new URL(ogImage, siteBase).toString();
 ---
 
 <!doctype html>
