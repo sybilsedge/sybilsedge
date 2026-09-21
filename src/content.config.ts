@@ -178,7 +178,7 @@ const recipes = defineCollection({
 		video: z.object({
 			name: z.string().optional(),
 			description: z.string().optional(),
-			thumbnailUrl: z.string().optional(),
+			thumbnailUrl: z.string().url().optional(),
 			uploadDate: z.coerce.date().optional(),
 			contentUrl: z.string().url().optional(),
 			embedUrl: z.string().url().optional(),

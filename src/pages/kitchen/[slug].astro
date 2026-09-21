@@ -8,6 +8,7 @@ import { buildGalleryItems, buildStepItems } from '../../utils/gallery.ts';
 import type { BlueprintImage } from '../../components/BlueprintGallery.tsx';
 import type { StepItem } from '../../components/StepGallery.tsx';
 import { getReadingTime } from '../../utils/readingTime.ts';
+import { getCanonicalUrl } from '../../utils/url.ts';
 
 export const prerender = true;
 
@@ -30,7 +31,7 @@ const galleryItems: BlueprintImage[] = await buildGalleryItems(entry.data.images
 const stepItems: StepItem[] = await buildStepItems(entry.data.steps);
 
 const siteUrl = Astro.site ?? 'https://sybilsedge.com';
-const recipeUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const recipeUrl = getCanonicalUrl(Astro.url.pathname, siteUrl);
 
 // Resolve the hero image URL for JSON-LD structured data (optional).
 let heroImageUrl: string | undefined;
@@ -38,9 +39,6 @@ if (entry.data.image) {
 	const optimised = await getImage({ src: entry.data.image.src, width: 1200, format: 'webp' });
 	heroImageUrl = new URL(optimised.src, siteUrl).toString();
 }
-
-// Resolve step image URLs for JSON-LD HowToStep metadata (optional).
-const stepImages = stepItems.map((item) => item.src ? new URL(item.src, siteUrl).toString() : undefined);
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
 	baking:       { label: 'Baking',       color: 'text-amber-400/80 border-amber-400/30 bg-amber-400/5' },
@@ -106,7 +104,6 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 		imageUrl={heroImageUrl}
 		tags={entry.data.tags}
 		recipeUrl={recipeUrl}
-		stepImages={stepImages}
 		nutrition={entry.data.nutrition}
 		video={entry.data.video}
 		rating={entry.data.rating}
@@ -386,10 +383,10 @@ const utensilsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="
 				// Hide the source container after distribution.
 				source.style.display = 'none';
 
-				// Assign id="step-1", id="step-2", etc. to instruction list items for deep-link anchors
+				// Assign id="step-1", id="step-2", etc. to top-level instruction list items for deep-link anchors
 				const ol = paneInstructions.querySelector('ol');
 				if (ol) {
-					ol.querySelectorAll('li').forEach((li, idx) => {
+					ol.querySelectorAll(':scope > li').forEach((li, idx) => {
 						if (!li.id) {
 							li.id = `step-${idx + 1}`;
 						}

@@ -8,6 +8,7 @@ import RelatedPosts from '../../components/RelatedPosts.astro';
 import SeriesBadge from '../../components/SeriesBadge.astro';
 import PostCodeJsonLd from '../../components/PostCodeJsonLd.astro';
 import { getReadingTime } from '../../utils/readingTime.ts';
+import { getCanonicalUrl } from '../../utils/url.ts';
 
 export const prerender = true;
 
@@ -83,7 +84,7 @@ const langLabel: Record<string, string> = {
 };
 const programmingLanguage = primaryLang ? (langLabel[primaryLang] ?? primaryLang.toUpperCase()) : undefined;
 
-const canonicalURL = new URL(`/blog/${entry.id}`, Astro.site ?? 'https://sybilsedge.com').toString();
+const canonicalURL = getCanonicalUrl(`/blog/${entry.id}/`, Astro.site);
 
 const formattedDate = entry.data.date.toLocaleDateString('en-US', {
 	year: 'numeric',

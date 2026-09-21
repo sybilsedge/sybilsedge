@@ -7,6 +7,7 @@ import CharacterCard from '../../../components/writing/CharacterCard.astro';
 import WritingJsonLd from '../../../components/writing/WritingJsonLd.astro';
 import { truncateToSentence } from '../../../utils/truncate.ts';
 import { getReadingTime } from '../../../utils/readingTime.ts';
+import { getCanonicalUrl } from '../../../utils/url.ts';
 
 export const prerender = true;
 
@@ -27,7 +28,7 @@ const relatedCharacters = entry.data.relatedCharacters.length
 	: [];
 
 const novelDescription = truncateToSentence(entry.data.synopsis);
-const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsedge.com').toString();
+const canonicalURL = getCanonicalUrl(Astro.url.pathname, Astro.site);
 
 const readingTime = entry.body?.trim().length ? getReadingTime(entry.body) : null;
 

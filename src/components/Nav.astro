@@ -117,8 +117,8 @@ const isWritingActive = normalizedPath.startsWith('/writing/');
 						// For the Universes link (/writing/), only mark active on exact match
 						// to avoid it highlighting when a sub-section (novels, stories, etc.) is active.
 						const isSubActive = href === '/writing/'
-							? currentPath === '/writing/'
-							: currentPath.startsWith(href);
+							? normalizedPath === '/writing/'
+							: normalizedPath.startsWith(href);
 						return (
 							<li>
 								<a

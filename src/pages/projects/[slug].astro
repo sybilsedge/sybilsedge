@@ -4,6 +4,7 @@ import { getCollection, render } from 'astro:content';
 import ContentHero from '../../components/ContentHero.astro';
 import ProjectJsonLd from '../../components/ProjectJsonLd.astro';
 import { buildGalleryItems, buildStepItems } from '../../utils/gallery.ts';
+import { getCanonicalUrl } from '../../utils/url.ts';
 import type { BlueprintImage } from '../../components/BlueprintGallery.tsx';
 import type { StepItem } from '../../components/StepGallery.tsx';
 
@@ -75,7 +76,7 @@ const projectUrlLabel = entry.data.projectUrlLabel ?? (isYouTube ? 'YouTube Chan
 		slot="head"
 		title={entry.data.title}
 		description={entry.data.description}
-		url={Astro.url.toString()}
+		url={getCanonicalUrl(Astro.url.pathname, Astro.site)}
 		date={entry.data.date}
 		image={heroImageUrl}
 		tags={entry.data.tags}

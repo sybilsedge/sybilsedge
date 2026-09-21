@@ -42,11 +42,10 @@ export function parseToMinutes(durationStr?: string): number | undefined {
 		}
 	}
 
-	// Fallback: If no unit matched, check if it's just a raw number (assumed minutes)
+	// Fallback: If no unit matched, check if it's strictly a raw number of digits (assumed minutes)
 	if (!matched) {
-		const rawNum = parseInt(normalized, 10);
-		if (!isNaN(rawNum)) {
-			return rawNum;
+		if (/^\d+$/.test(normalized)) {
+			return parseInt(normalized, 10);
 		}
 		return undefined;
 	}

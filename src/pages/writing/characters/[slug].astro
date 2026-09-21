@@ -4,6 +4,7 @@ import { getCollection, render } from 'astro:content';
 import CharacterCard from '../../../components/writing/CharacterCard.astro';
 import WritingJsonLd from '../../../components/writing/WritingJsonLd.astro';
 import { truncateToSentence } from '../../../utils/truncate.ts';
+import { getCanonicalUrl } from '../../../utils/url.ts';
 
 export const prerender = true;
 
@@ -35,7 +36,7 @@ const relatedCharacters = entry.data.relatedCharacters.length
 const characterDescription = truncateToSentence(
 	entry.data.description ?? `Character profile: ${entry.data.name} — ${entry.data.role}`,
 );
-const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://sybilsedge.com').toString();
+const canonicalURL = getCanonicalUrl(Astro.url.pathname, Astro.site);
 
 ---
 
