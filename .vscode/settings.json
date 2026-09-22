@@ -1,0 +1,11 @@
+{
+  "prettier.proseWrap": "preserve",
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.formatOnSave": false
+  },
+  "[markdoc]": {
+    "editor.wordWrap": "on",
+    "editor.formatOnSave": false
+  }
+}
