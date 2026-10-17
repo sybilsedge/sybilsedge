@@ -1,4 +1,8 @@
 {
+  "files.associations": {
+    "*.mdoc": "markdown"
+  },
+  "editor.formatOnSave": false,
   "prettier.proseWrap": "preserve",
   "[markdown]": {
     "editor.wordWrap": "on",
