@@ -87,3 +87,17 @@ if (!Array.isArray(config.r2_buckets)) {
 
 writeFileSync(configPath, JSON.stringify(config, null, 2));
 console.log('patch-wrangler: dist/server/wrangler.json patched successfully');
+
+// ── Verify entry.mjs does not contain unreplaced manifest placeholder ───
+const entryPath = resolve('dist/server/entry.mjs');
+try {
+  const entryCode = readFileSync(entryPath, 'utf-8');
+  if (entryCode.includes('@@ASTRO_MANIFEST_REPLACE@@')) {
+    console.error('ERROR: dist/server/entry.mjs contains unreplaced @@ASTRO_MANIFEST_REPLACE@@');
+    process.exit(1);
+  } else {
+    console.log('patch-wrangler: verified dist/server/entry.mjs manifest is serialized');
+  }
+} catch {
+  // If entry.mjs doesn't exist (e.g. non-SSR build), continue
+}

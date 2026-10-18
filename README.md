@@ -55,7 +55,7 @@ Personal site for Sybil Melton — built with [Astro](https://astro.build) and d
 
 ### Prerequisites
 
-- **Node.js**: `>= 22.0.0`
+- **Node.js**: `>= 22.22.0`
 
 ```sh
 # Install dependencies
