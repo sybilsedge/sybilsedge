@@ -2,6 +2,8 @@
 import { defineConfig } from 'astro/config';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { existsSync } from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
 
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
@@ -77,6 +79,44 @@ function durableObjectsPlugin() {
 	};
 }
 
+
+/**
+ * Post-build patch for Astro 7.4.0 bug where `contentAssetsBuildPostHook` inadvertently
+ * overwrites `entry.mjs` with un-injected chunk code, leaving `@@ASTRO_MANIFEST_REPLACE@@`
+ * unreplaced in the output file and crashing Cloudflare deployment validation with
+ * `TypeError: Invalid URL string`.
+ */
+function patchManifestIntegration() {
+	/** @type {any} */
+	let ssrManifest;
+	return {
+		name: 'patch-astro-manifest',
+		hooks: {
+			'astro:build:ssr': ({ manifest }) => {
+				const routes = manifest.routes.map((route) => {
+					if (!route.routeData?.prerender || !route.styles?.length) return route;
+					return { ...route, styles: [] };
+				});
+				ssrManifest = { ...manifest, routes };
+			},
+			'astro:build:done': async ({ dir, logger }) => {
+				if (!ssrManifest) return;
+				const entryUrl = new URL('../server/entry.mjs', dir);
+				const entryPath = fileURLToPath(entryUrl);
+				if (existsSync(entryPath)) {
+					const code = await readFile(entryPath, 'utf-8');
+					const placeholder = /['"`]@@ASTRO_MANIFEST_REPLACE@@['"`]/g;
+					if (placeholder.test(code)) {
+						const patched = code.replace(placeholder, () => JSON.stringify(ssrManifest));
+						await writeFile(entryPath, patched, 'utf-8');
+						logger.info('Injected missing serialized manifest into dist/server/entry.mjs');
+					}
+				}
+			},
+		},
+	};
+}
+
 const isProd = process.env.NODE_ENV === 'production' || process.argv.includes('build');
 
 // https://astro.build/config
@@ -108,7 +148,7 @@ export default defineConfig({
       dedupe: ['react', 'react-dom'],
     },
   },
-  integrations: [react(), sitemap(), markdoc()],
+  integrations: [react(), sitemap(), markdoc(), patchManifestIntegration()],
   // Security headers are served for Cloudflare deployments from public/_headers.
   // Do not configure them here; keep the canonical CSP and related headers in
   // public/_headers (or a global src/middleware.ts if headers must be dynamic).
