@@ -31,7 +31,7 @@
     "@fontsource/inter": "^5.1.1",
     "@fontsource/orbitron": "^5.1.1",
     "@resvg/resvg-js": "^2.6.2",
-    "satori": "^0.33.3",
+    "satori": "^0.33.5",
     "typescript": "^6.0.3"
   }
 }
